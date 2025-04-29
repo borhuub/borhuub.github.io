@@ -3,51 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borhuub | Estudiante de Ciberseguridad</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Borhuub | Ciberseguridad</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Ruta corregida -->
 </head>
 <body>
-    <!-- Panel superior con logo y nombre -->
+    <!-- Panel superior -->
     <header class="header-panel">
         <div class="logo-container">
-            <img src="assets/logo.png" alt="Logo" class="logo">
+            <img src="/assets/logo.png" alt="Logo" class="logo">
             <h1 class="site-title">Borhuub</h1>
         </div>
     </header>
 
-    <main>
-        <!-- Sección Sobre mí -->
-        <section id="about">
-            <h2>Sobre mí</h2>
-            <p>
-                ¡Hola! Soy Borhuub. Me apasiona la ciberseguridad, los CTFs y compartir conocimiento.
-                Actualmente estoy enfocado en aprender sobre pentesting, análisis forense y seguridad ofensiva.
-            </p>
-        </section>
+    <!-- Contenedor principal -->
+    <div class="container">
+        <main>
+            <section id="about">
+                <h2>Sobre mí</h2>
+                <p>
+                    ¡Hola! Soy Borhuub. Especializado en ciberseguridad y pentesting.
+                    Comparto mis conocimientos a través de apuntes y writeups técnicos.
+                </p>
+            </section>
 
-        <!-- Cajas de enlaces -->
-        <div class="link-boxes">
-            <div class="link-box">
-                <a href="apuntes.html">📚 Mis Apuntes</a>
+            <div class="link-boxes">
+                <div class="link-box">
+                    <a href="/apuntes.html">📚 Mis Apuntes</a>
+                </div>
+                <div class="link-box">
+                    <a href="/writeups.html">📝 Mis Writeups</a>
+                </div>
             </div>
-            <div class="link-box">
-                <a href="writeups.html">📝 Mis Writeups</a>
-            </div>
-        </div>
-
-        <!-- Sección de contacto -->
-        <section id="contact">
-            <h2>Contacto</h2>
-            <p>
-                Puedes encontrarme en:
-                <a href="https://github.com/borhuub">GitHub</a> |
-                <a href="https://app.hackthebox.com/users/2095623">HTB Profile</a>
-            </p>
-        </section>
-    </main>
+        </main>
+    </div>
 
     <footer>
-        <p>© 2024 Borhuub. Hecho con ❤️ y GitHub Pages.</p>
+        <p>© 2024 Borhuub. Hack the Planet!</p>
     </footer>
 </body>
 </html>

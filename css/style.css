@@ -1,0 +1,76 @@
+/* ESTILOS GENERALES */
+body {
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #000; /* Fondo negro */
+    color: #fff; /* Texto blanco */
+    display: flex;
+    flex-direction: column;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.container {
+    max-width: 900px;
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* PANEL SUPERIOR */
+.header-panel {
+    background-color: #111;
+    padding: 1rem 0;
+    border-bottom: 1px solid #333;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 900px;
+    width: 90%;
+    margin: 0 auto;
+}
+
+/* CONTENIDO */
+main {
+    background-color: #111;
+    border-radius: 8px;
+    margin: 30px auto;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    flex-grow: 1;
+}
+
+/* CAJAS DE ENLACES */
+.link-boxes {
+    display: flex;
+    gap: 30px;
+    margin: 40px 0;
+    justify-content: center;
+}
+
+.link-box {
+    background-color: #222;
+    border: 1px solid #333;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    width: 200px;
+    transition: all 0.3s ease;
+}
+
+.link-box:hover {
+    background-color: #333;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.link-box a {
+    text-decoration: none;
+    color: #4af; /* Azul claro */
+    font-weight: bold;
+    font-size: 1.1rem;
+}
