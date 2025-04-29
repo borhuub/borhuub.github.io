@@ -32,7 +32,10 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    max-width: 900px;
+    width: 40px;       /* Tamaño personalizado (ajusta según necesites) */
+    height: auto;      /* Mantiene la proporción original */
+    /* Opcional: */
+    max-height: 50px;  /* Límite máximo si usas height: auto */
     margin-left: 20px; /* Ajusta este valor para el espacio desde el borde */
     padding-left: 0;
 }
