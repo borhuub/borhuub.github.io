@@ -32,10 +32,14 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    width: 30px;       /* Tamaño personalizado (ajusta según necesites) */
-    height: 30px;
     margin-left: 20px; /* Ajusta este valor para el espacio desde el borde */
     padding-left: 0;
+}
+
+.logo-container img {
+    width: 40px;
+    height: auto;
+    border-radius: 50%; /* Opcional: si quieres forma circular */
 }
 
 .site-title {
