@@ -87,3 +87,50 @@ main {
     font-weight: bold;
     font-size: 1.1rem;
 }
+
+
+/* Contenedor de perfiles públicos */
+.profiles-container {
+    background-color: #222;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center; /* Centra los elementos */
+}
+
+.profile-card {
+    background-color: #333;
+    border-radius: 8px;
+    padding: 15px;
+    width: 120px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    background-color: #444;
+}
+
+.profile-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid #4af; /* Azul claro */
+}
+
+.profile-link {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.profile-link:hover {
+    color: #4af;
+}
