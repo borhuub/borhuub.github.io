@@ -23,6 +23,9 @@ body {
     background-color: #111;
     padding: 1rem 0;
     border-bottom: 1px solid #333;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
 }
 
 .logo-container {
@@ -30,8 +33,18 @@ body {
     align-items: center;
     gap: 15px;
     max-width: 900px;
-    width: 90%;
-    margin: 0 auto;
+    margin-left: 20px; /* Ajusta este valor para el espacio desde el borde */
+    padding-left: 0;
+}
+
+.site-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: white; /* Asegura que el título sea visible */
+}
+
+.logo-container:hover {
+    filter: brightness(1.2);
 }
 
 /* CONTENIDO */
