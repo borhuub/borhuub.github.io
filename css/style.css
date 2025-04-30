@@ -58,19 +58,9 @@ main {
     border-radius: 8px;
     margin: 30px auto;
     padding: 30px;
-    width: 80%;
+    width: 92%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     flex-grow: 1;
-}
-
-#about {
-    margin-bottom: 3rem; /* Usa unidades relativas (1rem = 16px) */
-}
-
-@media (max-width: 600px) {
-    #about {
-        margin-bottom: 2rem; /* Menos espacio en móviles */
-    }
 }
 
 /* CAJAS DE ENLACES */
