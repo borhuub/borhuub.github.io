@@ -55,7 +55,7 @@ body {
 main {
     background-color: #111;
     border-radius: 8px;
-    margin-left: 30px auto;
+    margin-right: 30px auto;
     padding: 30px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     flex-grow: 1;
@@ -66,7 +66,7 @@ main {
 .link-boxes {
     display: flex;
     flex-direction: column; /* Apila verticalmente */
-    width: 100px; /* Ancho fijo */
+    width: 150px; /* Ancho fijo */
     gap: 15px; /* Espacio entre cajas */
     position: sticky; /* Opcional: fija la posición al hacer scroll */
     top: 20px; /* Ajusta según necesites */
