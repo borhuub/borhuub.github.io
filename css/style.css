@@ -48,7 +48,7 @@ body {
     color: white; /* Asegura que el título sea visible */
 }
 
-.logo-container:hover {
+.logo-container img:hover {
     filter: brightness(1.2);
 }
 
@@ -58,6 +58,7 @@ main {
     border-radius: 8px;
     margin: 30px auto;
     padding: 30px;
+    width: 80%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     flex-grow: 1;
 }
