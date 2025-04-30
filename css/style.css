@@ -13,9 +13,9 @@ body {
 /* CONTENEDOR PRINCIPAL */
 .container {
     display: flex;          /* Activa Flexbox */
-    gap: 30px;             /* Espacio entre la barra lateral y el main */
+    gap: 40px;             /* Espacio entre la barra lateral y el main */
     align-items: flex-start; /* Alinea los items arriba */
-    width: 100%;            /* Ajusta según prefieras */
+    width: 90%;            /* Ajusta según prefieras */
     margin: 0 auto;        /* Centra el contenedor */
     padding: 20px;
 }
@@ -92,10 +92,10 @@ main {
     background-color: #111;
     border-radius: 8px;
     margin-right: 30px auto;
-    padding: 30px;
+    padding: 40px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     flex-grow: 1;
-    width: 90%;
+    width: 85%;
 }
 
 /* Contenedor de perfiles públicos */
