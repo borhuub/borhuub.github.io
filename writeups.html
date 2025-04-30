@@ -3,38 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Writeups | Borhuub</title>
+    <title>Borhuub | Writeups de CTF</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/writeups.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
 </head>
 <body>
+    <!-- Panel superior -->
     <header class="header-panel">
         <div class="logo-container">
-            <a href="/index.html" class="back-mobile">←</a>
-            <img src="assets/logo.png" alt="Logo" class="logo">
+            <a href="/index.html" class="back-button">
+                <img src="/assets/logo.webp" alt="Inicio" class="logo">
+            </a>
             <h1 class="site-title">Borhuub - Writeups</h1>
         </div>
     </header>
 
-    <main>
-        <h1>Mis Writeups</h1>
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Barra lateral con categorías -->
+        <aside class="sidebar">
 
-        <ul class="post-list">
-            <li><a href="/writeups/htb-basico.md">HackTheBox: Máquina Básica</a> - 2024</li>
-            <li><a href="/writeups/ctf-crypto.md">CTF: Reto de Criptografía</a> - 2024</li>
-            <!-- Añade más writeups aquí -->
-        </ul>
+            <div class="category active">
+                <div class="category-title">
+                    <span><i class="fas fa-flag"></i> HackTheBox</span>
+                    <span>▼</span>
+                </div>
+                <div class="category-content">
+                    <a href="#" class="writeup-link" data-content="htb-basico">
+                        <i class="fas fa-chevron-right"></i> Máquina Básica
+                    </a>
+                    <a href="#" class="writeup-link" data-content="htb-media">
+                        <i class="fas fa-chevron-right"></i> Máquina Media
+                    </a>
+                </div>
+            </div>
 
-        <div class="back-link">
-            <a href="index.html">← Volver al inicio</a>
-        </div>
-    </main>
+            <div class="category">
+                <div class="category-title">
+                    <span><i class="fas fa-flag-checkered"></i> TryHackMe</span>
+                    <span>▼</span>
+                </div>
+                <div class="category-content">
+                    <a href="#" class="writeup-link" data-content="thm-basico">
+                        <i class="fas fa-chevron-right"></i> Sala Básica
+                    </a>
+                </div>
+            </div>
+        </aside>
 
-    <footer>
-        <a href="/index.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Volver a Inicio
-        </a>
-        <p>© 2024 Borhuub</p>
-    </footer>
+        <!-- Área de contenido dinámico -->
+        <main class="content-area" id="content-area">
+            <div class="welcome-message">
+                <h2><i class="fas fa-scroll"></i> Writeups</h2>
+                <p>Selecciona un writeup en el menú lateral para ver el análisis detallado.</p>
+            </div>
+
+            <div class="writeup-content" id="writeup-content" style="display: none;">
+                <!-- Contenido dinámico -->
+            </div>
+        </main>
+
+        <!-- Columna derecha con índice -->
+        <aside class="toc-sidebar" id="toc-sidebar">
+            <div class="toc-content" id="toc-content">
+                <!-- Generado dinámicamente -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="/js/writeups.js"></script>
 </body>
 </html>

@@ -1,0 +1,206 @@
+/* Estilos específicos para la página de apuntes */
+.sidebar {
+    width: 250px;
+    background-color: #111;
+    border-radius: 8px;
+    padding: 15px;
+    position: sticky;
+    top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.category {
+    margin-bottom: 10px;
+}
+
+.category-title {
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.category-title:hover {
+    background-color: #2a2a2a;
+}
+
+.category-content {
+    padding-left: 15px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.category.active .category-content {
+    max-height: 500px;
+    padding-top: 10px;
+}
+
+.writeup-link {
+    display: block;
+    padding: 8px 0;
+    color: #4af;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.writeup-link:hover {
+    color: #7cf;
+    transform: translateX(5px);
+}
+
+.content-area {
+    flex-grow: 1;
+    background-color: #111;
+    border-radius: 8px;
+    padding: 30px;
+    margin-left: 30px;
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.writeup-content {
+    display: none;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        position: relative;
+        margin-bottom: 20px;
+        max-height: none;
+    }
+    .content-area {
+        margin-left: 0;
+    }
+}
+
+/* Estilos para el contenido de los apuntes */
+.writeup {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.writeup h2 {
+    color: #4af;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.command-section {
+    margin-bottom: 25px;
+}
+
+.command-section h3 {
+    color: #7cf;
+    margin-bottom: 10px;
+}
+
+.command-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.command-list li {
+    background-color: #222;
+    margin-bottom: 8px;
+    padding: 10px 15px;
+    border-left: 3px solid #4af;
+    font-family: 'Courier New', monospace;
+}
+
+code {
+    background-color: #333;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #f8f8f8;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+}
+
+.error {
+    color: #ff6b6b;
+    padding: 20px;
+    background-color: #2a1a1a;
+    border-radius: 8px;
+}
+
+/* Estilos para la columna de índice */
+.toc-sidebar {
+    display: none;
+}
+/* Solo muestra el TOC cuando tiene contenido */
+.toc-sidebar.has-content {
+    display: block;
+    width: 250px;
+    background-color: #111;
+    border-radius: 8px;
+    padding: 15px;
+    position: sticky;
+    top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    margin-left: 20px;
+}
+.toc-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+.toc-header h3 {
+    margin: 0;
+    color: #4af;
+}
+
+.toc-content {
+    font-size: 0.9rem;
+}
+
+.toc-item {
+    padding: 5px 0;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toc-item:hover {
+    color: #4af;
+}
+
+.toc-h1 {
+    font-weight: bold;
+    padding-left: 0;
+}
+
+.toc-h2 {
+    padding-left: 15px;
+}
+
+.toc-h3 {
+    padding-left: 30px;
+    font-size: 0.8rem;
+}
+
+.toc-item.active {
+    color: #4af;
+    border-left: 2px solid #4af;
+}
