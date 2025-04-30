@@ -1,0 +1,88 @@
+/* Estilos específicos para la página de apuntes */
+.sidebar {
+    width: 250px;
+    background-color: #111;
+    border-radius: 8px;
+    padding: 15px;
+    position: sticky;
+    top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.category {
+    margin-bottom: 10px;
+}
+
+.category-title {
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.category-title:hover {
+    background-color: #2a2a2a;
+}
+
+.category-content {
+    padding-left: 15px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.category.active .category-content {
+    max-height: 500px;
+    padding-top: 10px;
+}
+
+.note-link {
+    display: block;
+    padding: 8px 0;
+    color: #4af;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.note-link:hover {
+    color: #7cf;
+    transform: translateX(5px);
+}
+
+.content-area {
+    flex-grow: 1;
+    background-color: #111;
+    border-radius: 8px;
+    padding: 30px;
+    margin-left: 30px;
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.note-content {
+    display: none;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        position: relative;
+        margin-bottom: 20px;
+        max-height: none;
+    }
+    .content-area {
+        margin-left: 0;
+    }
+}

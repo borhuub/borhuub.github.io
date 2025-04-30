@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borhuub | Apuntes de Ciberseguridad</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/apuntes.css">
+</head>
+<body>
+    <!-- Panel superior -->
+    <header class="header-panel">
+        <div class="logo-container">
+            <img src="/assets/logo.webp" alt="Logo" class="logo">
+            <h1 class="site-title">Borhuub - Apuntes</h1>
+        </div>
+    </header>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Barra lateral con categorías -->
+        <aside class="sidebar">
+            <div class="category active">
+                <div class="category-title">
+                    <span>Linux</span>
+                    <span>▼</span>
+                </div>
+                <div class="category-content">
+                    <a href="#" class="note-link" data-content="linux-basico">Comandos básicos</a>
+                    <a href="#" class="note-link" data-content="linux-red">Redes</a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">
+                    <span>Pentesting Web</span>
+                    <span>▼</span>
+                </div>
+                <div class="category-content">
+                    <a href="#" class="note-link" data-content="web-basico">Fundamentos</a>
+                    <a href="#" class="note-link" data-content="web-sqli">SQL Injection</a>
+                </div>
+            </div>
+
+            <!-- Añadir más categorías según necesites -->
+        </aside>
+
+        <!-- Área de contenido dinámico -->
+        <main class="content-area" id="content-area">
+            <div class="welcome-message">
+                <h2>Bienvenido a mis apuntes</h2>
+                <p>Selecciona un tema en el menú lateral para ver los apuntes.</p>
+            </div>
+
+            <div class="note-content" id="note-content" style="display: none;">
+                <!-- El contenido se cargará aquí dinámicamente -->
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2024 Borhuub. Hack the Planet!</p>
+    </footer>
+
+    <script src="/js/apuntes.js"></script>
+</body>
+</html>

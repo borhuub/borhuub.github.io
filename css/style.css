@@ -15,7 +15,7 @@ body {
     display: flex;          /* Activa Flexbox */
     gap: 40px;             /* Espacio entre la barra lateral y el main */
     align-items: flex-start; /* Alinea los items arriba */
-    width: 90%;            /* Ajusta según prefieras */
+    width: 95%;            /* Ajusta según prefieras */
     margin: 0 auto;        /* Centra el contenedor */
     padding: 20px;
 }
