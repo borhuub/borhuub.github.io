@@ -60,23 +60,26 @@ main {
     padding: 30px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     flex-grow: 1;
+    width: 80%;
 }
 
 /* CAJAS DE ENLACES */
 .link-boxes {
     display: flex;
-    gap: 30px;
-    margin: 40px 0;
-    justify-content: center;
+    flex-direction: column; /* Apila verticalmente */
+    width: 200px; /* Ancho fijo */
+    gap: 15px; /* Espacio entre cajas */
+    position: sticky; /* Opcional: fija la posición al hacer scroll */
+    top: 20px; /* Ajusta según necesites */
+    align-self: flex-start; /* Alinea arriba */
 }
 
 .link-box {
     background-color: #222;
     border: 1px solid #333;
-    padding: 25px;
+    padding: 15px;
     border-radius: 8px;
     text-align: center;
-    width: 200px;
     transition: all 0.3s ease;
 }
 
