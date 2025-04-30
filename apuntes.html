@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/apuntes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Fuente para código -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
 </head>
 <body>
     <!-- Panel superior -->
     <header class="header-panel">
         <div class="logo-container">
-            <a href="/index.html" class="back-mobile">←</a>
-            <img src="/assets/logo.webp" alt="Logo" class="logo">
+            <a href="/index.html" class="back-button">
+                <img src="/assets/logo.webp" alt="Inicio" class="logo">
+            </a>
             <h1 class="site-title">Borhuub - Apuntes</h1>
         </div>
     </header>
@@ -22,51 +25,82 @@
     <div class="container">
         <!-- Barra lateral con categorías -->
         <aside class="sidebar">
+            <!-- Categorías -->
             <div class="category active">
                 <div class="category-title">
-                    <span>Linux</span>
+                    <span><i class="fas fa-terminal"></i> Linux</span>
                     <span>▼</span>
                 </div>
                 <div class="category-content">
-                    <a href="#" class="note-link" data-content="linux-basico">Comandos básicos</a>
-                    <a href="#" class="note-link" data-content="linux-red">Redes</a>
+                    <a href="#" class="note-link" data-content="linux-basico">
+                        <i class="fas fa-chevron-right"></i> Ejemplo
+                    </a>
+                    <a href="#" class="note-link" data-content="linux-red">
+                        <i class="fas fa-chevron-right"></i> Redes
+                    </a>
                 </div>
             </div>
 
             <div class="category">
                 <div class="category-title">
-                    <span>Pentesting Web</span>
+                    <span><i class="fas fa-code"></i> Pentesting Web</span>
                     <span>▼</span>
                 </div>
                 <div class="category-content">
-                    <a href="#" class="note-link" data-content="web-basico">Fundamentos</a>
-                    <a href="#" class="note-link" data-content="web-sqli">SQL Injection</a>
+                    <a href="#" class="note-link" data-content="web-basico">
+                        <i class="fas fa-chevron-right"></i> Fundamentos
+                    </a>
+                    <a href="#" class="note-link" data-content="web-sqli">
+                        <i class="fas fa-chevron-right"></i> SQL Injection
+                    </a>
                 </div>
             </div>
-
-            <!-- Añadir más categorías según necesites -->
         </aside>
 
         <!-- Área de contenido dinámico -->
         <main class="content-area" id="content-area">
             <div class="welcome-message">
-                <h2>Bienvenido a mis apuntes</h2>
-                <p>Selecciona un tema en el menú lateral para ver los apuntes.</p>
+                <h2><i class="fas fa-book-open"></i> Bienvenido a mis apuntes</h2>
+                <p>Selecciona un tema en el menú lateral o usa el buscador para encontrar contenido específico.</p>
+                <div class="quick-links">
+                    <h3>Apuntes populares:</h3>
+                    <a href="#" class="quick-link" data-content="linux-basico">Comandos Linux</a>
+                    <a href="#" class="quick-link" data-content="web-sqli">SQL Injection</a>
+                </div>
             </div>
 
             <div class="note-content" id="note-content" style="display: none;">
                 <!-- El contenido se cargará aquí dinámicamente -->
             </div>
         </main>
+            <!-- Dentro de <div class="container">, después de <main> -->
+        <aside class="toc-sidebar" id="toc-sidebar">
+            <div class="toc-content" id="toc-content">
+                <!-- Se generará dinámicamente con JavaScript -->
+            </div>
+        </aside>
     </div>
 
-    <footer>
-        <a href="/index.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Volver a Inicio
-        </a>
-        <p>© 2024 Borhuub. Hack the Planet!</p>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Borhuub. Hack the Planet!</p>
+            <div class="footer-links">
+                <a href="/index.html"><i class="fas fa-home"></i> Inicio</a>
+                <a href="#"><i class="fas fa-question-circle"></i> Ayuda</a>
+            </div>
+        </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script src="/js/apuntes.js"></script>
+    <script>
+        // Inicializar resaltado de sintaxis
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((el) => {
+                hljs.highlightElement(el);
+            });
+        });
+    </script>
 </body>
 </html>
