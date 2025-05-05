@@ -9,6 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 parent.classList.contains('active') ? '▼' : '▶';
         });
     });
+    // Manejo de subcategorias
+    document.querySelectorAll('.difficulty-title').forEach(title => {
+        title.addEventListener('click', () => {
+            const dropdown = title.parentElement;
+            dropdown.classList.toggle('active');
+        });
+    });
 
     // Carga de writeups
     const writeupLinks = document.querySelectorAll('.writeup-link');

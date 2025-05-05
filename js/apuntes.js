@@ -8,7 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
             this.querySelector('span:last-child').textContent =
                 parent.classList.contains('active') ? '▼' : '▶';
         });
+    });document.querySelectorAll('.difficulty-title').forEach(title => {
+        title.addEventListener('click', () => {
+            const dropdown = title.parentElement;
+            dropdown.classList.toggle('active');
+        });
     });
+    // Manejar clic en subcategorias
+
 
     // Manejar clic en enlaces de apuntes
     document.querySelectorAll('.note-link, .quick-link').forEach(link => {
@@ -75,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         tocItem.dataset.target = heading.id;
 
                         tocItem.addEventListener('click', (e) => {
-                            e.preventDefault(); 
+                            e.preventDefault();
 
                             document.querySelectorAll('.toc-item').forEach(item => {
                                 item.classList.remove('active');

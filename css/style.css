@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background-color: #000; /* Fondo negro */
+    background-color: #111;
     color: #fff; /* Texto blanco */
     display: flex;
     flex-direction: column;
@@ -89,13 +89,40 @@ body {
 
 /* CONTENIDO */
 main {
-    background-color: #111;
+    background-color: #1a1a1a;
     border-radius: 8px;
     margin-right: 30px auto;
     padding: 40px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     flex-grow: 1;
     width: 90%;
+    max-width: 70%;
+}
+
+.link {
+    border: 20px solid #e1e4e8;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 6px;
+}
+
+.hint-red {
+    background-color: #4e0505; /* Fondo rojo claro */
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px; /* Bordes redondeados solo a la derecha */
+    color: #ffebee; /* Color de texto rojo oscuro */
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Sutil sombra */
+}
+.hint-grey {
+    background-color: #303030; /* Fondo rojo claro */
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px; /* Bordes redondeados solo a la derecha */
+    color: #ffebee; /* Color de texto rojo oscuro */
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Sutil sombra */
 }
 
 #about {

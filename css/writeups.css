@@ -10,6 +10,33 @@
     overflow-y: auto;
 }
 
+.difficulty-dropdown {
+    margin: 5px 0;
+    border-left: 3px solid #3a3a3a;
+    padding-left: 10px;
+}
+
+.difficulty-title {
+    cursor: pointer;
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.difficulty-content {
+    display: none;
+    padding-left: 15px;
+}
+
+.difficulty-dropdown.active .difficulty-content {
+    display: block;
+}
+
+.difficulty-dropdown.active .difficulty-title span:first-child i {
+    transform: rotate(90deg);
+}
+
 .category {
     margin-bottom: 10px;
 }
@@ -56,7 +83,7 @@
 
 .content-area {
     flex-grow: 1;
-    background-color: #111;
+    background-color: #1a1a1a;
     border-radius: 8px;
     padding: 30px;
     margin-left: 30px;
@@ -93,6 +120,7 @@
     border-radius: 8px;
     padding: 25px;
     margin-bottom: 30px;
+    max-width: 85%;
 }
 
 .writeup h2 {
@@ -144,10 +172,6 @@ code {
     border-radius: 8px;
 }
 
-/* Estilos para la columna de índice */
-.toc-sidebar {
-    display: none;
-}
 /* Solo muestra el TOC cuando tiene contenido */
 .toc-sidebar.has-content {
     display: block;
@@ -203,4 +227,14 @@ code {
 .toc-item.active {
     color: #4af;
     border-left: 2px solid #4af;
+}
+
+/* Imagenes writups */
+.profile-img-writeups {
+    width: 70%;
+    height: 60%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    align-content: center;
+    border: 2px solid #4af; /* Azul claro */
 }
