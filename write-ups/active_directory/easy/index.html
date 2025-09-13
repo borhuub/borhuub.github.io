@@ -28,6 +28,7 @@
 <link rel="mask-icon" href="https://borhuub.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://borhuub.github.io/write-ups/active_directory/easy/index.xml">
 <link rel="alternate" hreflang="en" href="https://borhuub.github.io/write-ups/active_directory/easy/">
 <noscript>
     <style>
@@ -70,21 +71,10 @@
   <meta property="og:title" content="Cybersecurity Borhub Home">
   <meta property="og:description" content="Writeups - Nivel Easy Fluffy ">
   <meta property="og:locale" content="en-us">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="write-ups">
+  <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="">
-<meta name="twitter:description" content="Writeups - Nivel Easy
-
-
-    
-    
-      
-          
-        Fluffy
-      
-    
-">
+<meta name="twitter:description" content="">
 
 
 <script type="application/ld+json">
@@ -113,38 +103,9 @@
   ]
 }
 </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "",
-  "name": "",
-  "description": "Writeups - Nivel Easy Fluffy ",
-  "keywords": [
-    
-  ],
-  "articleBody": "Writeups - Nivel Easy Fluffy ",
-  "wordCount" : "5",
-  "inLanguage": "en",
-  "datePublished": "0001-01-01T00:00:00Z",
-  "dateModified": "0001-01-01T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://borhuub.github.io/write-ups/active_directory/easy/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Cybersecurity Borhub Home",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://borhuub.github.io/favicon.ico"
-    }
-  }
-}
-</script>
 </head>
 
-<body class="" id="top">
+<body class="list" id="top">
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
         document.body.classList.add('dark');
@@ -197,19 +158,8 @@
         </ul>
     </nav>
 </header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      
-    </h1>
-    <div class="post-meta">
-
-</div>
-  </header> 
-  <div class="post-content"><h1 style="text-align:center;">Writeups - Nivel Easy</h1>
+<main class="main"> 
+<div class="post-content"><h1 style="text-align:center;">Writeups - Nivel Easy</h1>
 
 <div class="writeups-grid">
     <!-- Fluffy Machine -->
@@ -222,12 +172,21 @@
 </div>
 
 
-  </div>
+</div>
 
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Fluffy
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>
+Reconocimiento Escaneo de puertos abiertos:
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.69 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-05-25 20:58 CEST Initiating SYN Stealth Scan at 20:58 Scanning 10.10.11.69 [65535 ports] Discovered open port 53/tcp on 10.10.11.69 Discovered open port 139/tcp on 10.10.11.69 Discovered open port 445/tcp on 10.10.11.69 Discovered open port 49678/tcp on 10.10.11.69 Discovered open port 49776/tcp on 10.10.11.69 Discovered open port 49677/tcp on 10.10.11.69 Discovered open port 49680/tcp on 10.10.11.69 Discovered open port 464/tcp on 10.10.11.69 Discovered open port 49667/tcp on 10.10.11.69 Discovered open port 593/tcp on 10.10.11.69 Discovered open port 389/tcp on 10.10.11.69 Discovered open port 3268/tcp on 10.10.11.69 Discovered open port 5985/tcp on 10.10.11.69 Discovered open port 88/tcp on 10.10.11.69 Discovered open port 3269/tcp on 10.10.11.69 Discovered open port 636/tcp on 10.10.11.69 Discovered open port 9389/tcp on 10.10.11.69 Discovered open port 49704/tcp on 10.10.11.69 Discovered open port 49698/tcp on 10.10.11.69 Completed SYN Stealth Scan at 20:59, 26.35s elapsed (65535 total ports) Nmap scan report for 10.10.11.69 Host is up, received user-set (0.035s latency). Scanned at 2025-05-25 20:58:37 CEST for 26s Not shown: 65516 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49677/tcp open unknown syn-ack ttl 127 49678/tcp open unknown syn-ack ttl 127 49680/tcp open unknown syn-ack ttl 127 49698/tcp open unknown syn-ack ttl 127 49704/tcp open unknown syn-ack ttl 127 49776/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.40 seconds Raw packets sent: 131065 (5.767MB) | Rcvd: 33 (1.452KB) Escaneo de servicios:
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-09-11 12:00:00 +0000 UTC'>September 11, 2025</span></footer>
+  <a class="entry-link" aria-label="post link to Fluffy" href="https://borhuub.github.io/write-ups/active_directory/easy/fluffy/"></a>
 </article>
     </main>
     
