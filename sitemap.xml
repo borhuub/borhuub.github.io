@@ -2,6 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://borhuub.github.io/write-ups/active_directory/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/</loc>
   </url><url>
     <loc>https://borhuub.github.io/easy-medium-hard/</loc>
@@ -13,5 +15,7 @@
     <loc>https://borhuub.github.io/search/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/write-ups/</loc>
   </url>
 </urlset>
