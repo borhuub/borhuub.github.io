@@ -12,21 +12,12 @@
       <link>https://borhuub.github.io/write-ups/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/write-ups/</guid>
-      <description>&lt;!-- &lt;h1 style=&#34;text-align:center;&#34;&gt;Writeups&lt;/h1&gt;--&gt;
-
-&lt;div style=&#34;display:flexbox; justify-content:center; gap:50px; margin-top:50px;&#34;&gt;
-
-  &lt;!-- Linux --&gt;
-  &lt;a href=&#34;linux&#34; style=&#34;text-align:center; text-decoration:none;&#34;&gt;
-    &lt;img src=&#34;https://borhuub.github.io/static/general/Index_Foto_2.png&#34; alt=&#34;Linux Logo&#34; style=&#34;max-width:90px; max-height:120px; object-fit:contain; display:block; margin:0 auto; cursor:pointer; margin-left: 25%;&#34;&gt;
-  &lt;/a&gt;
-
-  &lt;!-- ActiveDirectory --&gt;
-  &lt;a href=&#34;active_directory&#34; style=&#34;text-align:center; text-decoration:none;&#34;&gt;
-    &lt;img src=&#34;https://borhuub.github.io/static/general/Index_Foto_1.png&#34; alt=&#34;Active Directory Logo&#34; style=&#34;max-width:300px; max-height:200px; object-fit:contain; display:block; margin:0 auto; cursor:pointer; margin-left: 50%; margin-top: -15%;&#34;&gt;
-  &lt;/a&gt;
-
-&lt;/div&gt;</description>
+      <description>&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;</description>
     </item>
   </channel>
 </rss>
