@@ -6,8 +6,15 @@
     <description>Recent content in Writeups Linux - Nivel Easy on Cybersecurity Borhub Home</description>
     <generator>Hugo -- 0.150.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 11 Sep 2025 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 22 Sep 2025 12:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/write-ups/linux/easy/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Expressway</title>
+      <link>https://borhuub.github.io/write-ups/linux/easy/expressway/</link>
+      <pubDate>Mon, 22 Sep 2025 12:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/linux/easy/expressway/</guid>
+      <description>Comienzo de la máquina Expressway... El write-up será publicado cuando la máquina sea liberada por HTB.</description>
+    </item>
     <item>
       <title>LinkVortex</title>
       <link>https://borhuub.github.io/write-ups/linux/easy/linkvortex/</link>
