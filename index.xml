@@ -4,10 +4,17 @@
     <title>Cybersecurity Borhub Home</title>
     <link>https://borhuub.github.io/</link>
     <description>Recent content on Cybersecurity Borhub Home</description>
-    <generator>Hugo -- 0.150.0</generator>
+    <generator>Hugo -- 0.151.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 22 Sep 2025 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 14 Oct 2025 12:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Soulmate</title>
+      <link>https://borhuub.github.io/write-ups/linux/easy/soulmate/</link>
+      <pubDate>Tue, 14 Oct 2025 12:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/linux/easy/soulmate/</guid>
+      <description>Comienzo de la máquina Soulmate... El write-up será publicado cuando la máquina sea liberada por HTB.</description>
+    </item>
     <item>
       <title>Expressway</title>
       <link>https://borhuub.github.io/write-ups/linux/easy/expressway/</link>
