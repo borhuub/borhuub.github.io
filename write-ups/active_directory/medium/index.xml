@@ -6,14 +6,28 @@
     <description>Recent content in Writeups AD - Nivel Medium on Cybersecurity Borhub Home</description>
     <generator>Hugo -- 0.151.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 14 Sep 2025 01:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 14 Oct 2025 12:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/write-ups/active_directory/medium/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Signed</title>
+      <link>https://borhuub.github.io/write-ups/active_directory/medium/signed/</link>
+      <pubDate>Tue, 14 Oct 2025 12:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/active_directory/medium/signed/</guid>
+      <description>Comienzo de la máquina Signed... El write-up será publicado cuando la máquina sea liberada por HTB.</description>
+    </item>
     <item>
       <title>Administrator</title>
       <link>https://borhuub.github.io/write-ups/active_directory/medium/administrator/</link>
       <pubDate>Sun, 14 Sep 2025 01:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/write-ups/active_directory/medium/administrator/</guid>
       <description>Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.</description>
+    </item>
+    <item>
+      <title>Puppy</title>
+      <link>https://borhuub.github.io/write-ups/active_directory/medium/puppy/</link>
+      <pubDate>Sun, 14 Sep 2025 01:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/active_directory/medium/puppy/</guid>
+      <description>Writeups sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.</description>
     </item>
   </channel>
 </rss>

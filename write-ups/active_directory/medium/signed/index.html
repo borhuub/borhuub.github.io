@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Signed | Cybersecurity Borhub Home</title>
+<meta name="keywords" content="">
+<meta name="description" content="Comienzo de la máquina Signed... El write-up será publicado cuando la máquina sea liberada por HTB.">
+<meta name="author" content="">
+<link rel="canonical" href="https://borhuub.github.io/write-ups/active_directory/medium/signed/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.1c229d0d3c692fda11302a9cb264aec00a82bd6693f8cca707bf7008f4092c9d.css" integrity="sha256-HCKdDTxpL9oRMCqcsmSuwAqCvWaT&#43;MynB79wCPQJLJ0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://borhuub.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/write-ups/active_directory/medium/signed/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://borhuub.github.io/write-ups/active_directory/medium/signed/">
+  <meta property="og:site_name" content="Cybersecurity Borhub Home">
+  <meta property="og:title" content="Signed">
+  <meta property="og:description" content="Comienzo de la máquina Signed... El write-up será publicado cuando la máquina sea liberada por HTB.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="write-ups">
+    <meta property="article:published_time" content="2025-10-14T12:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-14T12:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Signed">
+<meta name="twitter:description" content="Comienzo de la máquina Signed... El write-up será publicado cuando la máquina sea liberada por HTB.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/write-ups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Writeups AD - Dificultad",
+      "item": "https://borhuub.github.io/write-ups/active_directory/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Writeups AD - Nivel Medium",
+      "item": "https://borhuub.github.io/write-ups/active_directory/medium/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Signed",
+      "item": "https://borhuub.github.io/write-ups/active_directory/medium/signed/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Signed",
+  "name": "Signed",
+  "description": "Comienzo de la máquina Signed... El write-up será publicado cuando la máquina sea liberada por HTB.",
+  "keywords": [
+    
+  ],
+  "articleBody": "As is common in real life Windows penetration tests, you will start the Signed box with credentials for the following account which can be used to access the MSSQL service: scott / Sm230#C5NatH\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.249.142 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.98 ( https://nmap.org ) at 2025-10-11 21:19 +0200 Initiating SYN Stealth Scan at 21:19 Scanning 10.129.249.142 [65535 ports] Discovered open port 1433/tcp on 10.129.249.142 Completed SYN Stealth Scan at 21:19, 26.63s elapsed (65535 total ports) Nmap scan report for 10.129.249.142 Host is up, received user-set (0.053s latency). Scanned at 2025-10-11 21:19:10 CEST for 27s Not shown: 65534 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 1433/tcp open ms-sql-s syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.70 seconds Raw packets sent: 131070 (5.767MB) | Rcvd: 2 (88B) ❯ sudo nmap -sCV -p 1433 10.129.249.142 -oN targeted Starting Nmap 7.98 ( https://nmap.org ) at 2025-10-11 21:20 +0200 Nmap scan report for 10.129.249.142 Host is up (0.17s latency). PORT STATE SERVICE VERSION 1433/tcp open ms-sql-s Microsoft SQL Server 2022 16.00.1000.00; RTM | ms-sql-info: | 10.129.249.142:1433: | Version: | name: Microsoft SQL Server 2022 RTM | number: 16.00.1000.00 | Product: Microsoft SQL Server 2022 | Service pack level: RTM | Post-SP patches applied: false |_ TCP port: 1433 | ms-sql-ntlm-info: | 10.129.249.142:1433: | Target_Name: SIGNED | NetBIOS_Domain_Name: SIGNED | NetBIOS_Computer_Name: DC01 | DNS_Domain_Name: SIGNED.HTB | DNS_Computer_Name: DC01.SIGNED.HTB | DNS_Tree_Name: SIGNED.HTB |_ Product_Version: 10.0.17763 |_ssl-date: 2025-10-11T19:20:17+00:00; -40s from scanner time. | ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback | Not valid before: 2025-10-11T19:15:43 |_Not valid after: 2055-10-11T19:15:43 Host script results: |_clock-skew: mean: -40s, deviation: 0s, median: -40s Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . ",
+  "wordCount" : "321",
+  "inLanguage": "en",
+  "datePublished": "2025-10-14T12:00:00Z",
+  "dateModified": "2025-10-14T12:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/write-ups/active_directory/medium/signed/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cybersecurity Borhub Home",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Cybersecurity Borhub Home (Alt + H)">Cybersecurity Borhub Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/" title="Inicio">
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/write-ups/" title="Write-Ups">
+                    <span>Write-Ups</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Signed
+    </h1>
+    <div class="post-description">
+      Comienzo de la máquina Signed... El write-up será publicado cuando la máquina sea liberada por HTB.
+    </div>
+    <div class="post-meta"><span title='2025-10-14 12:00:00 +0000 UTC'>October 14, 2025</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>As is common in real life Windows penetration tests, you will start the Signed box with credentials for the following account which can be used to access the MSSQL service: scott / Sm230#C5NatH</p>
+<p><img alt="signed_machine" loading="lazy" src="/write-ups/active_directory/medium/signed/fotos/signed_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ sudo nmap -p- --open -sS --min-rate <span style="color:#ae81ff">5000</span> -vvv -n -Pn 10.129.249.142 -oG ports
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>sudo<span style="color:#f92672">]</span> contraseña para borhub:
+</span></span><span style="display:flex;"><span>Host discovery disabled <span style="color:#f92672">(</span>-Pn<span style="color:#f92672">)</span>. All addresses will be marked <span style="color:#e6db74">&#39;up&#39;</span> and scan times may be slower.
+</span></span><span style="display:flex;"><span>Starting Nmap 7.98 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2025-10-11 21:19 +0200
+</span></span><span style="display:flex;"><span>Initiating SYN Stealth Scan at 21:19
+</span></span><span style="display:flex;"><span>Scanning 10.129.249.142 <span style="color:#f92672">[</span><span style="color:#ae81ff">65535</span> ports<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Discovered open port 1433/tcp on 10.129.249.142
+</span></span><span style="display:flex;"><span>Completed SYN Stealth Scan at 21:19, 26.63s elapsed <span style="color:#f92672">(</span><span style="color:#ae81ff">65535</span> total ports<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.129.249.142
+</span></span><span style="display:flex;"><span>Host is up, received user-set <span style="color:#f92672">(</span>0.053s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Scanned at 2025-10-11 21:19:10 CEST <span style="color:#66d9ef">for</span> 27s
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">65534</span> filtered tcp ports <span style="color:#f92672">(</span>no-response<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span style="display:flex;"><span>PORT     STATE SERVICE  REASON
+</span></span><span style="display:flex;"><span>1433/tcp open  ms-sql-s syn-ack ttl <span style="color:#ae81ff">127</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Read data files from: /usr/bin/../share/nmap
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 26.70 seconds
+</span></span><span style="display:flex;"><span>           Raw packets sent: <span style="color:#ae81ff">131070</span> <span style="color:#f92672">(</span>5.767MB<span style="color:#f92672">)</span> | Rcvd: <span style="color:#ae81ff">2</span> <span style="color:#f92672">(</span>88B<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>❯ sudo nmap -sCV -p <span style="color:#ae81ff">1433</span> 10.129.249.142 -oN targeted
+</span></span><span style="display:flex;"><span>Starting Nmap 7.98 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2025-10-11 21:20 +0200
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.129.249.142
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.17s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PORT     STATE SERVICE  VERSION
+</span></span><span style="display:flex;"><span>1433/tcp open  ms-sql-s Microsoft SQL Server <span style="color:#ae81ff">2022</span> 16.00.1000.00; RTM
+</span></span><span style="display:flex;"><span>| ms-sql-info:
+</span></span><span style="display:flex;"><span>|   10.129.249.142:1433:
+</span></span><span style="display:flex;"><span>|     Version:
+</span></span><span style="display:flex;"><span>|       name: Microsoft SQL Server <span style="color:#ae81ff">2022</span> RTM
+</span></span><span style="display:flex;"><span>|       number: 16.00.1000.00
+</span></span><span style="display:flex;"><span>|       Product: Microsoft SQL Server <span style="color:#ae81ff">2022</span>
+</span></span><span style="display:flex;"><span>|       Service pack level: RTM
+</span></span><span style="display:flex;"><span>|       Post-SP patches applied: false
+</span></span><span style="display:flex;"><span>|_    TCP port: <span style="color:#ae81ff">1433</span>
+</span></span><span style="display:flex;"><span>| ms-sql-ntlm-info:
+</span></span><span style="display:flex;"><span>|   10.129.249.142:1433:
+</span></span><span style="display:flex;"><span>|     Target_Name: SIGNED
+</span></span><span style="display:flex;"><span>|     NetBIOS_Domain_Name: SIGNED
+</span></span><span style="display:flex;"><span>|     NetBIOS_Computer_Name: DC01
+</span></span><span style="display:flex;"><span>|     DNS_Domain_Name: SIGNED.HTB
+</span></span><span style="display:flex;"><span>|     DNS_Computer_Name: DC01.SIGNED.HTB
+</span></span><span style="display:flex;"><span>|     DNS_Tree_Name: SIGNED.HTB
+</span></span><span style="display:flex;"><span>|_    Product_Version: 10.0.17763
+</span></span><span style="display:flex;"><span>|_ssl-date: 2025-10-11T19:20:17+00:00; -40s from scanner time.
+</span></span><span style="display:flex;"><span>| ssl-cert: Subject: commonName<span style="color:#f92672">=</span>SSL_Self_Signed_Fallback
+</span></span><span style="display:flex;"><span>| Not valid before: 2025-10-11T19:15:43
+</span></span><span style="display:flex;"><span>|_Not valid after:  2055-10-11T19:15:43
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Host script results:
+</span></span><span style="display:flex;"><span>|_clock-skew: mean: -40s, deviation: 0s, median: -40s
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Cybersecurity Borhub Home</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

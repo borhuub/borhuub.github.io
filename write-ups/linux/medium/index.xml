@@ -6,7 +6,14 @@
     <description>Recent content in Writeups Linux - Nivel Medium on Cybersecurity Borhub Home</description>
     <generator>Hugo -- 0.151.0</generator>
     <language>en-us</language>
-    <lastBuildDate></lastBuildDate>
+    <lastBuildDate>Tue, 07 Oct 2025 01:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/write-ups/linux/medium/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Imagery</title>
+      <link>https://borhuub.github.io/write-ups/linux/medium/imagery/</link>
+      <pubDate>Tue, 07 Oct 2025 01:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/linux/medium/imagery/</guid>
+      <description>Comienzo de la maquina Imagery... El write-up será publicado cuando la máquina sea liberada por HTB.</description>
+    </item>
   </channel>
 </rss>
