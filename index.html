@@ -135,19 +135,44 @@
     </nav>
 </header>
 <main class="main">
-<h1 style="text-align:center;margin-top: 100px;color: rgb(163, 22, 22);"> Borhuub's Space </h1>
 
-<div style="margin: 50px; text-align: justify;">
-Esta página ha sido creada con la finalidad de publicar los write-ups de las máquinas que voy realizando en HackTheBox. Además de para ayudarme a aprender y compartir mis experiencias con la comunidad.
+<h1 id="typing" style="text-align:center; margin-top: 100px; color: rgb(163, 22, 22);"></h1>
+
+<script>
+  const text = "Borhuub's Space";
+  let i = 0;
+  function typeWriter() {
+    if (i < text.length) {
+      document.getElementById("typing").innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typeWriter, 100);
+    }
+  }
+  typeWriter();
+</script>
+
+<div style="max-width: 700px; margin: 115px auto; padding: 30px; border-left: 3px solid rgb(163,22,22); background-color: rgba(0,0,0,0.6); border-radius: 8px;">
+  <h2 style="color: rgb(163,22,22); text-align:center; margin-bottom: 15px;">~/Sobre mi</h2>
+  <p style="color: #ddd; font-family: monospace; text-align: justify; line-height: 1.6;">
+    Hola, soy <strong>Borja</strong> — un entusiasta de la ciberseguridad y el hacking ético.
+    En este espacio comparto mis write-ups de <strong>HackTheBox</strong> y aprendizajes del camino.
+  </p>
+  <p style="color: #aaa; font-family: monospace; text-align: center; margin-top: 10px;">
+    <i>“No se nada”</i>
+  </p>
 </div>
 
-<div style="display:block;justify-content:center; text-align: center; margin: 50px; margin-top: 90%;">
+<div style="display:block;justify-content:center; text-align: center; margin: 50px; margin-top: 25%;">
     <a href="https://app.hackthebox.com/users/2095623" style="display:inline-block; text-decoration:none; margin: 10px;">
         <img src="/static/general/hack-the-box.png" alt="HackTheBox" style="max-width:80px; max-height:150px; object-fit:contain; margin:0 auto; cursor:pointer;">
     </a>
 
     <a href="https://github.com/borhuub" style="display:inline-block; text-decoration:none; margin: 10px;">
         <img src="/static/general/github.png" alt="Github" style="max-width:80px; max-height:150px; object-fit:contain; margin:0 auto; cursor:pointer;">
+    </a>
+
+    <a href="https://discord.com/users/530881162986389537" style="display:inline-block; text-decoration:none; margin: 5px;">
+        <img src="/static/general/discord.png" alt="Discord" style="max-width:85px; max-height:150px; object-fit:contain; margin:0 auto; cursor:pointer;">
     </a>
 </div>
 

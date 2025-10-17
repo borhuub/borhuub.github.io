@@ -6,8 +6,15 @@
     <description>Recent content on Cybersecurity Borhub Home</description>
     <generator>Hugo -- 0.151.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 14 Oct 2025 12:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 17 Oct 2025 01:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tombwatcher</title>
+      <link>https://borhuub.github.io/write-ups/active_directory/medium/tombwatcher/</link>
+      <pubDate>Fri, 17 Oct 2025 01:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/active_directory/medium/tombwatcher/</guid>
+      <description>Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.</description>
+    </item>
     <item>
       <title>Signed</title>
       <link>https://borhuub.github.io/write-ups/active_directory/medium/signed/</link>
