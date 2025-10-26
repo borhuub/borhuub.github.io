@@ -6,8 +6,15 @@
     <description>Recent content on Cybersecurity Borhub Home</description>
     <generator>Hugo -- 0.152.2</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Oct 2025 01:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 26 Oct 2025 12:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Conversor</title>
+      <link>https://borhuub.github.io/write-ups/linux/easy/conversor/</link>
+      <pubDate>Sun, 26 Oct 2025 12:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/linux/easy/conversor/</guid>
+      <description>Comienzo de la máquina Expressway... El write-up será publicado cuando la máquina sea liberada por HTB.</description>
+    </item>
     <item>
       <title>Tombwatcher</title>
       <link>https://borhuub.github.io/write-ups/active_directory/medium/tombwatcher/</link>
