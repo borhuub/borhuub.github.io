@@ -6,8 +6,15 @@
     <description>Recent content in Writeups AD - Nivel Medium on Cybersecurity Borhub Home</description>
     <generator>Hugo -- 0.152.2</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 17 Oct 2025 01:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Nov 2025 01:00:00 +0000</lastBuildDate>
     <atom:link href="https://borhuub.github.io/write-ups/active_directory/medium/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Voleur</title>
+      <link>https://borhuub.github.io/write-ups/active_directory/medium/voleur/</link>
+      <pubDate>Sat, 01 Nov 2025 01:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/write-ups/active_directory/medium/voleur/</guid>
+      <description>Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalado privilegios gracias a un WSL parcialmente configurado.</description>
+    </item>
     <item>
       <title>Tombwatcher</title>
       <link>https://borhuub.github.io/write-ups/active_directory/medium/tombwatcher/</link>
