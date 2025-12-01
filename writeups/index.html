@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Writeups | My New Hugo Site</title>
+<meta name="keywords" content="">
+<meta name="description" content="Writeups - My New Hugo Site">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.343cc480b9ffc8f04ccbe5e968ad674880cab773ec19905e93033065c1e7a804.css" integrity="sha256-NDzEgLn/yPBMy&#43;XpaK1nSIDKt3PsGZBekwMwZcHnqAQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://borhuub.github.io/writeups/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/">
+  <meta property="og:site_name" content="My New Hugo Site">
+  <meta property="og:title" content="Writeups">
+  <meta property="og:description" content="ExampleSite description">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="website">
+      <meta property="og:image" content="https://borhuub.github.io/milogo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/milogo.png">
+<meta name="twitter:title" content="Writeups">
+<meta name="twitter:description" content="ExampleSite description">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }
+  ]
+}
+</script>
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span class="active">Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<header class="page-header"><div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a></div>
+  <h1>
+    Writeups
+    <a href="/writeups/index.xml" title="RSS" aria-label="RSS">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" height="23">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    </a>
+  </h1>
+</header>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Administrator
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>
+As is common in real life Windows pentests, you will start the Administrator box with credentials for the following account: Username: Olivia Password: ichliebedich
+Reconocimiento Escaneo de puertos abiertos:
+❯ sudo nmap -p- -sS --min-rate 5000 -vvv -n -Pn 10.10.11.42 -oG ports Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-06-30 11:49 &#43;0200 Initiating SYN Stealth Scan at 11:49 Scanning 10.10.11.42 [65535 ports] Discovered open port 139/tcp on 10.10.11.42 Increasing send delay for 10.10.11.42 from 0 to 5 due to 158 out of 526 dropped probes since last increase. Discovered open port 21/tcp on 10.10.11.42 Discovered open port 445/tcp on 10.10.11.42 Discovered open port 53/tcp on 10.10.11.42 Discovered open port 135/tcp on 10.10.11.42 Discovered open port 49667/tcp on 10.10.11.42 Discovered open port 50958/tcp on 10.10.11.42 Discovered open port 3269/tcp on 10.10.11.42 Discovered open port 49665/tcp on 10.10.11.42 Discovered open port 9389/tcp on 10.10.11.42 Discovered open port 5985/tcp on 10.10.11.42 Discovered open port 636/tcp on 10.10.11.42 Discovered open port 61600/tcp on 10.10.11.42 Discovered open port 50963/tcp on 10.10.11.42 Discovered open port 50985/tcp on 10.10.11.42 Discovered open port 49664/tcp on 10.10.11.42 Increasing send delay for 10.10.11.42 from 5 to 10 due to max_successful_tryno increase to 4 Increasing send delay for 10.10.11.42 from 10 to 20 due to max_successful_tryno increase to 5 Increasing send delay for 10.10.11.42 from 20 to 40 due to 87 out of 289 dropped probes since last increase. Increasing send delay for 10.10.11.42 from 40 to 80 due to max_successful_tryno increase to 6 Discovered open port 49668/tcp on 10.10.11.42 Discovered open port 389/tcp on 10.10.11.42 Discovered open port 88/tcp on 10.10.11.42 Discovered open port 3268/tcp on 10.10.11.42 Discovered open port 50947/tcp on 10.10.11.42 Discovered open port 49666/tcp on 10.10.11.42 Discovered open port 593/tcp on 10.10.11.42 Discovered open port 464/tcp on 10.10.11.42 Discovered open port 47001/tcp on 10.10.11.42 Discovered open port 50966/tcp on 10.10.11.42 Completed SYN Stealth Scan at 11:50, 15.13s elapsed (65535 total ports) Nmap scan report for 10.10.11.42 Host is up, received user-set (0.045s latency). Scanned at 2025-06-30 11:49:53 CEST for 15s Not shown: 65509 closed tcp ports (reset) PORT STATE SERVICE REASON 21/tcp open ftp syn-ack ttl 127 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 47001/tcp open winrm syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49665/tcp open unknown syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49668/tcp open unknown syn-ack ttl 127 50947/tcp open unknown syn-ack ttl 127 50958/tcp open unknown syn-ack ttl 127 50963/tcp open unknown syn-ack ttl 127 50966/tcp open unknown syn-ack ttl 127 50985/tcp open unknown syn-ack ttl 127 61600/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.18 seconds Raw packets sent: 73737 (3.244MB) | Rcvd: 66196 (2.648MB) Escaneo todos los puertos:
+...</p>
+  </div>
+  <footer class="entry-footer"><span>12 min</span>&nbsp;·&nbsp;<span>2379 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <a class="entry-link" aria-label="post link to Administrator" href="https://borhuub.github.io/writeups/administrator/administrator/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Fluffy
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>
+Reconocimiento Escaneo de puertos abiertos:
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.69 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-05-25 20:58 CEST Initiating SYN Stealth Scan at 20:58 Scanning 10.10.11.69 [65535 ports] Discovered open port 53/tcp on 10.10.11.69 Discovered open port 139/tcp on 10.10.11.69 Discovered open port 445/tcp on 10.10.11.69 Discovered open port 49678/tcp on 10.10.11.69 Discovered open port 49776/tcp on 10.10.11.69 Discovered open port 49677/tcp on 10.10.11.69 Discovered open port 49680/tcp on 10.10.11.69 Discovered open port 464/tcp on 10.10.11.69 Discovered open port 49667/tcp on 10.10.11.69 Discovered open port 593/tcp on 10.10.11.69 Discovered open port 389/tcp on 10.10.11.69 Discovered open port 3268/tcp on 10.10.11.69 Discovered open port 5985/tcp on 10.10.11.69 Discovered open port 88/tcp on 10.10.11.69 Discovered open port 3269/tcp on 10.10.11.69 Discovered open port 636/tcp on 10.10.11.69 Discovered open port 9389/tcp on 10.10.11.69 Discovered open port 49704/tcp on 10.10.11.69 Discovered open port 49698/tcp on 10.10.11.69 Completed SYN Stealth Scan at 20:59, 26.35s elapsed (65535 total ports) Nmap scan report for 10.10.11.69 Host is up, received user-set (0.035s latency). Scanned at 2025-05-25 20:58:37 CEST for 26s Not shown: 65516 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49677/tcp open unknown syn-ack ttl 127 49678/tcp open unknown syn-ack ttl 127 49680/tcp open unknown syn-ack ttl 127 49698/tcp open unknown syn-ack ttl 127 49704/tcp open unknown syn-ack ttl 127 49776/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.40 seconds Raw packets sent: 131065 (5.767MB) | Rcvd: 33 (1.452KB) Escaneo de servicios:
+...</p>
+  </div>
+  <footer class="entry-footer"><span>19 min</span>&nbsp;·&nbsp;<span>3947 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <a class="entry-link" aria-label="post link to Fluffy" href="https://borhuub.github.io/writeups/fluffy/"></a>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">My New Hugo Site</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

