@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ActiveDirectory on My New Hugo Site</title>
+    <link>https://borhuub.github.io/tags/activedirectory/</link>
+    <description>Recent content in ActiveDirectory on My New Hugo Site</description>
+    <image>
+      <title>My New Hugo Site</title>
+      <url>https://borhuub.github.io/milogo.png</url>
+      <link>https://borhuub.github.io/milogo.png</link>
+    </image>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <atom:link href="https://borhuub.github.io/tags/activedirectory/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Administrator</title>
+      <link>https://borhuub.github.io/writeups/administrator/administrator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/administrator/administrator/</guid>
+      <description>Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.</description>
+    </item>
+    <item>
+      <title>Fluffy</title>
+      <link>https://borhuub.github.io/writeups/fluffy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/fluffy/</guid>
+      <description>Writeup sobre la máquina Fluffy en Active Directory de dificultad Easy. En esta máquina explotaremos el CVE-2025-24071 mediante spoofing, luego enumerando en bloodhound veremos un path claro que seguir en el cual explotaremos permisos GenericALL y GenericWrite para llegar a obtener la userflag. Durante la escalada enumeraremos y explotaremos (AD CS) para llegar a conseguir acceso al sistema como administrador.</description>
+    </item>
+  </channel>
+</rss>
