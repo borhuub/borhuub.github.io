@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Tags on My New Hugo Site</title>
+    <title>Tags on Borhub Blog</title>
     <link>https://borhuub.github.io/tags/</link>
-    <description>Recent content in Tags on My New Hugo Site</description>
+    <description>Recent content in Tags on Borhub Blog</description>
     <image>
-      <title>My New Hugo Site</title>
+      <title>Borhub Blog</title>
       <url>https://borhuub.github.io/milogo.png</url>
       <link>https://borhuub.github.io/milogo.png</link>
     </image>
@@ -17,6 +17,20 @@
       <link>https://borhuub.github.io/tags/activedirectory/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/activedirectory/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Administrator</title>
+      <link>https://borhuub.github.io/tags/administrator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/administrator/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DCSync-Attack</title>
+      <link>https://borhuub.github.io/tags/dcsync-attack/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/dcsync-attack/</guid>
       <description></description>
     </item>
     <item>
@@ -38,6 +52,34 @@
       <link>https://borhuub.github.io/tags/fluffy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/fluffy/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ForceChangePassword</title>
+      <link>https://borhuub.github.io/tags/forcechangepassword/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/forcechangepassword/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>FTP</title>
+      <link>https://borhuub.github.io/tags/ftp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/ftp/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kerberoasting</title>
+      <link>https://borhuub.github.io/tags/kerberoasting/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/kerberoasting/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Medium</title>
+      <link>https://borhuub.github.io/tags/medium/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/medium/</guid>
       <description></description>
     </item>
   </channel>

