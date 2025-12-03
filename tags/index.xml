@@ -13,6 +13,13 @@
     <language>en-us</language>
     <atom:link href="https://borhuub.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Active Directoy</title>
+      <link>https://borhuub.github.io/tags/active-directoy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/active-directoy/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>ActiveDirectory</title>
       <link>https://borhuub.github.io/tags/activedirectory/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -27,10 +34,38 @@
       <description></description>
     </item>
     <item>
+      <title>Certificate</title>
+      <link>https://borhuub.github.io/tags/certificate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/certificate/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Certipy Forge</title>
+      <link>https://borhuub.github.io/tags/certipy-forge/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/certipy-forge/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Certutil</title>
+      <link>https://borhuub.github.io/tags/certutil/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/certutil/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>DCSync-Attack</title>
       <link>https://borhuub.github.io/tags/dcsync-attack/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/dcsync-attack/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DPAPI</title>
+      <link>https://borhuub.github.io/tags/dpapi/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/dpapi/</guid>
       <description></description>
     </item>
     <item>
@@ -45,6 +80,13 @@
       <link>https://borhuub.github.io/tags/esc16/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/esc16/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ESC3</title>
+      <link>https://borhuub.github.io/tags/esc3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/esc3/</guid>
       <description></description>
     </item>
     <item>
@@ -69,6 +111,41 @@
       <description></description>
     </item>
     <item>
+      <title>Fuff</title>
+      <link>https://borhuub.github.io/tags/fuff/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/fuff/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>GenericALL</title>
+      <link>https://borhuub.github.io/tags/genericall/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/genericall/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>GenericWrite</title>
+      <link>https://borhuub.github.io/tags/genericwrite/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/genericwrite/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Git Dump</title>
+      <link>https://borhuub.github.io/tags/git-dump/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/git-dump/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hard</title>
+      <link>https://borhuub.github.io/tags/hard/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/hard/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Kerberoasting</title>
       <link>https://borhuub.github.io/tags/kerberoasting/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -76,10 +153,108 @@
       <description></description>
     </item>
     <item>
+      <title>Krb5RoastParser</title>
+      <link>https://borhuub.github.io/tags/krb5roastparser/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/krb5roastparser/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Linkvortex</title>
+      <link>https://borhuub.github.io/tags/linkvortex/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/linkvortex/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Linux</title>
+      <link>https://borhuub.github.io/tags/linux/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/linux/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Local Port Forwarding</title>
+      <link>https://borhuub.github.io/tags/local-port-forwarding/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/local-port-forwarding/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Medium</title>
       <link>https://borhuub.github.io/tags/medium/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/medium/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mysql</title>
+      <link>https://borhuub.github.io/tags/mysql/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/mysql/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Nocturnal</title>
+      <link>https://borhuub.github.io/tags/nocturnal/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/nocturnal/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Puertos Expuestos</title>
+      <link>https://borhuub.github.io/tags/puertos-expuestos/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/puertos-expuestos/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Puppy</title>
+      <link>https://borhuub.github.io/tags/puppy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/puppy/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>SeManageVolume</title>
+      <link>https://borhuub.github.io/tags/semanagevolume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/semanagevolume/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Symlink Trickery</title>
+      <link>https://borhuub.github.io/tags/symlink-trickery/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/symlink-trickery/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vhost</title>
+      <link>https://borhuub.github.io/tags/vhost/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/vhost/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Wireshark</title>
+      <link>https://borhuub.github.io/tags/wireshark/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/wireshark/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Zip Concatenation</title>
+      <link>https://borhuub.github.io/tags/zip-concatenation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/zip-concatenation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Zip Slip</title>
+      <link>https://borhuub.github.io/tags/zip-slip/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/zip-slip/</guid>
       <description></description>
     </item>
   </channel>

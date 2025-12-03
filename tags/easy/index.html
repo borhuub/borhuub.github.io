@@ -10,7 +10,7 @@
 <meta name="description" content="ExampleSite description">
 <meta name="author" content="Borhub">
 <link rel="canonical" href="https://borhuub.github.io/tags/easy/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.343cc480b9ffc8f04ccbe5e968ad674880cab773ec19905e93033065c1e7a804.css" integrity="sha256-NDzEgLn/yPBMy&#43;XpaK1nSIDKt3PsGZBekwMwZcHnqAQ=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
@@ -156,6 +156,34 @@ Reconocimiento Escaneo de puertos abiertos:
   </div>
   <footer class="entry-footer"><span>19 min</span>&nbsp;·&nbsp;<span>3947 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
   <a class="entry-link" aria-label="post link to Fluffy" href="https://borhuub.github.io/writeups/fluffy/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Linkvortex
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Reconocimiento Vamos a empezar el reconocimiento con un Nmap para ver los puertos expuestos y el resultado lo mandaremos a un archivo llamado ports.
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.47 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-06 14:48 CEST Initiating SYN Stealth Scan at 14:48 Scanning 10.10.11.47 [65535 ports] Discovered open port 22/tcp on 10.10.11.47 Discovered open port 80/tcp on 10.10.11.47 Completed SYN Stealth Scan at 14:48, 10.90s elapsed (65535 total ports) Nmap scan report for 10.10.11.47 Host is up, received user-set (0.036s latency). Scanned at 2025-04-06 14:48:30 CEST for 11s Not shown: 65533 closed tcp ports (reset) PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 10.95 seconds Raw packets sent: 65672 (2.890MB) | Rcvd: 65535 (2.621MB) Ahora haciendo uso de la herramienta ==ports.py== que tengo publicada en github, vamos a copiarnos los puertos al portapapeles.
+...</p>
+  </div>
+  <footer class="entry-footer"><span>8 min</span>&nbsp;·&nbsp;<span>1615 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <a class="entry-link" aria-label="post link to Linkvortex" href="https://borhuub.github.io/writeups/linkvortex/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Nocutrnal
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>
+Reconocimiento ​❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.64 -oG ports Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:38 CEST Initiating SYN Stealth Scan at 21:38 Scanning 10.10.11.64 [65535 ports] Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Discovered open port 80/tcp on 10.10.11.64 Discovered open port 22/tcp on 10.10.11.64 Completed SYN Stealth Scan at 21:39, 13.97s elapsed (65535 total ports) Nmap scan report for 10.10.11.64 Host is up, received user-set (0.047s latency). Scanned at 2025-04-16 21:38:54 CEST for 14s Not shown: 65327 closed tcp ports (reset), 206 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 14.04 seconds Raw packets sent: 78164 (3.439MB) | Rcvd: 69986 (2.800MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p22,80 10.10.11.64 -oN trageted [sudo] contraseña para borhub: Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-16 21:36 CEST Nmap scan report for nocturnal.htb (10.10.11.64) Host is up (0.14s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.2p1 Ubuntu 4ubuntu0.12 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 3072 20:26:88:70:08:51:ee:de:3a:a6:20:41:87:96:25:17 (RSA) | 256 4f:80:05:33:a6:d4:22:64:e9:ed:14:e3:12:bc:96:f1 (ECDSA) |_ 256 d9:88:1f:68:43:8e:d4:2a:52:fc:f0:66:d4:b9:ee:6b (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Welcome to Nocturnal | http-cookie-flags: | /: | PHPSESSID: |_ httponly flag not set Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 9.68 seconds Enumeración web ❯ whatweb nocturnal.htb http://nocturnal.htb [200 OK] Cookies[PHPSESSID], Country[RESERVED][ZZ], Email[support@nocturnal.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.64], Title[Welcome to Nocturnal], nginx[1.18.0] ❯ gobuster dir -u http://nocturnal.htb -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt -t 200 -r =============================================================== Gobuster v3.6 by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart) =============================================================== [&#43;] Url: http://nocturnal.htb [&#43;] Method: GET [&#43;] Threads: 200 [&#43;] Wordlist: /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt [&#43;] Negative Status codes: 404 [&#43;] User Agent: gobuster/3.6 [&#43;] Follow Redirect: true [&#43;] Timeout: 10s =============================================================== Starting gobuster in directory enumeration mode =============================================================== /uploads (Status: 403) [Size: 162] /backups (Status: 403) [Size: 162] /uploads2 (Status: 403) [Size: 162] Progress: 220559 / 220560 (100.00%) =============================================================== Finished =============================================================== En un principio vemos una página normal y corriente que tiene un panel de registro y otro de login. Por el momento vamos a crear una cuenta para ver el dashboard que nos muestra.
+...</p>
+  </div>
+  <footer class="entry-footer"><span>11 min</span>&nbsp;·&nbsp;<span>2330 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <a class="entry-link" aria-label="post link to Nocutrnal" href="https://borhuub.github.io/writeups/nocturnal/"></a>
 </article>
     </main>
     

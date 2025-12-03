@@ -17,7 +17,7 @@
       <link>https://borhuub.github.io/writeups/administrator/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/writeups/administrator/</guid>
-      <description>Writeups sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.</description>
+      <description>Writeup sobre la máquina Administrator en Active Directory de dificultad Media. Enumerando con bloodhound encontraremos un path claro que seguir para ir moviendonos entre usuarios, llegado cierto momento obtendremos un archivo con credenciales a través de FTP con el cual obtendremos el usuario que contiene la user flag. Para completar la escalada de privilegios volveremos a abusar de permisos GenericAll para realizar un kerberoast attack sobre el usuario ethan, luego abusando de permisos GetChangesAll y GetChanges realizaremos un DCSync attack para convertirnos en domain admin.</description>
     </item>
   </channel>
 </rss>

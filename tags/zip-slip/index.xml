@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Zip Slip on Borhub Blog</title>
+    <link>https://borhuub.github.io/tags/zip-slip/</link>
+    <description>Recent content in Zip Slip on Borhub Blog</description>
+    <image>
+      <title>Borhub Blog</title>
+      <url>https://borhuub.github.io/milogo.png</url>
+      <link>https://borhuub.github.io/milogo.png</link>
+    </image>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <atom:link href="https://borhuub.github.io/tags/zip-slip/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Certificate</title>
+      <link>https://borhuub.github.io/writeups/certificate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/certificate/</guid>
+      <description>Writeup sobre la máquina Certificate en Active Directory de dificultad Hard. Realizando un ataque Zip Slip &#43; Zip Concatenation, conseguiremos una shell como el usuario xampp, después enumerando una base de datos sql conseguiremos la contraseña del usuario sara.b. Dentro de las carpetas de sara.b encontraremos un mensaje sobre el error que tiene WS-01 además de un archivo .pcap, ahora enumeraremos las peticiones kerberos para conseguir los hashes AS-REP, AS-REQ y TGS-REP y crackear la contraseña de lion.k. Nos seguiremos moviendo al siguiente usuario explotando la vuln ESC3 del servidor de Certificados para conseguir el acceso a Ryan.k que nos permitirá luego escalar privilegios. El usuario Ryan.k miembro de Domain Storage Managers y con privilegios SeManageVolume nos permitirá tomar el control sobre C: para luego nosotros mediante certutil exportar el certificado de Root Certificate Authority (CA Raíz) para luego con Certipy Forge forgar un .pfx para administrador, y generar y obtener un TGT &#43; hash del mismo.</description>
+    </item>
+  </channel>
+</rss>

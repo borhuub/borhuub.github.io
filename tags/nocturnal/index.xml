@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Nocturnal on Borhub Blog</title>
+    <link>https://borhuub.github.io/tags/nocturnal/</link>
+    <description>Recent content in Nocturnal on Borhub Blog</description>
+    <image>
+      <title>Borhub Blog</title>
+      <url>https://borhuub.github.io/milogo.png</url>
+      <link>https://borhuub.github.io/milogo.png</link>
+    </image>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <atom:link href="https://borhuub.github.io/tags/nocturnal/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nocutrnal</title>
+      <link>https://borhuub.github.io/writeups/nocturnal/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/nocturnal/</guid>
+      <description>Writeup sobre la máquina Nocturnal en Linux de dificultad Easy. En esta máquina realizando fuzzing de usuarios con fuff, conseguiremos leer los archivos de amanda en el cual se encuentra su contraseña temporal, una vez como amanda usando la función de creación de backups conseguiremos inyectar código para dumpear la información de la base de datos y con el usuario tobias conseguiremos la root flag. Enumerando el sistema en la escalada descubriremos un panel ISPConfig expuesto en la red interna, realizando local port forwarding nos lo expondremos en nuestra máquina y reutilizaremos las credenciales de Tobias para acceder a el, y gracias a la versión de ISPConfig conseguiremos escalar nuestros privilegios a root mediante el CVE-2023-46818.</description>
+    </item>
+  </channel>
+</rss>
