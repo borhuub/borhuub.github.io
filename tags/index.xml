@@ -13,13 +13,6 @@
     <language>en-us</language>
     <atom:link href="https://borhuub.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Active Directoy</title>
-      <link>https://borhuub.github.io/tags/active-directoy/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/active-directoy/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>ActiveDirectory</title>
       <link>https://borhuub.github.io/tags/activedirectory/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -27,17 +20,17 @@
       <description></description>
     </item>
     <item>
-      <title>Administrator</title>
-      <link>https://borhuub.github.io/tags/administrator/</link>
+      <title>AddAllowedToAct</title>
+      <link>https://borhuub.github.io/tags/addallowedtoact/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/administrator/</guid>
+      <guid>https://borhuub.github.io/tags/addallowedtoact/</guid>
       <description></description>
     </item>
     <item>
-      <title>Certificate</title>
-      <link>https://borhuub.github.io/tags/certificate/</link>
+      <title>AddSelf</title>
+      <link>https://borhuub.github.io/tags/addself/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/certificate/</guid>
+      <guid>https://borhuub.github.io/tags/addself/</guid>
       <description></description>
     </item>
     <item>
@@ -62,6 +55,13 @@
       <description></description>
     </item>
     <item>
+      <title>DLL Hijacking</title>
+      <link>https://borhuub.github.io/tags/dll-hijacking/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/dll-hijacking/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>DPAPI</title>
       <link>https://borhuub.github.io/tags/dpapi/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -76,6 +76,13 @@
       <description></description>
     </item>
     <item>
+      <title>ESC15</title>
+      <link>https://borhuub.github.io/tags/esc15/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/esc15/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>ESC16</title>
       <link>https://borhuub.github.io/tags/esc16/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -87,13 +94,6 @@
       <link>https://borhuub.github.io/tags/esc3/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/esc3/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Fluffy</title>
-      <link>https://borhuub.github.io/tags/fluffy/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/fluffy/</guid>
       <description></description>
     </item>
     <item>
@@ -160,13 +160,6 @@
       <description></description>
     </item>
     <item>
-      <title>Linkvortex</title>
-      <link>https://borhuub.github.io/tags/linkvortex/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/linkvortex/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Linux</title>
       <link>https://borhuub.github.io/tags/linux/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -195,10 +188,17 @@
       <description></description>
     </item>
     <item>
-      <title>Nocturnal</title>
-      <link>https://borhuub.github.io/tags/nocturnal/</link>
+      <title>NTLM-Deshabilitada</title>
+      <link>https://borhuub.github.io/tags/ntlm-deshabilitada/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/nocturnal/</guid>
+      <guid>https://borhuub.github.io/tags/ntlm-deshabilitada/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ProtectedObjects</title>
+      <link>https://borhuub.github.io/tags/protectedobjects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/protectedobjects/</guid>
       <description></description>
     </item>
     <item>
@@ -209,10 +209,45 @@
       <description></description>
     </item>
     <item>
-      <title>Puppy</title>
-      <link>https://borhuub.github.io/tags/puppy/</link>
+      <title>ReadGMSAPassword</title>
+      <link>https://borhuub.github.io/tags/readgmsapassword/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://borhuub.github.io/tags/puppy/</guid>
+      <guid>https://borhuub.github.io/tags/readgmsapassword/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Resource-Based Constrained Delegation</title>
+      <link>https://borhuub.github.io/tags/resource-based-constrained-delegation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/resource-based-constrained-delegation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Restore-ADObject</title>
+      <link>https://borhuub.github.io/tags/restore-adobject/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/restore-adobject/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RoundCube</title>
+      <link>https://borhuub.github.io/tags/roundcube/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/roundcube/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RunasCs</title>
+      <link>https://borhuub.github.io/tags/runascs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/runascs/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Secretsdump</title>
+      <link>https://borhuub.github.io/tags/secretsdump/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/secretsdump/</guid>
       <description></description>
     </item>
     <item>
@@ -230,6 +265,13 @@
       <description></description>
     </item>
     <item>
+      <title>Timeroasting</title>
+      <link>https://borhuub.github.io/tags/timeroasting/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/timeroasting/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Vhost</title>
       <link>https://borhuub.github.io/tags/vhost/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -241,6 +283,20 @@
       <link>https://borhuub.github.io/tags/wireshark/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/wireshark/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WriteOwner</title>
+      <link>https://borhuub.github.io/tags/writeowner/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/writeowner/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WSL</title>
+      <link>https://borhuub.github.io/tags/wsl/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/wsl/</guid>
       <description></description>
     </item>
     <item>

