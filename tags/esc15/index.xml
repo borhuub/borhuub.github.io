@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ESC15 on Borhub Blog</title>
+    <link>https://borhuub.github.io/tags/esc15/</link>
+    <description>Recent content in ESC15 on Borhub Blog</description>
+    <image>
+      <title>Borhub Blog</title>
+      <url>https://borhuub.github.io/milogo.png</url>
+      <link>https://borhuub.github.io/milogo.png</link>
+    </image>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <atom:link href="https://borhuub.github.io/tags/esc15/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tombwatcher</title>
+      <link>https://borhuub.github.io/writeups/tombwatcher/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/tombwatcher/</guid>
+      <description>Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.</description>
+    </item>
+  </channel>
+</rss>

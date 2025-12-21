@@ -48,11 +48,39 @@
       <description>Writeup sobre la máquina Nocturnal en Linux de dificultad Easy. En esta máquina realizando fuzzing de usuarios con fuff, conseguiremos leer los archivos de amanda en el cual se encuentra su contraseña temporal, una vez como amanda usando la función de creación de backups conseguiremos inyectar código para dumpear la información de la base de datos y con el usuario tobias conseguiremos la root flag. Enumerando el sistema en la escalada descubriremos un panel ISPConfig expuesto en la red interna, realizando local port forwarding nos lo expondremos en nuestra máquina y reutilizaremos las credenciales de Tobias para acceder a el, y gracias a la versión de ISPConfig conseguiremos escalar nuestros privilegios a root mediante el CVE-2023-46818.</description>
     </item>
     <item>
+      <title>Outbound</title>
+      <link>https://borhuub.github.io/writeups/outbound/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/outbound/</guid>
+      <description>Writeup sobre la máquina Outbound en Linux de dificultad Easy. Luego de identificar la versión web de Roundcube conseguiremos explotar el CVE‑2025‑49113 conseguiremos acceso a la máquina como www-data. Haciendo enumeración SQL descubriremos la infromación de la sessesiones, como se calcula el hash y un script que desencrypta el hash obtenido. Una vez con la contraseña iniciaremos sesión en el roundcube y descubriremos la contraseña de inicio de sesión a través de ssh del usuario jacob. Para acabar de obtener root en la máquina abusaremos de nuestros permisos como sudoers junto con el CVE-2025-27591 de la aplicación.</description>
+    </item>
+    <item>
       <title>Puppy</title>
       <link>https://borhuub.github.io/writeups/puppy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/writeups/puppy/</guid>
       <description>Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.</description>
+    </item>
+    <item>
+      <title>Rustykey</title>
+      <link>https://borhuub.github.io/writeups/rustykey/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/rustykey/</guid>
+      <description>Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.</description>
+    </item>
+    <item>
+      <title>Tombwatcher</title>
+      <link>https://borhuub.github.io/writeups/tombwatcher/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/tombwatcher/</guid>
+      <description>Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.</description>
+    </item>
+    <item>
+      <title>Voleur</title>
+      <link>https://borhuub.github.io/writeups/voleur/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/voleur/</guid>
+      <description>Write-up sobre Voleur una máquina Active Directoy de dificultad Media. En la cual conseguiremos el pwn mediante credenciales durante la enumeración de carpetas compartidas, la explotación de permisos WriteAll y WriteSPN para realizar un kerberoast attack, restaurando objetos eliminados con powershell, obteniendo nuevas credenciales con archivos DPAPI y para acabar escalando privilegios gracias a un WSL parcialmente configurado.</description>
     </item>
   </channel>
 </rss>

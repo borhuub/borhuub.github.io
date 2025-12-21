@@ -19,5 +19,12 @@
       <guid>https://borhuub.github.io/writeups/puppy/</guid>
       <description>Writeup sobre la máquina Puppy en Active Directory de dificultad Media. Durante el acceso inicial abusaremos de privilegios GenericWrite y GenericALL además de descubrir un archivo de credenciales, luego procederemos a movernos al usuario steph.cooper gracias a un leak de información y acabaremos escalando privilegios gracias al descubrimiento de archivos DPAPI.</description>
     </item>
+    <item>
+      <title>Tombwatcher</title>
+      <link>https://borhuub.github.io/writeups/tombwatcher/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/tombwatcher/</guid>
+      <description>Writeups sobre la máquina Tombwatcher en Active Directory de dificultad Media. Tras el reconocimiento y la enumeración SMB aprovecharemos cuentas con SPN para  realizar ataques Kerberoast y usaremos BloodHound para ver privilegios de los usuarios, a partir de las ACL encontradas explotaremos permisos como AddSelf, ReadGMSAPassword, ForceChangePassword, WriteOwner y GenericAll sobre usuarios, restauraremos objetos AD y, finalmente, abusaremos de AD-CS (ESC15) con Certipy para escalar privilegios.</description>
+    </item>
   </channel>
 </rss>
