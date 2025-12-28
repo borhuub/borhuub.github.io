@@ -9,9 +9,16 @@
       <url>https://borhuub.github.io/milogo.png</url>
       <link>https://borhuub.github.io/milogo.png</link>
     </image>
-    <generator>Hugo -- 0.152.2</generator>
+    <generator>Hugo -- 0.153.1</generator>
     <language>en-us</language>
     <atom:link href="https://borhuub.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title></title>
+      <link>https://borhuub.github.io/certs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/certs/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Administrator</title>
       <link>https://borhuub.github.io/writeups/administrator/</link>
