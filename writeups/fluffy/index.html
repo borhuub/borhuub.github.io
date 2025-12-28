@@ -10,7 +10,7 @@
 <meta name="description" content="Writeup sobre la máquina Fluffy en Active Directory de dificultad Easy. En esta máquina explotaremos el CVE-2025-24071 mediante spoofing, luego enumerando en bloodhound veremos un path claro que seguir en el cual explotaremos permisos GenericALL y GenericWrite para llegar a obtener la userflag. Durante la escalada enumeraremos y explotaremos (AD CS) para llegar a conseguir acceso al sistema como administrador.">
 <meta name="author" content="Borhub">
 <link rel="canonical" href="https://borhuub.github.io/writeups/fluffy/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c6701118f5c7e049c5fa8762210566ca9a5a1174e56560126f872ccc4e942a1.css" integrity="sha256-DGcBEY9cfgScX6h2IhBWbKmloRdOVlYBJvhyzMTpQqE=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.e90f8afcf172380288c4df816cb67c3d42c47fd58312413825a8ad3187a46699.css" integrity="sha256-6Q&#43;K/PFyOAKIxN&#43;BbLZ8PULEf9WDEkE4JaitMYekZpk=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
@@ -180,6 +180,11 @@
             <li>
                 <a href="https://borhuub.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/certs/" title="Certifications">
+                    <span>Certifications</span>
                 </a>
             </li>
         </ul>
@@ -782,7 +787,7 @@
 </span></span><span class="line"><span class="cl">____ __<span class="p">|</span> <span class="p">|</span> <span class="p">|</span>__<span class="o">)</span> <span class="p">|</span> <span class="p">|</span>__ / <span class="se">\ </span><span class="p">|</span> <span class="o">(</span>___
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">/ _ <span class="p">|</span>/ _ <span class="p">|</span> ___/<span class="p">|</span> __<span class="p">|</span> / /<span class="se">\ \ \_</span>__ <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="o">(</span>_<span class="p">|</span> <span class="p">|</span> <span class="o">(</span>_<span class="p">|</span> <span class="p">|</span> <span class="p">|</span> <span class="p">|</span> <span class="p">|</span>____ / ____ <span class="se">\ </span>____<span class="o">)</span> <span class="p">|</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="se">\_</span>_,_<span class="p">|</span><span class="se">\_</span>_,_<span class="p">|</span>_<span class="p">|</span> <span class="p">|</span>______/_/ <span class="se">\_\_</span>____/
