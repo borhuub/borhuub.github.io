@@ -10,7 +10,7 @@
 <meta name="description" content="Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.">
 <meta name="author" content="Borhub">
 <link rel="canonical" href="https://borhuub.github.io/writeups/rustykey/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.a820b7b9cf1b7751cd4b4b8477fa964e4741d7947dff76723a8f9ae75a23a18d.css" integrity="sha256-qCC3uc8bd1HNS0uEd/qWTkdB15R9/3ZyOo&#43;a51ojoY0=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.27492627d52d32d617e2faf58e652b2e2633796e5697eb3efd37682f981ae0f1.css" integrity="sha256-J0kmJ9UtMtYX4vr1jmUrLiYzeW5Wl&#43;s&#43;/TdoL5ga4PE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
@@ -1016,10 +1016,10 @@
     <br>
     <span>Puppy</span>
   </a>
-  <a class="next" href="https://borhuub.github.io/writeups/tombwatcher/">
+  <a class="next" href="https://borhuub.github.io/writeups/soulmate/">
     <span class="title">Next »</span>
     <br>
-    <span>Tombwatcher</span>
+    <span>Soulmate</span>
   </a>
 </nav>
 
