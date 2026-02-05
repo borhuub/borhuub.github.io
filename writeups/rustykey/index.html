@@ -10,7 +10,7 @@
 <meta name="description" content="Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.">
 <meta name="author" content="Borhub">
 <link rel="canonical" href="https://borhuub.github.io/writeups/rustykey/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.e90f8afcf172380288c4df816cb67c3d42c47fd58312413825a8ad3187a46699.css" integrity="sha256-6Q&#43;K/PFyOAKIxN&#43;BbLZ8PULEf9WDEkE4JaitMYekZpk=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.a820b7b9cf1b7751cd4b4b8477fa964e4741d7947dff76723a8f9ae75a23a18d.css" integrity="sha256-qCC3uc8bd1HNS0uEd/qWTkdB15R9/3ZyOo&#43;a51ojoY0=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
@@ -1028,7 +1028,7 @@
     </main>
     
 <footer class="footer">
-        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
 
     <span>
         Powered by

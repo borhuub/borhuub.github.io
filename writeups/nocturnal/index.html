@@ -10,7 +10,7 @@
 <meta name="description" content="Writeup sobre la máquina Nocturnal en Linux de dificultad Easy. En esta máquina realizando fuzzing de usuarios con fuff, conseguiremos leer los archivos de amanda en el cual se encuentra su contraseña temporal, una vez como amanda usando la función de creación de backups conseguiremos inyectar código para dumpear la información de la base de datos y con el usuario tobias conseguiremos la root flag. Enumerando el sistema en la escalada descubriremos un panel ISPConfig expuesto en la red interna, realizando local port forwarding nos lo expondremos en nuestra máquina y reutilizaremos las credenciales de Tobias para acceder a el, y gracias a la versión de ISPConfig conseguiremos escalar nuestros privilegios a root mediante el CVE-2023-46818.">
 <meta name="author" content="Borhub">
 <link rel="canonical" href="https://borhuub.github.io/writeups/nocturnal/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.e90f8afcf172380288c4df816cb67c3d42c47fd58312413825a8ad3187a46699.css" integrity="sha256-6Q&#43;K/PFyOAKIxN&#43;BbLZ8PULEf9WDEkE4JaitMYekZpk=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.a820b7b9cf1b7751cd4b4b8477fa964e4741d7947dff76723a8f9ae75a23a18d.css" integrity="sha256-qCC3uc8bd1HNS0uEd/qWTkdB15R9/3ZyOo&#43;a51ojoY0=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
@@ -588,7 +588,7 @@ www-data
     </main>
     
 <footer class="footer">
-        <span>&copy; 2025 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
 
     <span>
         Powered by
