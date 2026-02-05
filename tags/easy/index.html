@@ -204,6 +204,19 @@ Reconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11
   <footer class="entry-footer"><span>7 min</span>&nbsp;·&nbsp;<span>1489 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
   <a class="entry-link" aria-label="post link to Outbound" href="https://borhuub.github.io/writeups/outbound/"></a>
 </article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Soulmate
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>
+Reconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.169.204 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:03 &#43;0200 Initiating SYN Stealth Scan at 16:03 Scanning 10.129.169.204 [65535 ports] Discovered open port 80/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 80/tcp on 10.129.169.204 Completed SYN Stealth Scan at 16:03, 15.22s elapsed (65535 total ports) Nmap scan report for 10.129.169.204 Host is up, received user-set (0.049s latency). Scanned at 2025-09-08 16:03:39 CEST for 15s Not shown: 63623 closed tcp ports (reset), 1910 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.29 seconds Raw packets sent: 82986 (3.651MB) | Rcvd: 65838 (2.634MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:05 &#43;0200 Nmap scan report for 10.129.169.204 Host is up (0.30s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA) |_ 256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Did not follow redirect to http://soulmate.htb/ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 11.34 seconds Enumeración web sudo nano /etc/hosts whatweb http://soulmate.htb ...</p>
+  </div>
+  <footer class="entry-footer"><span>5 min</span>&nbsp;·&nbsp;<span>1062 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <a class="entry-link" aria-label="post link to Soulmate" href="https://borhuub.github.io/writeups/soulmate/"></a>
+</article>
     </main>
     
 <footer class="footer">

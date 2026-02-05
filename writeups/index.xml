@@ -69,6 +69,67 @@
       <description>Writeup sobre la máquina Rustykey en Active Directory de dificultad Hard.Durante la fase de reconocimiento se identifica que la autenticación NTLM se encuentra deshabilitada, por lo que todo el ataque se apoya en Kerberos. Mediante enumeración SMB y usuarios con nxc, junto con BloodHound, se descubren relaciones y permisos mal configurados dentro del dominio. Los intentos iniciales de Kerberoasting y AS-REP Roasting no tienen éxito, recurriendo posteriormente a un Timeroasting Attack para avanzar. Aprovechando permisos AddSelf, se añade un equipo al grupo HELPDESK, y con ForceChangePassword se comprometen cuentas adicionales, eliminando además protecciones como Protected Objects del grupo IT. Esto permite pivotar a usuarios como MM.TURNER y posteriormente obtener una shell como ee.reed mediante subida de archivos por SMB y RunasCs.exe. Tras enumerar claves de registro, se explota un DLL Hijacking generando una DLL maliciosa con msfvenom y modificando el registro para lograr escalada de privilegios. Finalmente, abusando del permiso AddAllowedToAct, se explota Resource-Based Constrained Delegation, culminando en el compromiso completo del dominio.</description>
     </item>
     <item>
+      <title>Soulmate</title>
+      <link>https://borhuub.github.io/writeups/soulmate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/writeups/soulmate/</guid>
+      <description>&lt;p&gt;&lt;img alt=&#34;soulmate_machine&#34; loading=&#34;lazy&#34; src=&#34;https://borhuub.github.io/img/soulmate/soulmate_machine.png&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;reconocimiento&#34;&gt;Reconocimiento&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;❯ sudo nmap -p- --open -sS --min-rate &lt;span class=&#34;m&#34;&gt;5000&lt;/span&gt; -vvv -n -Pn 10.129.169.204 -oG ports
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;sudo&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; contraseña para borhub:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Host discovery disabled &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;-Pn&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;. All addresses will be marked &lt;span class=&#34;s1&#34;&gt;&amp;#39;up&amp;#39;&lt;/span&gt; and scan &lt;span class=&#34;nb&#34;&gt;times&lt;/span&gt; may be slower.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Starting Nmap 7.97 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; https://nmap.org &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; at 2025-09-08 16:03 +0200
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Initiating SYN Stealth Scan at 16:03
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Scanning 10.129.169.204 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;65535&lt;/span&gt; ports&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Discovered open port 80/tcp on 10.129.169.204
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Discovered open port 22/tcp on 10.129.169.204
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Discovered open port 22/tcp on 10.129.169.204
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Discovered open port 80/tcp on 10.129.169.204
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Completed SYN Stealth Scan at 16:03, 15.22s elapsed &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;65535&lt;/span&gt; total ports&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Nmap scan report &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; 10.129.169.204
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Host is up, received user-set &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;0.049s latency&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Scanned at 2025-09-08 16:03:39 CEST &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; 15s
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Not shown: &lt;span class=&#34;m&#34;&gt;63623&lt;/span&gt; closed tcp ports &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;reset&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;, &lt;span class=&#34;m&#34;&gt;1910&lt;/span&gt; filtered tcp ports &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;no-response&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PORT STATE SERVICE REASON
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;22/tcp open ssh syn-ack ttl &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;80/tcp open http syn-ack ttl &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Read data files from: /usr/bin/../share/nmap
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Nmap &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; IP address &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; host up&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; scanned in 15.29 seconds
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Raw packets sent: &lt;span class=&#34;m&#34;&gt;82986&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;3.651MB&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; Rcvd: &lt;span class=&#34;m&#34;&gt;65838&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;2.634MB&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;❯ ports.py ports
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;🔍 Puertos encontrados:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;➜ &lt;span class=&#34;m&#34;&gt;22&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;➜ &lt;span class=&#34;m&#34;&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;¡Puertos copiados en el portapapeles!
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Starting Nmap 7.97 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt; https://nmap.org &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; at 2025-09-08 16:05 +0200
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Nmap scan report &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; 10.129.169.204
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Host is up &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;0.30s latency&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PORT STATE SERVICE VERSION
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Ubuntu Linux&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; protocol 2.0&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; ssh-hostkey:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;256&lt;/span&gt; 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;ECDSA&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;_ &lt;span class=&#34;m&#34;&gt;256&lt;/span&gt; 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;ED25519&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;80/tcp open http nginx 1.18.0 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Ubuntu&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;_http-server-header: nginx/1.18.0 &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Ubuntu&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;_http-title: Did not follow redirect to http://soulmate.htb/
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Service Info: OS: Linux&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; CPE: cpe:/o:linux:linux_kernel
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Nmap &lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;: &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; IP address &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; host up&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; scanned in 11.34 seconds
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;enumeración-web&#34;&gt;Enumeración web&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo nano /etc/hosts
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;whatweb http://soulmate.htb
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img alt=&#34;soulmate_machine_1&#34; loading=&#34;lazy&#34; src=&#34;https://borhuub.github.io/img/soulmate/soulmate_machine_1.png&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>Tombwatcher</title>
       <link>https://borhuub.github.io/writeups/tombwatcher/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

