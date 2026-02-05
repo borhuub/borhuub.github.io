@@ -41,7 +41,7 @@ window.verCertificado = function (imagen) {
       cerrarModal();
     }
   }
-  /* Función para c errar el modal al presionar la tecla ESC - Borja (28 dic 2025 13:18) */
+  /* Función para cerrar el modal al presionar la tecla ESC - Borja (28 dic 2025 13:18) */
   document.addEventListener("keydown", function(event) {
     if(event.key === "Escape") {
       cerrarModal();
