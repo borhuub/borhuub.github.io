@@ -12,9 +12,13 @@
   </url><url>
     <loc>https://borhuub.github.io/writeups/administrator/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/badsuccesor/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/</loc>
   </url><url>
     <loc>https://borhuub.github.io/search/search/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/canpsremote/</loc>
   </url><url>
     <loc>https://borhuub.github.io/categories/</loc>
   </url><url>
@@ -24,7 +28,17 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/certutil/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/chisel-ad/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/chisel-linux/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/chroot/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/writeups/conversor/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/dcsync-attack/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/dfscoerce/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/dll-hijacking/</loc>
   </url><url>
@@ -32,11 +46,17 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/easy/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/writeups/eighteen/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/env/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/esc15/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/esc16/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/esc3/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/writeups/expressway/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/fluffy/</loc>
   </url><url>
@@ -52,11 +72,25 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/git-dump/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/writeups/giveback/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/givewp/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/hard/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/hash-stealer/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/writeups/imagery/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/inyeccion-cronjob/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/isakmp/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/kerberoasting/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/krb5roastparser/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/lfi/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/linkvortex/</loc>
   </url><url>
@@ -64,21 +98,43 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/local-port-forwarding/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/localportforwarding/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/medium/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/msi-repair/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/mssql/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/mssql-bulk/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/mssql-impersonar/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/mysql/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/writeups/nanocorp/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/nocturnal/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/ntlm-deshabilitada/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/ntlmrelay/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/writeups/outbound/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/php-cgi/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/powershell-history/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/protectedobjects/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/psk-cracking/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/puertos-expuestos/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/puppy/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/rce/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/readgmsapassword/</loc>
   </url><url>
@@ -86,9 +142,13 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/restore-adobject/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/rid-brute/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/roundcube/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/runascs/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/runc/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/rustykey/</loc>
   </url><url>
@@ -97,6 +157,10 @@
     <loc>https://borhuub.github.io/tags/secretsdump/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/semanagevolume/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/sharphound/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/writeups/signed/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/soulmate/</loc>
   </url><url>
@@ -114,6 +178,8 @@
   </url><url>
     <loc>https://borhuub.github.io/writeups/voleur/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/winpeas/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/wireshark/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/writeowner/</loc>
@@ -121,6 +187,10 @@
     <loc>https://borhuub.github.io/writeups/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/wsl/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/xsltinjection/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/xss-almacenado/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/zip-concatenation/</loc>
   </url><url>

