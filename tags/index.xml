@@ -9,7 +9,7 @@
       <url>https://borhuub.github.io/milogo.png</url>
       <link>https://borhuub.github.io/milogo.png</link>
     </image>
-    <generator>Hugo -- 0.155.2</generator>
+    <generator>Hugo -- 0.157.0</generator>
     <language>en-us</language>
     <atom:link href="https://borhuub.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
@@ -34,6 +34,20 @@
       <description></description>
     </item>
     <item>
+      <title>BadSuccesor</title>
+      <link>https://borhuub.github.io/tags/badsuccesor/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/badsuccesor/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CanPSRemote</title>
+      <link>https://borhuub.github.io/tags/canpsremote/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/canpsremote/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Certipy Forge</title>
       <link>https://borhuub.github.io/tags/certipy-forge/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -48,10 +62,38 @@
       <description></description>
     </item>
     <item>
+      <title>Chisel-AD</title>
+      <link>https://borhuub.github.io/tags/chisel-ad/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/chisel-ad/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Chisel-Linux</title>
+      <link>https://borhuub.github.io/tags/chisel-linux/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/chisel-linux/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Chroot</title>
+      <link>https://borhuub.github.io/tags/chroot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/chroot/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>DCSync-Attack</title>
       <link>https://borhuub.github.io/tags/dcsync-attack/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/dcsync-attack/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DFSCoerce</title>
+      <link>https://borhuub.github.io/tags/dfscoerce/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/dfscoerce/</guid>
       <description></description>
     </item>
     <item>
@@ -73,6 +115,13 @@
       <link>https://borhuub.github.io/tags/easy/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/easy/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ENV</title>
+      <link>https://borhuub.github.io/tags/env/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/env/</guid>
       <description></description>
     </item>
     <item>
@@ -139,10 +188,38 @@
       <description></description>
     </item>
     <item>
+      <title>GiveWP</title>
+      <link>https://borhuub.github.io/tags/givewp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/givewp/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Hard</title>
       <link>https://borhuub.github.io/tags/hard/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/hard/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hash-Stealer</title>
+      <link>https://borhuub.github.io/tags/hash-stealer/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/hash-stealer/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Inyeccion-Cronjob</title>
+      <link>https://borhuub.github.io/tags/inyeccion-cronjob/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/inyeccion-cronjob/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ISAKMP</title>
+      <link>https://borhuub.github.io/tags/isakmp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/isakmp/</guid>
       <description></description>
     </item>
     <item>
@@ -160,6 +237,13 @@
       <description></description>
     </item>
     <item>
+      <title>LFI</title>
+      <link>https://borhuub.github.io/tags/lfi/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/lfi/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Linux</title>
       <link>https://borhuub.github.io/tags/linux/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -174,10 +258,45 @@
       <description></description>
     </item>
     <item>
+      <title>LocalPortForwarding</title>
+      <link>https://borhuub.github.io/tags/localportforwarding/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/localportforwarding/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Medium</title>
       <link>https://borhuub.github.io/tags/medium/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/medium/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MSI-Repair</title>
+      <link>https://borhuub.github.io/tags/msi-repair/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/msi-repair/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MSSQL</title>
+      <link>https://borhuub.github.io/tags/mssql/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/mssql/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MSSQL-BULK</title>
+      <link>https://borhuub.github.io/tags/mssql-bulk/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/mssql-bulk/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MSSQL-Impersonar</title>
+      <link>https://borhuub.github.io/tags/mssql-impersonar/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/mssql-impersonar/</guid>
       <description></description>
     </item>
     <item>
@@ -195,6 +314,27 @@
       <description></description>
     </item>
     <item>
+      <title>NtlmRelay</title>
+      <link>https://borhuub.github.io/tags/ntlmrelay/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/ntlmrelay/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>PHP-CGI</title>
+      <link>https://borhuub.github.io/tags/php-cgi/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/php-cgi/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Powershell-History</title>
+      <link>https://borhuub.github.io/tags/powershell-history/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/powershell-history/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>ProtectedObjects</title>
       <link>https://borhuub.github.io/tags/protectedobjects/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -202,10 +342,24 @@
       <description></description>
     </item>
     <item>
+      <title>PSK-Cracking</title>
+      <link>https://borhuub.github.io/tags/psk-cracking/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/psk-cracking/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Puertos Expuestos</title>
       <link>https://borhuub.github.io/tags/puertos-expuestos/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/puertos-expuestos/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RCE</title>
+      <link>https://borhuub.github.io/tags/rce/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/rce/</guid>
       <description></description>
     </item>
     <item>
@@ -230,6 +384,13 @@
       <description></description>
     </item>
     <item>
+      <title>Rid-Brute</title>
+      <link>https://borhuub.github.io/tags/rid-brute/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/rid-brute/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>RoundCube</title>
       <link>https://borhuub.github.io/tags/roundcube/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -244,6 +405,13 @@
       <description></description>
     </item>
     <item>
+      <title>Runc</title>
+      <link>https://borhuub.github.io/tags/runc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/runc/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Secretsdump</title>
       <link>https://borhuub.github.io/tags/secretsdump/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -255,6 +423,13 @@
       <link>https://borhuub.github.io/tags/semanagevolume/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/semanagevolume/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>SharpHound</title>
+      <link>https://borhuub.github.io/tags/sharphound/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/sharphound/</guid>
       <description></description>
     </item>
     <item>
@@ -286,6 +461,13 @@
       <description></description>
     </item>
     <item>
+      <title>WinPEAS</title>
+      <link>https://borhuub.github.io/tags/winpeas/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/winpeas/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Wireshark</title>
       <link>https://borhuub.github.io/tags/wireshark/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -304,6 +486,20 @@
       <link>https://borhuub.github.io/tags/wsl/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/wsl/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>XSLTInjection</title>
+      <link>https://borhuub.github.io/tags/xsltinjection/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/xsltinjection/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>XSS-Almacenado</title>
+      <link>https://borhuub.github.io/tags/xss-almacenado/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/xss-almacenado/</guid>
       <description></description>
     </item>
     <item>

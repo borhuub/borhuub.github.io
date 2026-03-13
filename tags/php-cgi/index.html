@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>PHP-CGI | Borhub Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="ExampleSite description">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/tags/php-cgi/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.27492627d52d32d617e2faf58e652b2e2633796e5697eb3efd37682f981ae0f1.css" integrity="sha256-J0kmJ9UtMtYX4vr1jmUrLiYzeW5Wl&#43;s&#43;/TdoL5ga4PE=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://borhuub.github.io/tags/php-cgi/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/tags/php-cgi/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/tags/php-cgi/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="PHP-CGI">
+  <meta property="og:description" content="ExampleSite description">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="website">
+      <meta property="og:image" content="https://borhuub.github.io/milogo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/milogo.png">
+<meta name="twitter:title" content="PHP-CGI">
+<meta name="twitter:description" content="ExampleSite description">
+
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/certs/" title="Certifications">
+                    <span>Certifications</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<header class="page-header"><div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/tags/">Tags</a></div>
+  <h1>
+    PHP-CGI
+    <a href="/tags/php-cgi/index.xml" title="RSS" aria-label="RSS">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" height="23">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    </a>
+  </h1>
+</header>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Giveback
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>
+Reconocimiento [Nov 01, 2025 - 20:12:53 (CET)] exegol-default NMAP # nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.129.126.26 -oG ports Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-01 20:15 CET Initiating SYN Stealth Scan at 20:15 Scanning 10.129.126.26 [65535 ports] Discovered open port 30686/tcp on 10.129.126.26 Discovered open port 80/tcp on 10.129.126.26 Discovered open port 22/tcp on 10.129.126.26 Completed SYN Stealth Scan at 20:15, 17.92s elapsed (65535 total ports) Nmap scan report for 10.129.126.26 Host is up, received user-set (0.14s latency). Scanned at 2025-11-01 20:15:29 CET for 18s Not shown: 64407 closed tcp ports (reset), 1125 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 62 30686/tcp open unknown syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 17.98 seconds Raw packets sent: 87569 (3.853MB) | Rcvd: 73384 (2.935MB) [Nov 01, 2025 - 20:15:47 (CET)] exegol-default NMAP # ports.py ports 🔍 Puertos encontrados: ➜ 22 ➜ 80 ➜ 30686 ¡Puertos copiados en el portapapeles! [Nov 01, 2025 - 20:16:07 (CET)] exegol-default NMAP # nmap -p 22,80,30686 -sCV 10.129.126.26 -oN targeted Starting Nmap 7.93 ( https://nmap.org ) at 2025-11-01 20:16 CET Nmap scan report for 10.129.126.26 Host is up (0.22s latency). PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 8.9p1 Ubuntu 3ubuntu0.13 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 256 66f89c58f4b859bdcdec9224c3978e9e (ECDSA) |_ 256 96318a821a659f0aa26cff4d447cd394 (ED25519) 80/tcp open http nginx 1.28.0 |_http-generator: WordPress 6.8.1 |_http-server-header: nginx/1.28.0 | http-robots.txt: 1 disallowed entry |_/wp-admin/ |_http-title: GIVING BACK IS WHAT MATTERS MOST &amp;#8211; OBVI 30686/tcp open unknown | fingerprint-strings: | FourOhFourRequest: | HTTP/1.0 200 OK | Content-Type: application/json | X-Content-Type-Options: nosniff | X-Load-Balancing-Endpoint-Weight: 1 | Date: Sat, 01 Nov 2025 19:16:48 GMT | Content-Length: 127 | &#34;service&#34;: { | &#34;namespace&#34;: &#34;default&#34;, | &#34;name&#34;: &#34;wp-nginx-service&#34; | &#34;localEndpoints&#34;: 1, | &#34;serviceProxyHealthy&#34;: true | GenericLines, Help, Kerberos, RTSPRequest, SSLSessionReq, TLSSessionReq, TerminalServerCookie: | HTTP/1.1 400 Bad Request | Content-Type: text/plain; charset=utf-8 | Connection: close | Request | GetRequest, HTTPOptions: | HTTP/1.0 200 OK | Content-Type: application/json | X-Content-Type-Options: nosniff | X-Load-Balancing-Endpoint-Weight: 1 | Date: Sat, 01 Nov 2025 19:16:14 GMT | Content-Length: 127 | &#34;service&#34;: { | &#34;namespace&#34;: &#34;default&#34;, | &#34;name&#34;: &#34;wp-nginx-service&#34; | &#34;localEndpoints&#34;: 1, |_ &#34;serviceProxyHealthy&#34;: true 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service : SF-Port30686-TCP:V=7.93%I=7%D=11/1%Time=69065CAA%P=x86_64-pc-linux-gnu%r(G SF:enericLines,67,&#34;HTTP/1\.1\x20400\x20Bad\x20Request\r\nContent-Type:\x20 SF:text/plain;\x20charset=utf-8\r\nConnection:\x20close\r\n\r\n400\x20Bad\ SF:x20Request&#34;)%r(GetRequest,132,&#34;HTTP/1\.0\x20200\x20OK\r\nContent-Type:\ SF:x20application/json\r\nX-Content-Type-Options:\x20nosniff\r\nX-Load-Bal SF:ancing-Endpoint-Weight:\x201\r\nDate:\x20Sat,\x2001\x20Nov\x202025\x201 SF:9:16:14\x20GMT\r\nContent-Length:\x20127\r\n\r\n{\n\t\&#34;service\&#34;:\x20{\ SF:n\t\t\&#34;namespace\&#34;:\x20\&#34;default\&#34;,\n\t\t\&#34;name\&#34;:\x20\&#34;wp-nginx-servic SF:e\&#34;\n\t},\n\t\&#34;localEndpoints\&#34;:\x201,\n\t\&#34;serviceProxyHealthy\&#34;:\x20t SF:rue\n}&#34;)%r(HTTPOptions,132,&#34;HTTP/1\.0\x20200\x20OK\r\nContent-Type:\x20 SF:application/json\r\nX-Content-Type-Options:\x20nosniff\r\nX-Load-Balanc SF:ing-Endpoint-Weight:\x201\r\nDate:\x20Sat,\x2001\x20Nov\x202025\x2019:1 SF:6:14\x20GMT\r\nContent-Length:\x20127\r\n\r\n{\n\t\&#34;service\&#34;:\x20{\n\t SF:\t\&#34;namespace\&#34;:\x20\&#34;default\&#34;,\n\t\t\&#34;name\&#34;:\x20\&#34;wp-nginx-service\&#34; SF:\n\t},\n\t\&#34;localEndpoints\&#34;:\x201,\n\t\&#34;serviceProxyHealthy\&#34;:\x20true SF:\n}&#34;)%r(RTSPRequest,67,&#34;HTTP/1\.1\x20400\x20Bad\x20Request\r\nContent-T SF:ype:\x20text/plain;\x20charset=utf-8\r\nConnection:\x20close\r\n\r\n400 SF:\x20Bad\x20Request&#34;)%r(Help,67,&#34;HTTP/1\.1\x20400\x20Bad\x20Request\r\nC SF:ontent-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x20close\r\ SF:n\r\n400\x20Bad\x20Request&#34;)%r(SSLSessionReq,67,&#34;HTTP/1\.1\x20400\x20Ba SF:d\x20Request\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nConnec SF:tion:\x20close\r\n\r\n400\x20Bad\x20Request&#34;)%r(TerminalServerCookie,67 SF:,&#34;HTTP/1\.1\x20400\x20Bad\x20Request\r\nContent-Type:\x20text/plain;\x2 SF:0charset=utf-8\r\nConnection:\x20close\r\n\r\n400\x20Bad\x20Request&#34;)%r SF:(TLSSessionReq,67,&#34;HTTP/1\.1\x20400\x20Bad\x20Request\r\nContent-Type:\ SF:x20text/plain;\x20charset=utf-8\r\nConnection:\x20close\r\n\r\n400\x20B SF:ad\x20Request&#34;)%r(Kerberos,67,&#34;HTTP/1\.1\x20400\x20Bad\x20Request\r\nCo SF:ntent-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x20close\r\n SF:\r\n400\x20Bad\x20Request&#34;)%r(FourOhFourRequest,132,&#34;HTTP/1\.0\x20200\x SF:20OK\r\nContent-Type:\x20application/json\r\nX-Content-Type-Options:\x2 SF:0nosniff\r\nX-Load-Balancing-Endpoint-Weight:\x201\r\nDate:\x20Sat,\x20 SF:01\x20Nov\x202025\x2019:16:48\x20GMT\r\nContent-Length:\x20127\r\n\r\n{ SF:\n\t\&#34;service\&#34;:\x20{\n\t\t\&#34;namespace\&#34;:\x20\&#34;default\&#34;,\n\t\t\&#34;name\&#34; SF::\x20\&#34;wp-nginx-service\&#34;\n\t},\n\t\&#34;localEndpoints\&#34;:\x201,\n\t\&#34;servi SF:ceProxyHealthy\&#34;:\x20true\n}&#34;); Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 109.69 seconds Enumeración web El siguiente paso que doy es ver que versiones están corriendo en la página web ya en el escaneo nmap habíamos visto la versión de wordpress pero vamos a confirmarlo con whatweb.
+...</p>
+  </div>
+  <footer class="entry-footer"><span>8 min</span>&nbsp;·&nbsp;<span>1684 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <a class="entry-link" aria-label="post link to Giveback" href="https://borhuub.github.io/writeups/giveback/"></a>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
