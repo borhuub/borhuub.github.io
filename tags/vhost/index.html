@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Vhost | Borhub Blog</title>
+<title>VHOST | Borhub Blog</title>
 <meta name="keywords" content="">
 <meta name="description" content="ExampleSite description">
 <meta name="author" content="Borhub">
@@ -73,14 +73,14 @@
 
 </script><meta property="og:url" content="https://borhuub.github.io/tags/vhost/">
   <meta property="og:site_name" content="Borhub Blog">
-  <meta property="og:title" content="Vhost">
+  <meta property="og:title" content="VHOST">
   <meta property="og:description" content="ExampleSite description">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="website">
       <meta property="og:image" content="https://borhuub.github.io/milogo.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://borhuub.github.io/milogo.png">
-<meta name="twitter:title" content="Vhost">
+<meta name="twitter:title" content="VHOST">
 <meta name="twitter:description" content="ExampleSite description">
 
 </head>
@@ -136,7 +136,7 @@
 <main class="main"> 
 <header class="page-header"><div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/tags/">Tags</a></div>
   <h1>
-    Vhost
+    VHOST
     <a href="/tags/vhost/index.xml" title="RSS" aria-label="RSS">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round" height="23">
@@ -154,11 +154,10 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Reconocimiento Vamos a empezar el reconocimiento con un Nmap para ver los puertos expuestos y el resultado lo mandaremos a un archivo llamado ports.
-❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.47 -oG ports [sudo] contraseña para borhub: Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-06 14:48 CEST Initiating SYN Stealth Scan at 14:48 Scanning 10.10.11.47 [65535 ports] Discovered open port 22/tcp on 10.10.11.47 Discovered open port 80/tcp on 10.10.11.47 Completed SYN Stealth Scan at 14:48, 10.90s elapsed (65535 total ports) Nmap scan report for 10.10.11.47 Host is up, received user-set (0.036s latency). Scanned at 2025-04-06 14:48:30 CEST for 11s Not shown: 65533 closed tcp ports (reset) PORT STATE SERVICE REASON 22/tcp open ssh syn-ack ttl 63 80/tcp open http syn-ack ttl 63 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 10.95 seconds Raw packets sent: 65672 (2.890MB) | Rcvd: 65535 (2.621MB) Ahora haciendo uso de la herramienta ==ports.py== que tengo publicada en github, vamos a copiarnos los puertos al portapapeles.
+    <p> Writeup sobre la máquina LinkVortex, Linux de dificultad Easy. En el reconocimiento inicial de puertos descubriremos la existencia de una página web expuesta en el puerto 80. Luego realizando fuzzing de directorios y vhost descubriremos un leak de credenciales para conseguir acceso al panel de administración del web, luego mediante el CVE-2023-40028 conseguiremos leer las credenciales para conseguir el user.txt. Para finalizar con la escalada usaremos los permisos sudo que tiene nuestro usuario junto symlink trickery para hacernos con la root flag.
 ...</p>
   </div>
-  <footer class="entry-footer"><span>8 min</span>&nbsp;·&nbsp;<span>1615 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
+  <footer class="entry-footer"><span>8 min</span>&nbsp;·&nbsp;<span>1697 words</span>&nbsp;·&nbsp;<span>Borhub</span></footer>
   <a class="entry-link" aria-label="post link to Linkvortex" href="https://borhuub.github.io/writeups/linkvortex/"></a>
 </article>
 
