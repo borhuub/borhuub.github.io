@@ -9,9 +9,16 @@
       <url>https://borhuub.github.io/milogo.png</url>
       <link>https://borhuub.github.io/milogo.png</link>
     </image>
-    <generator>Hugo -- 0.160.0</generator>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <atom:link href="https://borhuub.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AccountDisable</title>
+      <link>https://borhuub.github.io/tags/accountdisable/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/accountdisable/</guid>
+      <description></description>
+    </item>
     <item>
       <title>ActiveDirectory</title>
       <link>https://borhuub.github.io/tags/activedirectory/</link>
@@ -104,6 +111,13 @@
       <description></description>
     </item>
     <item>
+      <title>DNS-Update</title>
+      <link>https://borhuub.github.io/tags/dns-update/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/dns-update/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>DPAPI</title>
       <link>https://borhuub.github.io/tags/dpapi/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -122,6 +136,13 @@
       <link>https://borhuub.github.io/tags/env/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/env/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ESC10</title>
+      <link>https://borhuub.github.io/tags/esc10/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/esc10/</guid>
       <description></description>
     </item>
     <item>
@@ -265,6 +286,13 @@
       <description></description>
     </item>
     <item>
+      <title>LogonHours</title>
+      <link>https://borhuub.github.io/tags/logonhours/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/logonhours/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Medium</title>
       <link>https://borhuub.github.io/tags/medium/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -304,6 +332,13 @@
       <link>https://borhuub.github.io/tags/mysql/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/mysql/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>NFS</title>
+      <link>https://borhuub.github.io/tags/nfs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/nfs/</guid>
       <description></description>
     </item>
     <item>
@@ -353,6 +388,13 @@
       <link>https://borhuub.github.io/tags/puertos-expuestos/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/puertos-expuestos/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RBCD</title>
+      <link>https://borhuub.github.io/tags/rbcd/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://borhuub.github.io/tags/rbcd/</guid>
       <description></description>
     </item>
     <item>
@@ -454,7 +496,7 @@
       <description></description>
     </item>
     <item>
-      <title>VHOST</title>
+      <title>Vhost</title>
       <link>https://borhuub.github.io/tags/vhost/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://borhuub.github.io/tags/vhost/</guid>
