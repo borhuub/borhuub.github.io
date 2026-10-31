@@ -4,6 +4,8 @@
   <url>
     <loc>https://borhuub.github.io/certs/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/accountdisable/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/activedirectory/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/addallowedtoact/</loc>
@@ -42,6 +44,8 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/dll-hijacking/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/dns-update/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/dpapi/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/easy/</loc>
@@ -49,6 +53,8 @@
     <loc>https://borhuub.github.io/writeups/eighteen/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/env/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/esc10/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/esc15/</loc>
   </url><url>
@@ -100,7 +106,11 @@
   </url><url>
     <loc>https://borhuub.github.io/tags/localportforwarding/</loc>
   </url><url>
+    <loc>https://borhuub.github.io/tags/logonhours/</loc>
+  </url><url>
     <loc>https://borhuub.github.io/tags/medium/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/writeups/mirage/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/msi-repair/</loc>
   </url><url>
@@ -113,6 +123,8 @@
     <loc>https://borhuub.github.io/tags/mysql/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/nanocorp/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/nfs/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/nocturnal/</loc>
   </url><url>
@@ -133,6 +145,8 @@
     <loc>https://borhuub.github.io/tags/puertos-expuestos/</loc>
   </url><url>
     <loc>https://borhuub.github.io/writeups/puppy/</loc>
+  </url><url>
+    <loc>https://borhuub.github.io/tags/rbcd/</loc>
   </url><url>
     <loc>https://borhuub.github.io/tags/rce/</loc>
   </url><url>

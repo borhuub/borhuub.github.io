@@ -456,22 +456,22 @@
 <p>Nos copiamos todo el listado y lo metemos en el archivo <code>sql_users</code>. Y ahora para craquear los hashes, vamos crear un archivo con solo los usuarios y los hashes separados por <code>:</code> haciendo uso de <code>regex</code>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat sql_users <span class="p">|</span> awk <span class="s1">&#39;NR&gt;1 {print 4$, $6}&#39;</span> <span class="p">|</span> tr <span class="s2">&#34; &#34;</span> <span class="s2">&#34;:&#34;</span> &gt; hashes
 </span></span></code></pre></div><table>
-  <thead>
-      <tr>
-          <th>Opción</th>
-          <th>Descripción</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><code>awk 'NR&gt;1 {print 4$, $6}'</code></td>
-          <td>Con <code>NR&gt;1</code> dejamos de mostrar la primera linea.<!-- raw HTML omitted --><!-- raw HTML omitted -->Con <code>{print $4, $6}</code> mostramos solo las columnas 4 y 6.</td>
-      </tr>
-      <tr>
-          <td>tr &quot;  &quot;  &ldquo;:&rdquo;</td>
-          <td>Cambiamos los espacios por :</td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th>Opción</th>
+					<th>Descripción</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>awk 'NR&gt;1 {print 4$, $6}'</code></td>
+					<td>Con <code>NR&gt;1</code> dejamos de mostrar la primera linea.<!-- raw HTML omitted --><!-- raw HTML omitted -->Con <code>{print $4, $6}</code> mostramos solo las columnas 4 y 6.</td>
+			</tr>
+			<tr>
+					<td>tr &quot;  &quot;  &ldquo;:&rdquo;</td>
+					<td>Cambiamos los espacios por :</td>
+			</tr>
+	</tbody>
 </table>
 <p><img alt="Certificate Machine 13" loading="lazy" src="/img/certificate/certificate_machine_13.png"></p>
 <p>Ahora vamos a creackear los hashes, aunque nuestro objetivo es el usuario <code>sara.b</code> . Primero, identificamos el hash como <code>bcrypt</code> y así sabemos que tenemos que usar el tipo de hash 3200 en hashcat.</p>
@@ -514,24 +514,24 @@
 <p><img alt="Certificate Machine 23" loading="lazy" src="/img/certificate/certificate_machine_23.png"></p>
 <p><img alt="Certificate Machine 24" loading="lazy" src="/img/certificate/certificate_machine_24.png"></p>
 <table>
-  <thead>
-      <tr>
-          <th>Username</th>
-          <th>Domain</th>
-          <th>Server_Challenge</th>
-          <th>NT_proof</th>
-          <th>NTLMv2_bloof</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Administrator</td>
-          <td>WS-01</td>
-          <td>0f18018782d74f81</td>
-          <td>16bytes NTLM response</td>
-          <td>Resto del NTLM response</td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th>Username</th>
+					<th>Domain</th>
+					<th>Server_Challenge</th>
+					<th>NT_proof</th>
+					<th>NTLMv2_bloof</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Administrator</td>
+					<td>WS-01</td>
+					<td>0f18018782d74f81</td>
+					<td>16bytes NTLM response</td>
+					<td>Resto del NTLM response</td>
+			</tr>
+	</tbody>
 </table>
 <pre tabindex="0"><code># Hash
 Administrator::WS-01:0f18018782d74f81:3ff29ba4b51e86ed1065c438b6713f28:01010000000000000588e3da922edb012a49d5aaa4eeea0c00000000020016004300450052005400490046004900430041005400450001000800440043003000310004001e00630065007200740069006600690063006100740065002e
@@ -546,26 +546,26 @@ Administrator::WS-01:0f18018782d74f81:3ff29ba4b51e86ed1065c438b6713f28:010100000
 <p>Así que usando este repositorio vamos a encontrar paquetes y los hashes de la autenticación mediante kerberos.</p>
 <p>Tenemos tres tipos de hash que podemos encontrar según la opción que indiquemos en el comando:</p>
 <table>
-  <thead>
-      <tr>
-          <th>Hash</th>
-          <th>Descripción</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>AS-REQ</td>
-          <td>Pre-Auth Roasting</td>
-      </tr>
-      <tr>
-          <td>AS-REP</td>
-          <td>AS-REP Roasting</td>
-      </tr>
-      <tr>
-          <td>TGS-REP</td>
-          <td>Kerberoasting (Tickets de servicio)</td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th>Hash</th>
+					<th>Descripción</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>AS-REQ</td>
+					<td>Pre-Auth Roasting</td>
+			</tr>
+			<tr>
+					<td>AS-REP</td>
+					<td>AS-REP Roasting</td>
+			</tr>
+			<tr>
+					<td>TGS-REP</td>
+					<td>Kerberoasting (Tickets de servicio)</td>
+			</tr>
+	</tbody>
 </table>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python krb5_roast_parser.py ../WS-01_PktMon.pcap as_req
 </span></span><span class="line"><span class="cl">

